@@ -1,0 +1,53 @@
+{
+  "name": "@dkan-client-tools/core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic core for DKAN client tools",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "browser": "./dist/index.global.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./global": "./dist/index.global.js",
+    "./global-min": "./dist/index.global.min.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "dkan",
+    "open-data",
+    "query-client",
+    "core"
+  ],
+  "author": "",
+  "license": "MIT",
+  "sideEffects": false,
+  "peerDependencies": {
+    "@tanstack/query-core": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tanstack/query-core": "^5.90.7",
+    "@vitest/ui": "^1.2.0",
+    "happy-dom": "^13.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}

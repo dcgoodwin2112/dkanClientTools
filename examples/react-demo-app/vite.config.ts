@@ -1,0 +1,22 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://dkan.ddev.site',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ['@tanstack/react-query', '@tanstack/query-core'],
+  },
+  resolve: {
+    dedupe: ['react', 'react-dom', '@tanstack/react-query', '@tanstack/query-core'],
+  },
+})

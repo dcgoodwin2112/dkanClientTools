@@ -1,0 +1,198 @@
+/**
+ * @dkan-client-tools/react
+ * React hooks and components for DKAN client tools
+ * Built on TanStack React Query
+ */
+
+// Provider and context
+export { DkanClientProvider, useDkanClient } from './DkanClientProvider'
+export type { DkanClientProviderProps } from './DkanClientProvider'
+
+// DKAN-specific hooks
+export { useDataset } from './useDataset'
+export type { UseDatasetOptions } from './useDataset'
+
+export { useDatasetSearch } from './useDatasetSearch'
+export type { UseDatasetSearchOptions } from './useDatasetSearch'
+
+export { useDatastore } from './useDatastore'
+export type { UseDatastoreOptions } from './useDatastore'
+
+export {
+  useDataDictionary,
+  useDataDictionaryList,
+  useDataDictionaryFromUrl,
+  useDatastoreSchema,
+} from './useDataDictionary'
+export type {
+  UseDataDictionaryOptions,
+  UseDataDictionaryListOptions,
+} from './useDataDictionary'
+
+export {
+  useAllDatasets,
+  useSchemas,
+  useSchemaItems,
+  useDatasetFacets,
+} from './useMetastore'
+export type {
+  UseAllDatasetsOptions,
+  UseSchemasOptions,
+  UseSchemaItemsOptions,
+  UseFacetsOptions,
+} from './useMetastore'
+
+// Harvest API hooks
+export {
+  useHarvestPlans,
+  useHarvestPlan,
+  useHarvestRuns,
+  useHarvestRun,
+  useRegisterHarvestPlan,
+  useRunHarvest,
+} from './useHarvest'
+export type {
+  UseHarvestPlansOptions,
+  UseHarvestPlanOptions,
+  UseHarvestRunsOptions,
+  UseHarvestRunOptions,
+} from './useHarvest'
+
+// Dataset CRUD hooks
+export {
+  useCreateDataset,
+  useUpdateDataset,
+  usePatchDataset,
+  useDeleteDataset,
+} from './useDatasetMutations'
+export type {
+  UpdateDatasetOptions,
+  PatchDatasetOptions,
+} from './useDatasetMutations'
+
+// Datastore Import hooks
+export {
+  useDatastoreImports,
+  useDatastoreImport,
+  useDatastoreStatistics,
+  useTriggerDatastoreImport,
+  useDeleteDatastore,
+} from './useDatastoreImports'
+export type {
+  UseDatastoreImportsOptions,
+  UseDatastoreImportOptions,
+  UseDatastoreStatisticsOptions,
+} from './useDatastoreImports'
+
+// Revision/Moderation hooks
+export {
+  useRevisions,
+  useRevision,
+  useCreateRevision,
+  useChangeDatasetState,
+} from './useRevisions'
+export type {
+  UseRevisionsOptions,
+  UseRevisionOptions,
+  CreateRevisionOptions,
+  ChangeDatasetStateOptions,
+} from './useRevisions'
+
+// Query Download hooks
+export {
+  useDownloadQuery,
+  useDownloadQueryByDistribution,
+} from './useQueryDownload'
+export type {
+  DownloadQueryOptions,
+  DownloadQueryByDistributionOptions,
+} from './useQueryDownload'
+
+// SQL Query hooks
+export {
+  useSqlQuery,
+  useExecuteSqlQuery,
+} from './useSqlQuery'
+export type {
+  UseSqlQueryOptions,
+} from './useSqlQuery'
+
+// Data Dictionary CRUD hooks
+export {
+  useCreateDataDictionary,
+  useUpdateDataDictionary,
+  useDeleteDataDictionary,
+} from './useDataDictionaryMutations'
+
+// Dataset Properties hooks
+export {
+  useDatasetProperties,
+  usePropertyValues,
+  useAllPropertiesWithValues,
+} from './useDatasetProperties'
+export type {
+  UseDatasetPropertiesOptions,
+  UsePropertyValuesOptions,
+  UseAllPropertiesWithValuesOptions,
+} from './useDatasetProperties'
+
+// CKAN API Compatibility hooks
+export {
+  useCkanPackageSearch,
+  useCkanDatastoreSearch,
+  useCkanDatastoreSearchSql,
+  useCkanResourceShow,
+  useCkanCurrentPackageListWithResources,
+} from './useCkanApi'
+export type {
+  UseCkanPackageSearchOptions,
+  UseCkanDatastoreSearchOptions,
+  UseCkanDatastoreSearchSqlOptions,
+  UseCkanResourceShowOptions,
+  UseCkanPackageListOptions,
+} from './useCkanApi'
+
+// Re-export core types and client for convenience
+export type {
+  DkanClient,
+  DkanClientOptions,
+  DkanDataset,
+  DkanSearchResponse,
+  DkanDatastoreQueryResponse,
+  DatasetQueryOptions,
+  DatastoreQueryOptions,
+  DataDictionary,
+  DataDictionaryData,
+  DataDictionaryField,
+  DataDictionaryFieldType,
+  DataDictionaryConstraints,
+  DataDictionaryIndex,
+  HarvestPlan,
+  HarvestRun,
+  HarvestRunOptions,
+  DatastoreImport,
+  DatastoreImportOptions,
+  DatastoreStatistics,
+  MetastoreWriteResponse,
+  MetastoreRevision,
+  MetastoreNewRevision,
+  WorkflowState,
+  DatasetProperty,
+  DatasetPropertyValue,
+  CkanPackageSearchResponse,
+  CkanPackageSearchOptions,
+  CkanDatastoreSearchResponse,
+  CkanDatastoreSearchOptions,
+  CkanDatastoreSearchSqlOptions,
+  CkanResource,
+  CkanPackageWithResources,
+} from '@dkan-client-tools/core'
+
+// Re-export TanStack React Query for advanced usage
+export {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useIsFetching,
+  useIsMutating,
+} from '@tanstack/react-query'

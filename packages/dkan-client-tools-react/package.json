@@ -1,0 +1,64 @@
+{
+  "name": "@dkan-client-tools/react",
+  "version": "0.1.0",
+  "description": "React hooks and components for DKAN client tools",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "browser": "./dist/index.global.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./global": "./dist/index.global.js",
+    "./global-min": "./dist/index.global.min.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "dkan",
+    "open-data",
+    "react",
+    "hooks",
+    "tanstack-query"
+  ],
+  "author": "",
+  "license": "MIT",
+  "sideEffects": false,
+  "peerDependencies": {
+    "@dkan-client-tools/core": "*",
+    "@tanstack/react-query": "^5.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@dkan-client-tools/core": "*",
+    "@tanstack/react-query": "^5.90.7",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@types/react": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@vitest/ui": "^1.2.0",
+    "happy-dom": "^13.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}

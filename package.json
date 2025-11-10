@@ -1,0 +1,37 @@
+{
+  "name": "dkan-client-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A monorepo of packages containing tools to help developers build frontend applications that work with DKAN data",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "dev": "npm run dev --workspaces --if-present"
+  },
+  "keywords": [
+    "dkan",
+    "open-data",
+    "data-catalog",
+    "react",
+    "tanstack-query",
+    "query-client"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
