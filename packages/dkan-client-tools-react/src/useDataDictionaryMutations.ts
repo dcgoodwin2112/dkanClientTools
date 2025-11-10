@@ -10,9 +10,37 @@ import type {
 } from '@dkan-client-tools/core'
 
 /**
- * Mutation hook to create a new data dictionary
+ * Creates a new data dictionary in the DKAN metastore.
+ *
+ * Data dictionaries define the schema and metadata for dataset distributions, following
+ * the Frictionless Data Table Schema specification. They provide human-readable field
+ * descriptions, data types, constraints, and validation rules that help users understand
+ * and work with datasets.
+ *
+ * This mutation hook automatically invalidates related queries after successful creation,
+ * ensuring that dictionary lists are refreshed with the new entry.
+ *
+ * Use this hook when you need to:
+ * - Create schema definitions for new datasets
+ * - Document the structure of uploaded data
+ * - Define reusable schemas for multiple datasets
+ * - Build schema management interfaces
+ * - Programmatically generate dictionaries from data samples
+ *
+ * **Important**: The identifier should match the distribution/resource ID if you want
+ * the dictionary to be automatically associated with a specific distribution.
+ *
+ * @returns TanStack Mutation result object containing:
+ *   - `mutate`: Function to trigger the creation
+ *   - `mutateAsync`: Async version that returns a promise
+ *   - `isPending`: True while the creation is in progress
+ *   - `isSuccess`: True if the dictionary was created successfully
+ *   - `isError`: True if creation failed
+ *   - `error`: Error object if the request failed
+ *   - `data`: MetastoreWriteResponse with the created dictionary's identifier
  *
  * @example
+ * Basic usage - create a simple data dictionary:
  * ```tsx
  * function CreateDataDictionaryForm() {
  *   const createDict = useCreateDataDictionary()
@@ -43,7 +71,7 @@ import type {
  *       e.preventDefault()
  *       handleSubmit()
  *     }}>
- *       {/ * Field editor UI * /}
+ *       {/* Field editor UI *\/}
  *       <button type="submit" disabled={createDict.isPending}>
  *         {createDict.isPending ? 'Creating...' : 'Create Dictionary'}
  *       </button>
@@ -53,6 +81,7 @@ import type {
  * ```
  *
  * @example
+ * Multi-step wizard with validation:
  * ```tsx
  * function DataDictionaryWizard({ resourceId }: { resourceId: string }) {
  *   const createDict = useCreateDataDictionary()
@@ -97,6 +126,60 @@ import type {
  *   )
  * }
  * ```
+ *
+ * @example
+ * Auto-generate dictionary from CSV upload:
+ * ```tsx
+ * function CSVUploadWithDictionary() {
+ *   const createDict = useCreateDataDictionary()
+ *   const [csvFile, setCsvFile] = useState<File | null>(null)
+ *
+ *   const handleFileChange = async (file: File) => {
+ *     setCsvFile(file)
+ *
+ *     // Parse CSV headers to generate field definitions
+ *     const text = await file.text()
+ *     const lines = text.split('\n')
+ *     const headers = lines[0].split(',')
+ *
+ *     const fields = headers.map(header => ({
+ *       name: header.trim().toLowerCase().replace(/\s+/g, '_'),
+ *       title: header.trim(),
+ *       type: 'string', // Could be enhanced with type detection
+ *       description: '',
+ *     }))
+ *
+ *     // Auto-create dictionary
+ *     createDict.mutate(
+ *       {
+ *         identifier: `dict-${Date.now()}`,
+ *         data: {
+ *           title: `Dictionary for ${file.name}`,
+ *           fields,
+ *         },
+ *       },
+ *       {
+ *         onSuccess: (result) => {
+ *           console.log('Auto-generated dictionary:', result.identifier)
+ *         },
+ *       }
+ *     )
+ *   }
+ *
+ *   return (
+ *     <input
+ *       type="file"
+ *       accept=".csv"
+ *       onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
+ *     />
+ *   )
+ * }
+ * ```
+ *
+ * @see {@link useDataDictionary} for fetching existing dictionaries
+ * @see {@link useUpdateDataDictionary} for updating dictionaries
+ * @see {@link useDeleteDataDictionary} for deleting dictionaries
+ * @see https://specs.frictionlessdata.io/table-schema/
  */
 export function useCreateDataDictionary() {
   const client = useDkanClient()
@@ -114,9 +197,37 @@ export function useCreateDataDictionary() {
 }
 
 /**
- * Mutation hook to update an existing data dictionary (full replacement)
+ * Updates an existing data dictionary with complete replacement.
+ *
+ * This hook performs a full update (HTTP PUT) of a data dictionary, replacing all
+ * existing data with the new dictionary object. Any fields not included in the update
+ * will be removed from the dictionary.
+ *
+ * The mutation automatically invalidates the dictionary cache after a successful update,
+ * ensuring that any components displaying the dictionary will refetch the latest version.
+ *
+ * Use this hook when you need to:
+ * - Edit existing data dictionary schemas
+ * - Add new fields to a dictionary
+ * - Update field metadata (types, constraints, descriptions)
+ * - Rename or reorganize fields
+ * - Apply bulk updates to dictionary schemas
+ *
+ * **Important**: This is a full replacement operation. If you want to preserve existing
+ * data, make sure to fetch the current dictionary first, modify it, then submit the
+ * complete updated object.
+ *
+ * @returns TanStack Mutation result object containing:
+ *   - `mutate`: Function to trigger the update with {identifier, dictionary} params
+ *   - `mutateAsync`: Async version that returns a promise
+ *   - `isPending`: True while the update is in progress
+ *   - `isSuccess`: True if the dictionary was updated successfully
+ *   - `isError`: True if update failed
+ *   - `error`: Error object if the request failed
+ *   - `data`: MetastoreWriteResponse with update confirmation
  *
  * @example
+ * Basic usage - edit dictionary form:
  * ```tsx
  * function EditDataDictionaryForm({ identifier }: { identifier: string }) {
  *   const { data: existingDict } = useDataDictionary({ identifier })
@@ -149,7 +260,7 @@ export function useCreateDataDictionary() {
  *       e.preventDefault()
  *       handleSave()
  *     }}>
- *       {/ * Editor UI * /}
+ *       {/* Editor UI *\/}
  *       <button type="submit" disabled={updateDict.isPending}>
  *         {updateDict.isPending ? 'Saving...' : 'Save Changes'}
  *       </button>
@@ -159,6 +270,7 @@ export function useCreateDataDictionary() {
  * ```
  *
  * @example
+ * Bulk field updates - add missing descriptions:
  * ```tsx
  * function BulkFieldUpdate({ identifier }: { identifier: string }) {
  *   const { data: dict } = useDataDictionary({ identifier })
@@ -188,6 +300,58 @@ export function useCreateDataDictionary() {
  *   )
  * }
  * ```
+ *
+ * @example
+ * Add field constraints with optimistic update:
+ * ```tsx
+ * function AddFieldConstraints({ identifier }: { identifier: string }) {
+ *   const queryClient = useQueryClient()
+ *   const { data: dict } = useDataDictionary({ identifier })
+ *   const updateDict = useUpdateDataDictionary()
+ *
+ *   const makeFieldsRequired = (fieldNames: string[]) => {
+ *     if (!dict) return
+ *
+ *     const updated: DataDictionary = {
+ *       ...dict,
+ *       data: {
+ *         ...dict.data,
+ *         fields: dict.data.fields.map(field => ({
+ *           ...field,
+ *           constraints: fieldNames.includes(field.name)
+ *             ? { ...field.constraints, required: true }
+ *             : field.constraints,
+ *         })),
+ *       },
+ *     }
+ *
+ *     // Optimistically update the UI before the server responds
+ *     queryClient.setQueryData(['data-dictionary', identifier], updated)
+ *
+ *     updateDict.mutate(
+ *       { identifier, dictionary: updated },
+ *       {
+ *         onError: () => {
+ *           // Revert on error
+ *           queryClient.invalidateQueries({ queryKey: ['data-dictionary', identifier] })
+ *         },
+ *       }
+ *     )
+ *   }
+ *
+ *   return (
+ *     <div>
+ *       <button onClick={() => makeFieldsRequired(['id', 'name'])}>
+ *         Make ID and Name Required
+ *       </button>
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @see {@link useDataDictionary} for fetching the current dictionary before updating
+ * @see {@link useCreateDataDictionary} for creating new dictionaries
+ * @see {@link useDeleteDataDictionary} for deleting dictionaries
  */
 export function useUpdateDataDictionary() {
   const client = useDkanClient()
@@ -214,9 +378,36 @@ export function useUpdateDataDictionary() {
 }
 
 /**
- * Mutation hook to delete a data dictionary
+ * Deletes a data dictionary from the DKAN metastore.
+ *
+ * This mutation permanently removes a data dictionary. The operation cannot be undone,
+ * so it's important to confirm with users before deletion.
+ *
+ * After successful deletion, the hook automatically:
+ * - Removes the dictionary from the query cache
+ * - Invalidates dictionary list queries to refresh the UI
+ *
+ * Use this hook when you need to:
+ * - Remove obsolete schema definitions
+ * - Clean up unused dictionaries
+ * - Implement dictionary management interfaces
+ * - Support bulk deletion operations
+ *
+ * **Warning**: Deleting a data dictionary that is referenced by active datasets may
+ * cause issues with data validation and schema information. Consider checking for
+ * references before deletion.
+ *
+ * @returns TanStack Mutation result object containing:
+ *   - `mutate`: Function to trigger deletion with dictionary identifier
+ *   - `mutateAsync`: Async version that returns a promise
+ *   - `isPending`: True while the deletion is in progress
+ *   - `isSuccess`: True if the dictionary was deleted successfully
+ *   - `isError`: True if deletion failed
+ *   - `error`: Error object if the request failed
+ *   - `data`: Object with confirmation message
  *
  * @example
+ * Basic usage - delete button with confirmation:
  * ```tsx
  * function DeleteDataDictionaryButton({ identifier }: { identifier: string }) {
  *   const deleteDict = useDeleteDataDictionary()
@@ -247,6 +438,7 @@ export function useUpdateDataDictionary() {
  * ```
  *
  * @example
+ * Bulk delete with progress tracking:
  * ```tsx
  * function DataDictionaryManager({ dictionaries }: { dictionaries: DataDictionary[] }) {
  *   const deleteDict = useDeleteDataDictionary()
@@ -297,6 +489,77 @@ export function useUpdateDataDictionary() {
  *   )
  * }
  * ```
+ *
+ * @example
+ * Delete with confirmation modal and usage check:
+ * ```tsx
+ * function SafeDeleteDictionary({ identifier }: { identifier: string }) {
+ *   const deleteDict = useDeleteDataDictionary()
+ *   const { data: datasets } = useAllDatasets()
+ *   const [showModal, setShowModal] = useState(false)
+ *
+ *   // Check if dictionary is being used by any datasets
+ *   const referencingDatasets = datasets?.filter(dataset =>
+ *     dataset.distribution.some(dist => dist.describedBy?.includes(identifier))
+ *   )
+ *
+ *   const handleDelete = () => {
+ *     deleteDict.mutate(identifier, {
+ *       onSuccess: () => {
+ *         setShowModal(false)
+ *         toast.success('Dictionary deleted successfully')
+ *       },
+ *       onError: (error) => {
+ *         toast.error(`Failed to delete: ${error.message}`)
+ *       },
+ *     })
+ *   }
+ *
+ *   return (
+ *     <>
+ *       <button onClick={() => setShowModal(true)} className="btn-danger">
+ *         Delete Dictionary
+ *       </button>
+ *
+ *       {showModal && (
+ *         <Modal onClose={() => setShowModal(false)}>
+ *           <h3>Confirm Deletion</h3>
+ *           {referencingDatasets && referencingDatasets.length > 0 ? (
+ *             <div>
+ *               <p className="warning">
+ *                 This dictionary is used by {referencingDatasets.length} dataset(s):
+ *               </p>
+ *               <ul>
+ *                 {referencingDatasets.map(ds => (
+ *                   <li key={ds.identifier}>{ds.title}</li>
+ *                 ))}
+ *               </ul>
+ *               <p>Are you sure you want to delete it?</p>
+ *             </div>
+ *           ) : (
+ *             <p>This dictionary is not referenced by any datasets.</p>
+ *           )}
+ *
+ *           <div className="modal-actions">
+ *             <button onClick={() => setShowModal(false)}>Cancel</button>
+ *             <button
+ *               onClick={handleDelete}
+ *               disabled={deleteDict.isPending}
+ *               className="btn-danger"
+ *             >
+ *               {deleteDict.isPending ? 'Deleting...' : 'Delete'}
+ *             </button>
+ *           </div>
+ *         </Modal>
+ *       )}
+ *     </>
+ *   )
+ * }
+ * ```
+ *
+ * @see {@link useDataDictionary} for fetching dictionary information before deletion
+ * @see {@link useCreateDataDictionary} for creating new dictionaries
+ * @see {@link useUpdateDataDictionary} for updating dictionaries
  */
 export function useDeleteDataDictionary() {
   const client = useDkanClient()

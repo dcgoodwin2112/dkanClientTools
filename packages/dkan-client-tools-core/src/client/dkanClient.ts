@@ -7,14 +7,128 @@ import { QueryClient } from '@tanstack/query-core'
 import type { DkanClientConfig, DatasetKey } from '../types'
 import { DkanApiClient } from '../api/client'
 
+/**
+ * Configuration options for creating a DkanClient instance.
+ *
+ * Extends DkanClientConfig with a required QueryClient from your framework adapter.
+ */
 export interface DkanClientOptions extends DkanClientConfig {
   /**
    * QueryClient instance from the framework adapter (e.g., @tanstack/vue-query, @tanstack/react-query)
-   * IMPORTANT: Must be from the framework-specific package, not @tanstack/query-core
+   *
+   * **IMPORTANT**: Must be from the framework-specific package, not @tanstack/query-core
+   *
+   * @example
+   * ```typescript
+   * // React
+   * import { QueryClient } from '@tanstack/react-query'
+   * const queryClient = new QueryClient()
+   *
+   * // Vue
+   * import { QueryClient } from '@tanstack/vue-query'
+   * const queryClient = new QueryClient()
+   * ```
    */
   queryClient: QueryClient
 }
 
+/**
+ * DkanClient - Framework-agnostic core client for DKAN data operations
+ *
+ * Central coordinator for all DKAN API operations, built on TanStack Query's QueryClient.
+ * This class provides direct access to all DKAN REST API methods and manages query caching,
+ * invalidation, and lifecycle.
+ *
+ * **Architecture**:
+ * - Wraps TanStack Query's QueryClient for caching and state management
+ * - Delegates API calls to DkanApiClient which handles HTTP requests
+ * - Provides convenience methods for common operations
+ * - Manages component mount/unmount lifecycle
+ *
+ * **Usage Pattern**:
+ * 1. Create a QueryClient from your framework adapter (@tanstack/react-query or @tanstack/vue-query)
+ * 2. Pass it to DkanClient along with your DKAN base URL and optional auth
+ * 3. Use framework-specific hooks/composables that consume this client
+ * 4. Or call methods directly for imperative data fetching
+ *
+ * **Direct vs Hook Usage**:
+ * - For React/Vue applications, prefer using the framework-specific hooks/composables
+ * - Use direct methods for server-side operations, scripts, or custom integrations
+ * - Direct methods bypass caching - use hooks/composables for automatic caching
+ *
+ * @example
+ * Basic setup with React:
+ * ```typescript
+ * import { QueryClient } from '@tanstack/react-query'
+ * import { DkanClient } from '@dkan-client-tools/core'
+ *
+ * const queryClient = new QueryClient({
+ *   defaultOptions: {
+ *     queries: {
+ *       staleTime: 5 * 60 * 1000, // 5 minutes
+ *     },
+ *   },
+ * })
+ *
+ * const dkanClient = new DkanClient({
+ *   baseUrl: 'https://demo.getdkan.org',
+ *   queryClient,
+ * })
+ * ```
+ *
+ * @example
+ * With authentication:
+ * ```typescript
+ * import { QueryClient } from '@tanstack/vue-query'
+ * import { DkanClient } from '@dkan-client-tools/core'
+ *
+ * const dkanClient = new DkanClient({
+ *   baseUrl: 'https://data.example.com',
+ *   queryClient: new QueryClient(),
+ *   auth: {
+ *     username: 'admin',
+ *     password: 'password'
+ *   }
+ * })
+ * ```
+ *
+ * @example
+ * Direct API usage (without hooks):
+ * ```typescript
+ * // Fetch a dataset
+ * const dataset = await dkanClient.fetchDataset('abc-123')
+ *
+ * // Search datasets
+ * const results = await dkanClient.searchDatasets({
+ *   searchOptions: { keyword: 'health' }
+ * })
+ *
+ * // Query datastore
+ * const data = await dkanClient.queryDatastore('dataset-id', 0, {
+ *   limit: 100,
+ *   offset: 0
+ * })
+ * ```
+ *
+ * @example
+ * Cache management:
+ * ```typescript
+ * // Prefetch a query
+ * await dkanClient.prefetchQuery(
+ *   ['datasets', 'single', 'abc-123'],
+ *   () => dkanClient.fetchDataset('abc-123')
+ * )
+ *
+ * // Invalidate queries after mutation
+ * await dkanClient.invalidateQueries(['datasets'])
+ *
+ * // Clear all caches
+ * dkanClient.clear()
+ * ```
+ *
+ * @see {@link DkanApiClient} for the underlying HTTP client
+ * @see https://tanstack.com/query/latest for TanStack Query documentation
+ */
 export class DkanClient {
   private apiClient: DkanApiClient
   private queryClient: QueryClient
@@ -32,21 +146,55 @@ export class DkanClient {
   }
 
   /**
-   * Get the API client
+   * Gets the underlying DkanApiClient for direct HTTP operations.
+   *
+   * The ApiClient provides low-level access to DKAN REST APIs without caching.
+   * Use this when you need direct control over HTTP requests or when implementing
+   * custom integrations that don't use TanStack Query.
+   *
+   * @returns The DkanApiClient instance
+   *
+   * @example
+   * ```typescript
+   * const apiClient = dkanClient.getApiClient()
+   * const dataset = await apiClient.getDataset('abc-123')
+   * ```
    */
   getApiClient(): DkanApiClient {
     return this.apiClient
   }
 
   /**
-   * Get the underlying TanStack QueryClient
+   * Gets the underlying TanStack QueryClient for advanced cache operations.
+   *
+   * Provides direct access to the QueryClient for advanced use cases like:
+   * - Custom query invalidation strategies
+   * - Direct cache manipulation
+   * - Subscribing to cache changes
+   * - Advanced query filters
+   *
+   * @returns The TanStack QueryClient instance
+   *
+   * @example
+   * ```typescript
+   * const queryClient = dkanClient.getQueryClient()
+   * // Get query cache stats
+   * const cache = queryClient.getQueryCache()
+   * console.log(`Cached queries: ${cache.getAll().length}`)
+   * ```
    */
   getQueryClient(): QueryClient {
     return this.queryClient
   }
 
   /**
-   * Mount the client (called when first component mounts)
+   * Mounts the client (tracks component lifecycle).
+   *
+   * Called automatically by framework providers when the first component mounts.
+   * Increments the mount counter and mounts the QueryClient on first mount.
+   *
+   * **Note**: You typically don't need to call this manually - the framework
+   * providers handle it automatically.
    */
   mount(): void {
     this.mountCount++
@@ -56,7 +204,14 @@ export class DkanClient {
   }
 
   /**
-   * Unmount the client (called when last component unmounts)
+   * Unmounts the client (tracks component lifecycle).
+   *
+   * Called automatically by framework providers when components unmount.
+   * Decrements the mount counter and unmounts the QueryClient when no
+   * components are using it.
+   *
+   * **Note**: You typically don't need to call this manually - the framework
+   * providers handle it automatically.
    */
   unmount(): void {
     this.mountCount--
@@ -66,7 +221,9 @@ export class DkanClient {
   }
 
   /**
-   * Check if client is mounted
+   * Checks if the client is currently mounted.
+   *
+   * @returns True if at least one component is using the client
    */
   isMounted(): boolean {
     return this.mountCount > 0
@@ -154,7 +311,24 @@ export class DkanClient {
   }
 
   /**
-   * Prefetch a query
+   * Prefetches a query and stores it in cache.
+   *
+   * Useful for preloading data before it's needed, improving perceived performance.
+   * The data will be cached according to the staleTime setting.
+   *
+   * @param queryKey - Unique identifier for the query (e.g., ['datasets', 'single', id])
+   * @param queryFn - Function that returns a Promise with the data
+   * @param options - Optional configuration including staleTime
+   *
+   * @example
+   * ```typescript
+   * // Prefetch a dataset on page load
+   * await dkanClient.prefetchQuery(
+   *   ['datasets', 'single', 'abc-123'],
+   *   () => dkanClient.fetchDataset('abc-123'),
+   *   { staleTime: 10 * 60 * 1000 } // Cache for 10 minutes
+   * )
+   * ```
    */
   async prefetchQuery<TData = any>(
     queryKey: DatasetKey,
@@ -169,21 +343,67 @@ export class DkanClient {
   }
 
   /**
-   * Get query data from cache
+   * Retrieves cached query data without triggering a fetch.
+   *
+   * Returns undefined if the data is not in cache. Useful for optimistic updates
+   * or checking cache state.
+   *
+   * @param queryKey - Unique identifier for the query
+   * @returns The cached data or undefined
+   *
+   * @example
+   * ```typescript
+   * const cachedDataset = dkanClient.getQueryData(['datasets', 'single', 'abc-123'])
+   * if (cachedDataset) {
+   *   console.log('Dataset is cached:', cachedDataset)
+   * }
+   * ```
    */
   getQueryData<TData = any>(queryKey: DatasetKey): TData | undefined {
     return this.queryClient.getQueryData<TData>(queryKey)
   }
 
   /**
-   * Set query data manually
+   * Manually sets query data in the cache.
+   *
+   * Useful for optimistic updates where you update the cache immediately
+   * before the server responds, improving perceived performance.
+   *
+   * @param queryKey - Unique identifier for the query
+   * @param data - The data to store in cache
+   *
+   * @example
+   * ```typescript
+   * // Optimistic update after mutation
+   * dkanClient.setQueryData(['datasets', 'single', 'abc-123'], {
+   *   ...existingDataset,
+   *   title: 'Updated Title'
+   * })
+   * ```
    */
   setQueryData<TData = any>(queryKey: DatasetKey, data: TData): void {
     this.queryClient.setQueryData<TData>(queryKey, data)
   }
 
   /**
-   * Invalidate queries
+   * Invalidates queries, marking them as stale and triggering refetches.
+   *
+   * Call this after mutations to ensure all related queries fetch fresh data.
+   * If no queryKey is provided, invalidates all queries.
+   *
+   * @param queryKey - Optional query key to invalidate (prefix matching)
+   *
+   * @example
+   * ```typescript
+   * // Invalidate all dataset queries after creating a new dataset
+   * await dkanClient.invalidateQueries(['datasets'])
+   *
+   * // Invalidate specific dataset
+   * await dkanClient.invalidateQueries(['datasets', 'single', 'abc-123'])
+   *
+   * // Invalidate everything
+   * await dkanClient.invalidateQueries()
+   * ```
    */
   async invalidateQueries(queryKey?: DatasetKey): Promise<void> {
     await this.queryClient.invalidateQueries({
@@ -192,14 +412,39 @@ export class DkanClient {
   }
 
   /**
-   * Clear all caches
+   * Clears all cached data and removes all queries from memory.
+   *
+   * **Warning**: This is a destructive operation that removes all cached data.
+   * Queries will need to refetch from scratch. Use {@link invalidateQueries}
+   * instead if you want to keep the cache structure but mark data as stale.
+   *
+   * @example
+   * ```typescript
+   * // Clear everything (e.g., on logout)
+   * dkanClient.clear()
+   * ```
    */
   clear(): void {
     this.queryClient.clear()
   }
 
   /**
-   * Remove specific queries from cache
+   * Removes specific queries from the cache.
+   *
+   * Unlike {@link invalidateQueries}, this completely removes queries from memory
+   * rather than just marking them as stale. Use this to free up memory or remove
+   * queries that are no longer needed.
+   *
+   * @param queryKey - Optional query key to remove (prefix matching)
+   *
+   * @example
+   * ```typescript
+   * // Remove all dataset queries
+   * dkanClient.removeQueries(['datasets'])
+   *
+   * // Remove specific dataset from cache
+   * dkanClient.removeQueries(['datasets', 'single', 'abc-123'])
+   * ```
    */
   removeQueries(queryKey?: DatasetKey): void {
     this.queryClient.removeQueries({
@@ -208,7 +453,23 @@ export class DkanClient {
   }
 
   /**
-   * Get query cache
+   * Gets the QueryCache instance for advanced cache inspection.
+   *
+   * Provides access to all cached queries and their metadata. Useful for
+   * debugging, monitoring, or building custom cache visualizations.
+   *
+   * @returns The QueryCache instance
+   *
+   * @example
+   * ```typescript
+   * const cache = dkanClient.getQueryCache()
+   * const allQueries = cache.getAll()
+   * console.log(`Total cached queries: ${allQueries.length}`)
+   *
+   * // Find queries by key
+   * const datasetQueries = cache.findAll({ queryKey: ['datasets'] })
+   * console.log(`Cached datasets: ${datasetQueries.length}`)
+   * ```
    */
   getQueryCache() {
     return this.queryClient.getQueryCache()

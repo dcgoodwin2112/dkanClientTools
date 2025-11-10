@@ -13,10 +13,7 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    include: ['@tanstack/react-query', '@tanstack/query-core'],
-  },
   resolve: {
-    dedupe: ['react', 'react-dom', '@tanstack/react-query', '@tanstack/query-core'],
+    conditions: ['development'],
   },
 })

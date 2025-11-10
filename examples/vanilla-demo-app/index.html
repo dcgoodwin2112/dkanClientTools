@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DKAN Client Tools - Vanilla JS Demo</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>DKAN Client Tools - Vanilla JS Demo</h1>
+        <p>Demonstrating @dkan-client-tools/core package</p>
+      </header>
+      <main>
+        <div class="dataset-list">
+          <h2>DKAN Dataset Search</h2>
+
+          <div class="search-box">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search datasets..."
+              class="search-input"
+            />
+          </div>
+
+          <div id="loading" class="loading" style="display: none;">
+            Loading datasets...
+          </div>
+
+          <div id="error" class="error" style="display: none;"></div>
+
+          <div id="results" style="display: none;">
+            <div id="results-info" class="results-info"></div>
+            <div id="no-results" class="no-results" style="display: none;">
+              No datasets found.
+            </div>
+            <div id="dataset-items" class="dataset-items"></div>
+            <div id="pagination" class="pagination" style="display: none;">
+              <button id="prev-btn" disabled>Previous</button>
+              <span id="page-info"></span>
+              <button id="next-btn" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

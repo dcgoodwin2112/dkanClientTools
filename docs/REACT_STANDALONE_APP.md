@@ -87,7 +87,7 @@ export default function DatasetList() {
   const { data, isLoading, error, isFetching } = useDatasetSearch({
     searchOptions: {
       keyword: searchKeyword || undefined,
-      page: page - 1, // DKAN uses 0-based pagination
+      page: page, // DKAN uses 1-based pagination
       'page-size': pageSize,
     },
     staleTime: 30000, // Cache for 30 seconds
