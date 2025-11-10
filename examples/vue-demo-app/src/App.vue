@@ -3,7 +3,7 @@ import DatasetList from './components/DatasetList.vue'
 </script>
 
 <template>
-  <div id="app">
+  <div class="app">
     <header>
       <h1>DKAN Client Tools - Vue Demo</h1>
       <p>Demonstrating @dkan-client-tools/vue package</p>
@@ -26,12 +26,12 @@ body {
   background: #f5f5f5;
 }
 
-#app {
+.app {
   min-height: 100vh;
 }
 
 header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #42b983 0%, #35495e 100%);
   color: white;
   padding: 2rem;
   text-align: center;

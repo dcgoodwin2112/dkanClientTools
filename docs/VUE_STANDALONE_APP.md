@@ -72,12 +72,12 @@ const pageSize = 10
 // Build search options reactively
 const searchOptions = computed(() => ({
   fulltext: searchTerm.value || undefined,
-  page: page.value - 1, // DKAN uses 0-based pagination
+  page: page.value, // DKAN uses 1-based pagination
   'page-size': pageSize,
 }))
 
 // Execute search query
-const { data: searchResults, isLoading, error } = useDatasetSearch(searchOptions)
+const { data: searchResults, isLoading, error } = useDatasetSearch({ searchOptions })
 
 // Computed properties for display
 const datasets = computed(() => searchResults.value?.results || [])

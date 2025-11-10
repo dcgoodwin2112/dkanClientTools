@@ -1,5 +1,105 @@
 /**
- * DKAN API Client - Handles HTTP requests to DKAN REST API
+ * DkanApiClient - Low-level HTTP client for DKAN REST API
+ *
+ * Provides direct access to all DKAN REST API endpoints without caching.
+ * This class handles HTTP requests, authentication, retries, and error handling.
+ *
+ * **Important**: For most applications, use the framework-specific hooks/composables
+ * from `@dkan-client-tools/react` or `@dkan-client-tools/vue` instead of calling
+ * these methods directly. The hooks provide automatic caching, background refetching,
+ * and better integration with React/Vue.
+ *
+ * **When to Use DkanApiClient Directly**:
+ * - Server-side operations (Node.js scripts, serverless functions)
+ * - Custom integrations that don't use TanStack Query
+ * - One-off data fetches outside component lifecycle
+ * - Building custom framework adapters
+ *
+ * **API Coverage** (43 methods across 8 categories):
+ *
+ * 1. **Dataset Operations** (7 methods)
+ *    - getDataset, searchDatasets, listAllDatasets
+ *    - createDataset, updateDataset, patchDataset, deleteDataset
+ *
+ * 2. **Datastore Operations** (5 methods)
+ *    - queryDatastore, getDatastoreSchema
+ *    - querySql, downloadQuery, downloadQueryByDistribution
+ *
+ * 3. **Data Dictionary** (6 methods)
+ *    - getDataDictionary, listDataDictionaries, getDataDictionaryFromUrl
+ *    - createDataDictionary, updateDataDictionary, deleteDataDictionary
+ *
+ * 4. **Harvest Operations** (6 methods)
+ *    - listHarvestPlans, getHarvestPlan, registerHarvestPlan
+ *    - listHarvestRuns, getHarvestRun, runHarvest
+ *
+ * 5. **Datastore Imports** (4 methods)
+ *    - listDatastoreImports, getDatastoreImport
+ *    - triggerDatastoreImport, deleteDatastore, getDatastoreStatistics
+ *
+ * 6. **Metastore** (6 methods)
+ *    - listSchemas, getSchemaItems
+ *    - getDatasetFacets, getDatasetProperties, getPropertyValues, getAllPropertiesWithValues
+ *
+ * 7. **Revisions/Moderation** (4 methods)
+ *    - getRevisions, getRevision, createRevision, changeDatasetState
+ *
+ * 8. **CKAN Compatibility** (5 methods)
+ *    - ckanPackageSearch, ckanDatastoreSearch, ckanDatastoreSearchSql
+ *    - ckanResourceShow, ckanCurrentPackageListWithResources
+ *
+ * **Authentication**:
+ * - HTTP Basic Authentication (username + password)
+ * - Bearer token authentication
+ * - Anonymous access for public endpoints
+ *
+ * **Error Handling**:
+ * - Automatic retry with configurable attempts and delays
+ * - DkanApiError with status codes and error messages
+ * - Network error handling
+ *
+ * @example
+ * Basic usage with authentication:
+ * ```typescript
+ * import { DkanApiClient } from '@dkan-client-tools/core'
+ *
+ * const client = new DkanApiClient({
+ *   baseUrl: 'https://data.example.com',
+ *   auth: {
+ *     username: 'admin',
+ *     password: 'password'
+ *   },
+ *   defaultOptions: {
+ *     retry: 3,
+ *     retryDelay: 1000
+ *   }
+ * })
+ *
+ * // Fetch a dataset
+ * const response = await client.getDataset('abc-123')
+ * console.log(response.data)
+ * ```
+ *
+ * @example
+ * Server-side data fetch:
+ * ```typescript
+ * // In a Node.js script or serverless function
+ * const client = new DkanApiClient({
+ *   baseUrl: process.env.DKAN_URL!
+ * })
+ *
+ * // Search for datasets
+ * const results = await client.searchDatasets({
+ *   searchOptions: { keyword: 'environment' }
+ * })
+ *
+ * // Process results
+ * for (const dataset of results.data.results) {
+ *   console.log(`Processing: ${dataset.title}`)
+ * }
+ * ```
+ *
+ * @see {@link DkanClient} for the higher-level client with caching
  */
 
 import type {

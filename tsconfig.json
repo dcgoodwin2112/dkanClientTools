@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/dkan-client-tools-core" },
+    { "path": "./packages/dkan-client-tools-react" },
+    { "path": "./packages/dkan-client-tools-vue" }
+  ]
+}

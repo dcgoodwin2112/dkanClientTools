@@ -5,7 +5,7 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { DkanClient } from '@dkan-client-tools/core'
+import { DkanClient, QueryClient } from '@dkan-client-tools/core'
 import { DkanClientProvider, useDkanClient } from '../DkanClientProvider'
 
 // Test component that uses the context
@@ -24,7 +24,7 @@ describe('DkanClientProvider', () => {
   let mockClient: DkanClient
 
   beforeEach(() => {
-    mockClient = new DkanClient({ baseUrl: 'https://test.example.com' })
+    mockClient = new DkanClient({ queryClient: new QueryClient({ defaultOptions: { queries: { retry: 0 } } }), baseUrl: 'https://test.example.com' })
     vi.spyOn(mockClient, 'mount')
     vi.spyOn(mockClient, 'unmount')
   })
@@ -101,7 +101,7 @@ describe('DkanClientProvider', () => {
   })
 
   it('should handle client replacement', async () => {
-    const newClient = new DkanClient({ baseUrl: 'https://new.example.com' })
+    const newClient = new DkanClient({ queryClient: new QueryClient({ defaultOptions: { queries: { retry: 0 } } }), baseUrl: 'https://new.example.com' })
     vi.spyOn(newClient, 'mount')
     vi.spyOn(newClient, 'unmount')
 
@@ -131,7 +131,7 @@ describe('DkanClientProvider', () => {
   })
 
   it('should work with nested providers', () => {
-    const innerClient = new DkanClient({ baseUrl: 'https://inner.example.com' })
+    const innerClient = new DkanClient({ queryClient: new QueryClient({ defaultOptions: { queries: { retry: 0 } } }), baseUrl: 'https://inner.example.com' })
 
     function NestedTest() {
       const client = useDkanClient()
@@ -164,7 +164,7 @@ describe('useDkanClient', () => {
   })
 
   it('should return the client from context', () => {
-    const mockClient = new DkanClient({ baseUrl: 'https://test.example.com' })
+    const mockClient = new DkanClient({ queryClient: new QueryClient({ defaultOptions: { queries: { retry: 0 } } }), baseUrl: 'https://test.example.com' })
 
     function ClientTest() {
       const client = useDkanClient()
@@ -182,7 +182,7 @@ describe('useDkanClient', () => {
   })
 
   it('should allow access to client methods', async () => {
-    const mockClient = new DkanClient({ baseUrl: 'https://test.example.com' })
+    const mockClient = new DkanClient({ queryClient: new QueryClient({ defaultOptions: { queries: { retry: 0 } } }), baseUrl: 'https://test.example.com' })
     const mockFetchDataset = vi.spyOn(mockClient, 'fetchDataset').mockResolvedValue({
       identifier: 'test-123',
       title: 'Test Dataset',

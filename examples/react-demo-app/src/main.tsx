@@ -1,13 +1,32 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
 import './index.css'
-import App from './App.tsx'
-import { ErrorBoundary } from './ErrorBoundary.tsx'
+import { DkanClientProvider } from '@dkan-client-tools/react'
+import { DkanClient, QueryClient } from '@dkan-client-tools/core'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ErrorBoundary>
+// Create QueryClient
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+    },
+  },
+})
+
+// Create DKAN Client
+// Use empty baseUrl in development - Vite proxy will forward /api requests to local DDEV DKAN site
+const dkanClient = new DkanClient({
+  queryClient,
+  baseUrl: '', // Proxy handles this in development (https://dkan.ddev.site)
+})
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <DkanClientProvider client={dkanClient}>
       <App />
-    </ErrorBoundary>
-  </StrictMode>,
+    </DkanClientProvider>
+  </React.StrictMode>
 )

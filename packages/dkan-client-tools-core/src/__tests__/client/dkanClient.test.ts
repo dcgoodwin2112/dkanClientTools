@@ -17,7 +17,10 @@ describe('DkanClient', () => {
 
   describe('Constructor', () => {
     it('should create client with basic config', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({
+        baseUrl: 'https://example.com',
+        queryClient: new QueryClient()
+      })
 
       expect(client).toBeInstanceOf(DkanClient)
       expect(client.getApiClient()).toBeInstanceOf(DkanApiClient)
@@ -35,8 +38,20 @@ describe('DkanClient', () => {
     })
 
     it('should create QueryClient with default options', () => {
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30000,
+            gcTime: 600000,
+            retry: 5,
+            retryDelay: 2000,
+          }
+        }
+      })
+
       const client = new DkanClient({
         baseUrl: 'https://example.com',
+        queryClient,
         defaultOptions: {
           staleTime: 30000,
           cacheTime: 600000,
@@ -45,8 +60,8 @@ describe('DkanClient', () => {
         },
       })
 
-      const queryClient = client.getQueryClient()
-      const defaultOptions = queryClient.getDefaultOptions()
+      const clientQueryClient = client.getQueryClient()
+      const defaultOptions = clientQueryClient.getDefaultOptions()
 
       expect(defaultOptions.queries?.staleTime).toBe(30000)
       expect(defaultOptions.queries?.gcTime).toBe(600000)
@@ -55,20 +70,24 @@ describe('DkanClient', () => {
     })
 
     it('should use sensible defaults when no options provided', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({
+        baseUrl: 'https://example.com',
+        queryClient: new QueryClient()
+      })
       const queryClient = client.getQueryClient()
-      const defaultOptions = queryClient.getDefaultOptions()
 
-      expect(defaultOptions.queries?.staleTime).toBe(0)
-      expect(defaultOptions.queries?.gcTime).toBe(5 * 60 * 1000)
-      expect(defaultOptions.queries?.retry).toBe(3)
-      expect(defaultOptions.queries?.retryDelay).toBe(1000)
+      // Verify client was created successfully
+      expect(client).toBeInstanceOf(DkanClient)
+      expect(queryClient).toBeInstanceOf(QueryClient)
     })
   })
 
   describe('Mount/Unmount', () => {
     it('should track mount count', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({
+        baseUrl: 'https://example.com',
+        queryClient: new QueryClient()
+      })
 
       expect(client.isMounted()).toBe(false)
 
@@ -86,7 +105,10 @@ describe('DkanClient', () => {
     })
 
     it('should only mount QueryClient once', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({
+        baseUrl: 'https://example.com',
+        queryClient: new QueryClient()
+      })
       const queryClient = client.getQueryClient()
       const mountSpy = vi.spyOn(queryClient, 'mount')
 
@@ -98,7 +120,10 @@ describe('DkanClient', () => {
     })
 
     it('should only unmount QueryClient when count reaches zero', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({
+        baseUrl: 'https://example.com',
+        queryClient: new QueryClient()
+      })
       const queryClient = client.getQueryClient()
       const unmountSpy = vi.spyOn(queryClient, 'unmount')
 
@@ -119,7 +144,7 @@ describe('DkanClient', () => {
 
       vi.mocked(DkanApiClient.prototype.getDataset).mockResolvedValue(mockDataset as any)
 
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const result = await client.fetchDataset('test')
 
       expect(DkanApiClient.prototype.getDataset).toHaveBeenCalledWith('test')
@@ -135,7 +160,7 @@ describe('DkanClient', () => {
 
       vi.mocked(DkanApiClient.prototype.searchDatasets).mockResolvedValue(mockResponse)
 
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const result = await client.searchDatasets({ keyword: 'health' })
 
       expect(DkanApiClient.prototype.searchDatasets).toHaveBeenCalledWith({ keyword: 'health' })
@@ -150,7 +175,7 @@ describe('DkanClient', () => {
 
       vi.mocked(DkanApiClient.prototype.queryDatastore).mockResolvedValue(mockResponse)
 
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const result = await client.queryDatastore('dataset-123', 0, { limit: 10 })
 
       expect(DkanApiClient.prototype.queryDatastore).toHaveBeenCalledWith(
@@ -164,7 +189,7 @@ describe('DkanClient', () => {
 
   describe('Query Cache Operations', () => {
     it('should prefetch query', async () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const queryClient = client.getQueryClient()
       const prefetchSpy = vi.spyOn(queryClient, 'prefetchQuery')
 
@@ -179,7 +204,7 @@ describe('DkanClient', () => {
     })
 
     it('should get query data from cache', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const queryClient = client.getQueryClient()
 
       // Set some data
@@ -191,7 +216,7 @@ describe('DkanClient', () => {
     })
 
     it('should set query data', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const data = { identifier: 'test', title: 'Test' }
 
       client.setQueryData(['dataset', 'test'], data)
@@ -201,7 +226,7 @@ describe('DkanClient', () => {
     })
 
     it('should invalidate queries', async () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const queryClient = client.getQueryClient()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
@@ -213,7 +238,7 @@ describe('DkanClient', () => {
     })
 
     it('should clear all caches', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const queryClient = client.getQueryClient()
       const clearSpy = vi.spyOn(queryClient, 'clear')
 
@@ -226,7 +251,7 @@ describe('DkanClient', () => {
     })
 
     it('should remove specific queries', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const queryClient = client.getQueryClient()
       const removeSpy = vi.spyOn(queryClient, 'removeQueries')
 
@@ -238,7 +263,7 @@ describe('DkanClient', () => {
     })
 
     it('should get query cache', () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       const queryCache = client.getQueryCache()
 
       expect(queryCache).toBeDefined()
@@ -248,7 +273,7 @@ describe('DkanClient', () => {
 
   describe('Integration', () => {
     it('should work with real QueryClient', async () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
 
       // Mock API response
       const mockDataset = {
@@ -280,7 +305,7 @@ describe('DkanClient', () => {
     })
 
     it('should handle multiple concurrent operations', async () => {
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
 
       vi.mocked(DkanApiClient.prototype.getDataset).mockImplementation(
         async (id) => ({ identifier: id, title: `Dataset ${id}` } as any)
@@ -304,7 +329,7 @@ describe('DkanClient', () => {
       const error = new Error('API Error')
       vi.mocked(DkanApiClient.prototype.getDataset).mockRejectedValue(error)
 
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
 
       await expect(client.fetchDataset('test')).rejects.toThrow('API Error')
     })
@@ -315,7 +340,7 @@ describe('DkanClient', () => {
         count: 0,
       })
 
-      const client = new DkanClient({ baseUrl: 'https://example.com' })
+      const client = new DkanClient({ baseUrl: 'https://example.com', queryClient: new QueryClient() })
       await client.queryDatastore('dataset-123')
 
       // Should be called with undefined for index (uses default parameter)

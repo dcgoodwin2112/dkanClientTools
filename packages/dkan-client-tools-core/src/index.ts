@@ -1,7 +1,48 @@
 /**
- * @dkan-client-tools/core
- * Framework-agnostic core for DKAN client tools
- * Built on TanStack Query
+ * @dkan-client-tools/core - Framework-agnostic DKAN Client Tools
+ *
+ * Core library for building data catalog applications with DKAN.
+ * Built on TanStack Query for robust caching and state management.
+ *
+ * **Features**:
+ * - Framework-agnostic - works with any JavaScript framework
+ * - Full DKAN REST API support (43 methods across 8 categories)
+ * - Type-safe with complete DCAT-US schema types
+ * - Built on TanStack Query for proven caching patterns
+ * - Lightweight - only depends on @tanstack/query-core
+ *
+ * **API Coverage**:
+ * - Dataset operations: CRUD, search, list, properties
+ * - Datastore operations: query, SQL, download, imports
+ * - Data dictionary: CRUD with Frictionless schema support
+ * - Harvest operations: plans, runs, registration
+ * - Metastore: schemas, facets, revisions
+ * - Moderation: workflow states, revision history
+ * - CKAN compatibility: migration-friendly endpoints
+ *
+ * **Architecture**:
+ * - {@link DkanClient} - Main client wrapping QueryClient
+ * - {@link DkanApiClient} - HTTP client for REST API calls
+ * - Framework adapters provide React hooks and Vue composables
+ *
+ * @packageDocumentation
+ *
+ * @example
+ * Basic setup:
+ * ```typescript
+ * import { DkanClient, QueryClient } from '@dkan-client-tools/core'
+ *
+ * const dkanClient = new DkanClient({
+ *   baseUrl: 'https://demo.getdkan.org',
+ *   queryClient: new QueryClient()
+ * })
+ *
+ * // Fetch a dataset
+ * const dataset = await dkanClient.fetchDataset('abc-123')
+ * ```
+ *
+ * @see {@link DkanClient} for the main client API
+ * @see https://github.com/anthropics/dkan-client-tools
  */
 
 // Main client

@@ -9,9 +9,12 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "build:types": "tsc --build",
+    "build:types:watch": "tsc --build --watch",
+    "build:types:clean": "tsc --build --clean",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "tsc --build --dry --force",
     "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
     "dev": "npm run dev --workspaces --if-present"
   },

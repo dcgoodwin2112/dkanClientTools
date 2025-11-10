@@ -5,7 +5,7 @@
 import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { DkanClient } from '@dkan-client-tools/core'
+import { DkanClient, QueryClient } from '@dkan-client-tools/core'
 import { DkanClientProvider } from '../DkanClientProvider'
 import {
   useDatasetProperties,
@@ -18,6 +18,7 @@ describe('useDatasetProperties', () => {
 
   beforeEach(() => {
     mockClient = new DkanClient({
+      queryClient: new QueryClient({ defaultOptions: { queries: { retry: 0 } } }),
       baseUrl: 'https://test.example.com',
       defaultOptions: { retry: 0 }, // Disable retries for tests
     })

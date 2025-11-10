@@ -1,25 +1,81 @@
-/**
- * React hooks for DKAN Query Download operations
- */
-
 import { useMutation } from '@tanstack/react-query'
 import { useDkanClient } from './DkanClientProvider'
 import type { QueryDownloadOptions } from '@dkan-client-tools/core'
 
+/**
+ * Options for downloading datastore query results.
+ */
 export interface DownloadQueryOptions {
+  /**
+   * The unique identifier (UUID) of the dataset.
+   */
   datasetId: string
-  index: number
-  queryOptions?: QueryDownloadOptions
-}
 
-export interface DownloadQueryByDistributionOptions {
-  distributionId: string
+  /**
+   * The distribution index within the dataset.
+   *
+   * @default 0
+   */
+  index: number
+
+  /**
+   * Query options for filtering and formatting the download.
+   *
+   * Supports:
+   * - `format`: Output format ('csv' or 'json')
+   * - `conditions`: Filter rows before download
+   * - `properties`: Select specific columns
+   * - `sorts`: Sort data before download
+   * - `limit`: Limit number of rows
+   * - `offset`: Skip rows (for batched downloads)
+   */
   queryOptions?: QueryDownloadOptions
 }
 
 /**
- * Mutation hook to download datastore query results
- * Returns a Blob that can be used to create a download link
+ * Options for downloading by distribution ID.
+ */
+export interface DownloadQueryByDistributionOptions {
+  /**
+   * The unique identifier of the distribution/resource to download.
+   *
+   * This is simpler than using dataset ID + index when you have
+   * the distribution ID directly.
+   */
+  distributionId: string
+
+  /**
+   * Query options for filtering and formatting the download.
+   *
+   * Same options as DownloadQueryOptions.
+   */
+  queryOptions?: QueryDownloadOptions
+}
+
+/**
+ * Downloads datastore query results as a file (CSV or JSON).
+ *
+ * This mutation hook executes a datastore query and returns the results as a Blob
+ * that can be downloaded by the user. It supports filtering, sorting, column selection,
+ * and pagination before download - perfect for creating custom data exports.
+ *
+ * The hook returns a Blob object which can be converted to a download link using
+ * `URL.createObjectURL()` or used with libraries like `file-saver`.
+ *
+ * Common use cases:
+ * - Export filtered data to CSV/JSON
+ * - Download specific columns only
+ * - Create sorted data exports
+ * - Batch download large datasets (using limit/offset)
+ *
+ * @returns TanStack Mutation result object containing:
+ *   - `mutate`: Function to trigger the download
+ *   - `mutateAsync`: Async version that returns a promise with the Blob
+ *   - `isPending`: True while the download is preparing
+ *   - `isError`: True if the download failed
+ *   - `isSuccess`: True if the Blob was created successfully
+ *   - `error`: Error object if the request failed
+ *   - `data`: Blob object containing the downloaded file data
  *
  * @example
  * ```tsx
@@ -115,8 +171,28 @@ export function useDownloadQuery() {
 }
 
 /**
- * Mutation hook to download query results by distribution ID
- * Simplified download for a specific distribution/resource
+ * Downloads datastore data by distribution ID (simplified alternative to useDownloadQuery).
+ *
+ * This mutation provides a simpler interface when you have the distribution ID directly,
+ * rather than needing to specify both dataset ID and distribution index. It's particularly
+ * useful when working with dataset metadata that includes distribution identifiers.
+ *
+ * Like `useDownloadQuery`, this returns a Blob that can be used to create file downloads.
+ * It supports the same query options for filtering, sorting, and formatting.
+ *
+ * Use this hook when:
+ * - You have a distribution ID from dataset metadata
+ * - You're working with individual distributions directly
+ * - You want clearer code without index numbers
+ *
+ * @returns TanStack Mutation result object containing:
+ *   - `mutate`: Function to trigger the download by distribution ID
+ *   - `mutateAsync`: Async version that returns a promise with the Blob
+ *   - `isPending`: True while the download is preparing
+ *   - `isError`: True if the download failed
+ *   - `isSuccess`: True if the Blob was created successfully
+ *   - `error`: Error object if the request failed
+ *   - `data`: Blob object containing the downloaded file data
  *
  * @example
  * ```tsx

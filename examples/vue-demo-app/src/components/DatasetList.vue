@@ -5,15 +5,20 @@ import { ref, computed } from 'vue'
 // Search for datasets
 const searchTerm = ref('')
 const page = ref(1)
+const expandedCard = ref<string | null>(null)
 const pageSize = 10
+
+const toggleCard = (identifier: string) => {
+  expandedCard.value = expandedCard.value === identifier ? null : identifier
+}
 
 const searchOptions = computed(() => ({
   fulltext: searchTerm.value || undefined,
-  page: page.value - 1, // DKAN uses 0-based pagination
+  page: page.value, // DKAN uses 1-based pagination
   'page-size': pageSize,
 }))
 
-const { data: searchResults, isLoading, error } = useDatasetSearch(searchOptions)
+const { data: searchResults, isLoading, error } = useDatasetSearch({ searchOptions })
 
 const datasets = computed(() => searchResults.value?.results || [])
 const totalResults = computed(() => searchResults.value?.total || 0)
@@ -66,22 +71,81 @@ function prevPage() {
         <div
           v-for="dataset in datasets"
           :key="dataset.identifier"
-          class="dataset-card"
+          :class="['dataset-card', { expanded: expandedCard === dataset.identifier }]"
+          @click="toggleCard(dataset.identifier)"
         >
-          <h3>{{ dataset.title }}</h3>
+          <div class="card-header">
+            <h3>{{ dataset.title }}</h3>
+            <span class="expand-icon">{{ expandedCard === dataset.identifier ? '−' : '+' }}</span>
+          </div>
+
           <p v-if="dataset.description" class="description">
-            {{ dataset.description.substring(0, 200) }}{{ dataset.description.length > 200 ? '...' : '' }}
+            {{ expandedCard === dataset.identifier
+                ? dataset.description
+                : dataset.description.substring(0, 200) + (dataset.description.length > 200 ? '...' : '')
+            }}
           </p>
+
           <div class="metadata">
             <span class="tag">{{ dataset.accessLevel }}</span>
             <span v-if="dataset.modified" class="modified">
               Modified: {{ new Date(dataset.modified).toLocaleDateString() }}
             </span>
           </div>
+
           <div v-if="dataset.keyword && dataset.keyword.length > 0" class="keywords">
             <span v-for="keyword in dataset.keyword" :key="keyword" class="keyword">
               {{ keyword }}
             </span>
+          </div>
+
+          <div v-if="expandedCard === dataset.identifier" class="expanded-details">
+            <div v-if="dataset.identifier" class="detail-row">
+              <strong>Identifier:</strong>
+              <span>{{ dataset.identifier }}</span>
+            </div>
+
+            <div v-if="dataset.publisher" class="detail-row">
+              <strong>Publisher:</strong>
+              <span>{{ dataset.publisher.name }}</span>
+            </div>
+
+            <div v-if="dataset.theme && dataset.theme.length > 0" class="detail-row">
+              <strong>Theme:</strong>
+              <span>{{ dataset.theme.join(', ') }}</span>
+            </div>
+
+            <div v-if="dataset.issued" class="detail-row">
+              <strong>Issued:</strong>
+              <span>{{ new Date(dataset.issued).toLocaleDateString() }}</span>
+            </div>
+
+            <div v-if="dataset.contactPoint" class="detail-row">
+              <strong>Contact:</strong>
+              <span>
+                {{ dataset.contactPoint.fn }}
+                <template v-if="dataset.contactPoint.hasEmail">
+                  ({{ dataset.contactPoint.hasEmail.replace('mailto:', '') }})
+                </template>
+              </span>
+            </div>
+
+            <div v-if="dataset.distribution && dataset.distribution.length > 0" class="detail-row">
+              <strong>Distributions:</strong>
+              <div class="distributions">
+                <div v-for="(dist, idx) in dataset.distribution" :key="idx" class="distribution-item">
+                  <span class="distribution-title">{{ dist.title || `Distribution ${idx + 1}` }}</span>
+                  <span v-if="dist.format" class="distribution-format">{{ dist.format }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="dataset.license" class="detail-row">
+              <strong>License:</strong>
+              <a :href="dataset.license" target="_blank" rel="noopener noreferrer">
+                {{ dataset.license }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -159,16 +223,41 @@ h2 {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 .dataset-card:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  border-color: #42b983;
 }
 
-.dataset-card h3 {
-  margin: 0 0 0.75rem 0;
+.dataset-card.expanded {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  border-color: #42b983;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.card-header h3 {
+  margin: 0;
   color: #2c3e50;
+  flex: 1;
+}
+
+.expand-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #42b983;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .description {
@@ -240,5 +329,87 @@ h2 {
 .pagination button:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.expanded-details {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-row strong {
+  color: #2c3e50;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.detail-row span {
+  color: #666;
+}
+
+.detail-row a {
+  color: #42b983;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.detail-row a:hover {
+  text-decoration: underline;
+}
+
+.distributions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.distribution-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.distribution-title {
+  color: #2c3e50;
+  font-weight: 500;
+  flex: 1;
+}
+
+.distribution-format {
+  padding: 0.25rem 0.5rem;
+  background: #42b983;
+  color: white !important;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 </style>
