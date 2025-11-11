@@ -2,8 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { DkanClientProvider } from '@dkan-client-tools/react'
-import { DkanClient, QueryClient } from '@dkan-client-tools/core'
+import { DkanClientProvider, DkanClientClass, QueryClient } from '@dkan-client-tools/react'
 
 // Create QueryClient
 const queryClient = new QueryClient({
@@ -18,7 +17,7 @@ const queryClient = new QueryClient({
 
 // Create DKAN Client
 // Use empty baseUrl in development - Vite proxy will forward /api requests to local DDEV DKAN site
-const dkanClient = new DkanClient({
+const dkanClient = new DkanClientClass({
   queryClient,
   baseUrl: '', // Proxy handles this in development (https://dkan.ddev.site)
 })

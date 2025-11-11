@@ -14,39 +14,57 @@ export default defineConfig([
     outDir: 'dist',
     external: ['react', '@dkan-client-tools/core', '@tanstack/react-query'],
   },
-  // IIFE build for browsers and Drupal (with externals)
+  // IIFE build for browsers and Drupal (self-contained with all dependencies)
   {
     entry: ['src/index.ts'],
     format: ['iife'],
     globalName: 'DkanClientToolsReact',
+    platform: 'browser',
     sourcemap: true,
     clean: false,
     treeshake: true,
     minify: false,
+    dts: false,
     outDir: 'dist',
     outExtension: () => ({ js: '.global.js' }),
-    external: ['react', 'react-dom', '@dkan-client-tools/core', '@tanstack/react-query'],
+    noExternal: [], // Bundle everything for now
     esbuildOptions(options) {
       options.banner = {
-        js: '/* @dkan-client-tools/react - IIFE build. Requires: React, DkanClientTools, TanStackReactQuery */',
+        js: '/* @dkan-client-tools/react - IIFE build (self-contained, includes React/ReactDOM/ReactQuery) */',
+      }
+      options.define = {
+        ...options.define,
+        'process.env.NODE_ENV': '"production"',
+      }
+      options.footer = {
+        js: 'if (typeof window !== "undefined") { window.DkanClientToolsReact = DkanClientToolsReact; }'
       }
     },
   },
-  // Minified IIFE build for production (with externals)
+  // Minified IIFE build for production - bundles everything
   {
     entry: ['src/index.ts'],
     format: ['iife'],
     globalName: 'DkanClientToolsReact',
+    platform: 'browser',
     sourcemap: true,
     clean: false,
     treeshake: true,
     minify: true,
+    dts: false,
     outDir: 'dist',
     outExtension: () => ({ js: '.global.min.js' }),
-    external: ['react', 'react-dom', '@dkan-client-tools/core', '@tanstack/react-query'],
+    noExternal: [], // Bundle everything
     esbuildOptions(options) {
       options.banner = {
-        js: '/* @dkan-client-tools/react - Minified IIFE. Requires: React, DkanClientTools, TanStackReactQuery */',
+        js: '/* @dkan-client-tools/react - Minified IIFE (self-contained, includes React/ReactDOM/ReactQuery) */',
+      }
+      options.define = {
+        ...options.define,
+        'process.env.NODE_ENV': '"production"',
+      }
+      options.footer = {
+        js: 'if (typeof window !== "undefined") { window.DkanClientToolsReact = DkanClientToolsReact; }'
       }
     },
   },

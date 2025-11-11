@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build",
+    "typecheck": "vue-tsc -b",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dkan-client-tools/vue": "file:../packages/dkan-client-tools-vue",
+    "@dkan-client-tools/vue": "*",
     "@tanstack/vue-query": "^5.90.7",
     "vue": "^3.5.22"
   },

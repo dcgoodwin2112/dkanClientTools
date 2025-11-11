@@ -11,8 +11,6 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "composite": true,
-    "incremental": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -21,8 +19,5 @@
     "customConditions": ["development"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
-  "references": [
-    { "path": "../dkan-client-tools-core" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
 }
