@@ -1,0 +1,5 @@
+name: 'DKAN Client Tools Vue Base'
+type: module
+description: 'Provides DKAN Client Tools Vue library for Drupal modules'
+package: 'DKAN'
+core_version_requirement: ^10 || ^11

@@ -1,0 +1,19 @@
+dataset-search-widget:
+  version: 2.0
+  js:
+    # Pre-compiled Vue component (built from src/DatasetSearchWidget.vue)
+    # Template is compiled to render function at build time (npm run build)
+    # This allows us to use template syntax in source while using runtime-only Vue build
+    js/dataset-search-component.js: { minified: true, preprocess: false, weight: -10 }
+    # Mount script (creates Vue app and mounts widget)
+    src/dataset-search-mount.js: { preprocess: false, weight: -9 }
+  css:
+    theme:
+      css/dataset-search-widget.css: {}
+  dependencies:
+    # DKAN Client Tools Vue - Runtime-Only Build (without template compiler)
+    # Using runtime-only build with pre-compiled templates for 28% smaller bundle (174KB vs 240KB)
+    - dkan_client_tools_vue_base/dkan-client-vue-runtime
+    # Drupal core
+    - core/drupal
+    - core/once

@@ -45,8 +45,44 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# DKAN development environment (separate project)
-dkan/
+# DKAN development environment
+# We keep: custom modules, DDEV config, composer files
+# We ignore: vendor code, Drupal core, contrib modules, generated files
+
+# Ignore everything in dkan/ by default
+dkan/*
+
+# But keep DDEV configuration
+!dkan/.ddev/
+dkan/.ddev/.gitignore
+
+# Keep docroot directory structure
+!dkan/docroot/
+
+# Ignore most of docroot
+dkan/docroot/*
+
+# But keep our custom modules
+!dkan/docroot/modules/
+dkan/docroot/modules/*
+!dkan/docroot/modules/custom/
+dkan/docroot/modules/custom/*
+!dkan/docroot/modules/custom/dkan_client_tools_core_base/
+!dkan/docroot/modules/custom/dkan_client_tools_react_base/
+!dkan/docroot/modules/custom/dkan_client_tools_vue_base/
+!dkan/docroot/modules/custom/dkan_client_demo_vanilla/
+!dkan/docroot/modules/custom/dkan_client_demo_react/
+!dkan/docroot/modules/custom/dkan_client_demo_vue/
+
+# Ignore node_modules in custom modules
+dkan/docroot/modules/custom/*/node_modules/
+
+# Keep composer files for dependency management
+!dkan/composer.json
+!dkan/composer.lock
+
+# Keep README for setup instructions
+!dkan/README.md
 
 # Claude Code local settings
 .claude/

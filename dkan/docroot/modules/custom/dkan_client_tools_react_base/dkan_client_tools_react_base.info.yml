@@ -1,0 +1,5 @@
+name: 'DKAN Client Tools React Base'
+type: module
+description: 'Provides React, React DOM, and React Query libraries as dependencies for DKAN client tools.'
+package: DKAN
+core_version_requirement: ^11

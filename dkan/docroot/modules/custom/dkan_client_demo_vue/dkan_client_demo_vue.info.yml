@@ -1,0 +1,8 @@
+name: 'DKAN Client Demo (Vue)'
+type: module
+description: 'Demo module showing how to use @dkan-client-tools/vue package in Drupal'
+package: 'DKAN'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:block
+  - dkan_client_tools_vue_base:dkan_client_tools_vue_base

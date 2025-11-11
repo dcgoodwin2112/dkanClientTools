@@ -1,0 +1,8 @@
+name: 'DKAN Client Demo Vanilla'
+type: module
+description: 'Demo module showing how to use @dkan-client-tools/core package with vanilla JavaScript in Drupal'
+package: 'DKAN'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:block
+  - dkan_client_tools_core_base:dkan_client_tools_core_base
