@@ -1,5 +1,6 @@
 {
   "name": "vanilla-demo-app",
+  "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -8,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dkan-client-tools/core": "file:../../packages/dkan-client-tools-core"
+    "@dkan-client-tools/core": "*"
   },
   "devDependencies": {
-    "vite": "^6.0.5"
+    "vite": "^7.2.2"
   }
 }

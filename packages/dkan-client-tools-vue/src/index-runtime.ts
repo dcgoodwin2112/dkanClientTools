@@ -1,17 +1,20 @@
 /**
- * @dkan-client-tools/vue
+ * @dkan-client-tools/vue - Runtime-Only Build
  * Vue composables and plugin for DKAN client tools
  * Built on TanStack Vue Query
+ *
+ * This build uses the runtime-only version of Vue (WITHOUT template compiler)
+ * Templates must be pre-compiled using .vue SFC files or render functions
+ * Bundle size: ~180KB minified (28% smaller than full build)
  */
 
-// Re-export Vue for IIFE builds (with compiler for template compilation)
-// @ts-ignore - Using full build with compiler for template string support
-import * as VueNamespace from 'vue/dist/vue.esm-bundler.js'
+// Re-export Vue runtime-only build (WITHOUT compiler)
+import * as VueNamespace from 'vue'
 export { VueNamespace as Vue }
 
 // Re-export QueryClient and VueQueryPlugin for IIFE builds
 export { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
-export { DkanClient as DkanClientClass } from '@dkan-client-tools/core'
+export { DkanClient } from '@dkan-client-tools/core'
 
 // Plugin and context
 export { DkanClientPlugin, useDkanClient } from './plugin'
@@ -38,20 +41,11 @@ export type {
   UseDataDictionaryListOptions,
 } from './useDataDictionary'
 
-export {
-  useAllDatasets,
-  useSchemas,
-  useSchemaItems,
-  useDatasetFacets,
-} from './useMetastore'
-export type {
-  UseAllDatasetsOptions,
-  UseSchemasOptions,
-  UseSchemaItemsOptions,
-  UseFacetsOptions,
-} from './useMetastore'
+export { useAllDatasets } from './useMetastore'
 
-// Harvest API composables
+export { useSchemas, useSchemaItems, useDatasetFacets } from './useMetastore'
+export type { UseSchemasOptions, UseSchemaItemsOptions, UseFacetsOptions } from './useMetastore'
+
 export {
   useHarvestPlans,
   useHarvestPlan,
@@ -67,19 +61,13 @@ export type {
   UseHarvestRunOptions,
 } from './useHarvest'
 
-// Dataset CRUD composables
 export {
   useCreateDataset,
   useUpdateDataset,
   usePatchDataset,
   useDeleteDataset,
 } from './useDatasetMutations'
-export type {
-  UpdateDatasetOptions,
-  PatchDatasetOptions,
-} from './useDatasetMutations'
 
-// Datastore Import composables
 export {
   useDatastoreImports,
   useDatastoreImport,
@@ -93,7 +81,6 @@ export type {
   UseDatastoreStatisticsOptions,
 } from './useDatastoreImports'
 
-// Revision/Moderation composables
 export {
   useRevisions,
   useRevision,
@@ -107,7 +94,6 @@ export type {
   ChangeDatasetStateOptions,
 } from './useRevisions'
 
-// Query Download composables
 export {
   useDownloadQuery,
   useDownloadQueryByDistribution,
@@ -117,7 +103,6 @@ export type {
   DownloadQueryByDistributionOptions,
 } from './useQueryDownload'
 
-// SQL Query composables
 export {
   useSqlQuery,
   useExecuteSqlQuery,
@@ -126,14 +111,12 @@ export type {
   UseSqlQueryOptions,
 } from './useSqlQuery'
 
-// Data Dictionary CRUD composables
 export {
   useCreateDataDictionary,
   useUpdateDataDictionary,
   useDeleteDataDictionary,
 } from './useDataDictionaryMutations'
 
-// Dataset Properties composables
 export {
   useDatasetProperties,
   usePropertyValues,
@@ -145,7 +128,6 @@ export type {
   UseAllPropertiesWithValuesOptions,
 } from './useDatasetProperties'
 
-// CKAN API Compatibility composables
 export {
   useCkanPackageSearch,
   useCkanDatastoreSearch,
@@ -161,47 +143,5 @@ export type {
   UseCkanPackageListOptions,
 } from './useCkanApi'
 
-// Re-export core types and client for convenience
-export type {
-  DkanClient,
-  DkanClientOptions,
-  DkanDataset,
-  DkanSearchResponse,
-  DkanDatastoreQueryResponse,
-  DatasetQueryOptions,
-  DatastoreQueryOptions,
-  DataDictionary,
-  DataDictionaryData,
-  DataDictionaryField,
-  DataDictionaryFieldType,
-  DataDictionaryConstraints,
-  DataDictionaryIndex,
-  HarvestPlan,
-  HarvestRun,
-  HarvestRunOptions,
-  DatastoreImport,
-  DatastoreImportOptions,
-  DatastoreStatistics,
-  MetastoreWriteResponse,
-  MetastoreRevision,
-  MetastoreNewRevision,
-  WorkflowState,
-  DatasetProperty,
-  DatasetPropertyValue,
-  CkanPackageSearchResponse,
-  CkanPackageSearchOptions,
-  CkanDatastoreSearchResponse,
-  CkanDatastoreSearchOptions,
-  CkanDatastoreSearchSqlOptions,
-  CkanResource,
-  CkanPackageWithResources,
-} from '@dkan-client-tools/core'
-
-// Re-export TanStack Vue Query for advanced usage
-export {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useIsFetching,
-  useIsMutating,
-} from '@tanstack/vue-query'
+// Re-export commonly used Vue Query hooks
+export { useQuery, useMutation, useQueryClient, useIsFetching, useIsMutating } from '@tanstack/vue-query'

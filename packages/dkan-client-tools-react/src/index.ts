@@ -4,6 +4,15 @@
  * Built on TanStack React Query
  */
 
+// Re-export React and ReactDOM for IIFE builds
+import * as ReactNamespace from 'react'
+import * as ReactDOMNamespace from 'react-dom'
+export { ReactNamespace as React, ReactDOMNamespace as ReactDOM }
+
+// Re-export QueryClient and DkanClient for IIFE builds
+export { QueryClient } from '@tanstack/react-query'
+export { DkanClient as DkanClientClass } from '@dkan-client-tools/core'
+
 // Provider and context
 export { DkanClientProvider, useDkanClient } from './DkanClientProvider'
 export type { DkanClientProviderProps } from './DkanClientProvider'

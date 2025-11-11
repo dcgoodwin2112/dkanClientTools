@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useDatasetSearch } from '@dkan-client-tools/react'
+import { useDatasetSearch, type DkanDataset } from '@dkan-client-tools/react'
 import './DatasetList.css'
 
 function DatasetList() {
@@ -67,7 +67,7 @@ function DatasetList() {
 
           {datasets.length > 0 && (
             <div className="dataset-items">
-              {datasets.map((dataset) => {
+              {datasets.map((dataset: DkanDataset) => {
                 const isExpanded = expandedCard === dataset.identifier
                 return (
                   <div
@@ -101,7 +101,7 @@ function DatasetList() {
 
                     {dataset.keyword && dataset.keyword.length > 0 && (
                       <div className="keywords">
-                        {dataset.keyword.map((keyword) => (
+                        {dataset.keyword.map((keyword: string) => (
                           <span key={keyword} className="keyword">
                             {keyword}
                           </span>
@@ -155,7 +155,7 @@ function DatasetList() {
                           <div className="detail-row">
                             <strong>Distributions:</strong>
                             <div className="distributions">
-                              {dataset.distribution.map((dist, idx) => (
+                              {dataset.distribution.map((dist: any, idx: number) => (
                                 <div key={idx} className="distribution-item">
                                   <span className="distribution-title">{dist.title || `Distribution ${idx + 1}`}</span>
                                   {dist.format && <span className="distribution-format">{dist.format}</span>}

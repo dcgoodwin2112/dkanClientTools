@@ -164,17 +164,14 @@ export interface UseSqlQueryOptions extends SqlQueryOptions {
  */
 export function useSqlQuery(options: UseSqlQueryOptions) {
   const client = useDkanClient()
+  const { enabled, staleTime, gcTime, ...sqlOptions } = options
 
   return useQuery({
-    queryKey: ['datastore', 'sql', options.query, options.show_db_columns] as const,
-    queryFn: () =>
-      client.querySql({
-        query: options.query,
-        show_db_columns: options.show_db_columns,
-      }),
-    enabled: (options.enabled ?? true) && !!options.query,
-    staleTime: options.staleTime,
-    gcTime: options.gcTime,
+    queryKey: ['datastore', 'sql', (sqlOptions as SqlQueryOptions).query, (sqlOptions as SqlQueryOptions).show_db_columns] as const,
+    queryFn: () => client.querySql(sqlOptions as SqlQueryOptions),
+    enabled: (enabled ?? true) && !!(sqlOptions as SqlQueryOptions).query,
+    staleTime,
+    gcTime,
   })
 }
 

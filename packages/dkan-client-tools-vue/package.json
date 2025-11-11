@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "browser": "./dist/index.global.js",
+  "browser": "./dist/index.global.full.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -15,8 +15,10 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
-    "./global": "./dist/index.global.js",
-    "./global-min": "./dist/index.global.min.js",
+    "./global-full": "./dist/index.global.full.js",
+    "./global-full-min": "./dist/index.global.full.min.js",
+    "./global-runtime": "./dist/index.global.runtime.js",
+    "./global-runtime-min": "./dist/index.global.runtime.min.js",
     "./package.json": "./package.json"
   },
   "files": [

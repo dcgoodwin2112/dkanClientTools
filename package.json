@@ -5,18 +5,16 @@
   "description": "A monorepo of packages containing tools to help developers build frontend applications that work with DKAN data",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "build:types": "tsc --build",
-    "build:types:watch": "tsc --build --watch",
-    "build:types:clean": "tsc --build --clean",
-    "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "tsc --build --dry --force",
-    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
-    "dev": "npm run dev --workspaces --if-present"
+    "build": "npm run build -ws --if-present",
+    "test": "npm run test -ws --if-present",
+    "lint": "npm run lint -ws --if-present",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "clean": "npm run clean -ws --if-present && rm -rf node_modules",
+    "dev": "npm run dev -ws --if-present"
   },
   "keywords": [
     "dkan",
@@ -35,6 +33,6 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "npm": ">=10.0.0"
   }
 }

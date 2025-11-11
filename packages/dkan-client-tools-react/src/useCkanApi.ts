@@ -685,8 +685,8 @@ export function useCkanDatastoreSearch(options: UseCkanDatastoreSearchOptions) {
 
   return useQuery({
     queryKey: ['ckan', 'datastore-search', searchOptions] as const,
-    queryFn: () => client.ckanDatastoreSearch(searchOptions),
-    enabled: (enabled ?? true) && !!searchOptions.resource_id,
+    queryFn: () => client.ckanDatastoreSearch(searchOptions as CkanDatastoreSearchOptions),
+    enabled: (enabled ?? true) && !!(searchOptions as CkanDatastoreSearchOptions).resource_id,
     staleTime,
   })
 }
@@ -1061,9 +1061,9 @@ export function useCkanDatastoreSearchSql(options: UseCkanDatastoreSearchSqlOpti
   const { enabled, staleTime, ...sqlOptions } = options
 
   return useQuery({
-    queryKey: ['ckan', 'datastore-search-sql', sqlOptions.sql] as const,
-    queryFn: () => client.ckanDatastoreSearchSql(sqlOptions),
-    enabled: (enabled ?? true) && !!sqlOptions.sql,
+    queryKey: ['ckan', 'datastore-search-sql', (sqlOptions as CkanDatastoreSearchSqlOptions).sql] as const,
+    queryFn: () => client.ckanDatastoreSearchSql(sqlOptions as CkanDatastoreSearchSqlOptions),
+    enabled: (enabled ?? true) && !!(sqlOptions as CkanDatastoreSearchSqlOptions).sql,
     staleTime,
   })
 }
