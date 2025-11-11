@@ -1,0 +1,20 @@
+{
+  "name": "dkan-client-demo-vue",
+  "version": "1.0.0",
+  "description": "DKAN Client Tools Vue Demo for Drupal - Uses runtime-only build with pre-compiled templates",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@dkan-client-tools/vue": "file:../../../../../packages/dkan-client-tools-vue",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "terser": "^5.44.1",
+    "vite": "^7.2.2",
+    "vue": "^3.4.0"
+  },
+  "comments": {
+    "build-process": "This module uses Vite to compile Vue SFC templates to render functions at build time. Source: src/DatasetSearchWidget.vue -> Built: js/dataset-search-component.js. This allows clean template syntax during development while using the smaller runtime-only Vue build in production."
+  }
+}

@@ -1,0 +1,5 @@
+name: 'DKAN Client Tools Core Base'
+type: module
+description: 'Provides DKAN Client Tools Core library for Drupal modules'
+package: 'DKAN'
+core_version_requirement: ^10 || ^11

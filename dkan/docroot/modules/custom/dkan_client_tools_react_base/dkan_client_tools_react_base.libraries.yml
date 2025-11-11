@@ -1,0 +1,11 @@
+# DKAN Client Tools React library
+# Self-contained IIFE build with React, ReactDOM, React Query, and all DKAN hooks bundled
+# Built from packages/dkan-client-tools-react
+dkan-client-react:
+  version: 0.1.0
+  license:
+    name: MIT
+    url: https://github.com/anthropics/dkan-client-tools/blob/main/LICENSE
+    gpl-compatible: true
+  js:
+    js/vendor/dkan-client-tools-react.min.js: { minified: true }

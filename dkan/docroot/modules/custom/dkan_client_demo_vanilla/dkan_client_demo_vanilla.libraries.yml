@@ -1,0 +1,14 @@
+# Dataset search widget
+# Uses the shared DKAN Client Tools Core library from dkan_client_tools_core_base module
+dataset-search-widget:
+  version: 1.0.0
+  js:
+    js/dataset-search-widget.js: {}
+  css:
+    theme:
+      css/dataset-search-widget.css: {}
+  dependencies:
+    - dkan_client_tools_core_base/dkan-client-core
+    - core/drupal
+    - core/once
+    - core/drupalSettings

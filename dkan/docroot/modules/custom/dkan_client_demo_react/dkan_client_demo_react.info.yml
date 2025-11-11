@@ -1,0 +1,7 @@
+name: 'DKAN Client Demo (React)'
+type: module
+description: 'Demo module showing how to use @dkan-client-tools/react package in Drupal with shared React base'
+package: 'DKAN'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:block

@@ -1,0 +1,27 @@
+# DKAN Client Tools Vue library - Full Build (WITH template compiler)
+# Self-contained IIFE build with Vue (full), Vue Query, and all DKAN composables
+# Built from packages/dkan-client-tools-vue
+# Bundle size: 240KB minified
+# Use this when you need to compile templates at runtime (template strings in JavaScript)
+dkan-client-vue-full:
+  version: 0.1.0
+  license:
+    name: MIT
+    url: https://github.com/anthropics/dkan-client-tools/blob/main/LICENSE
+    gpl-compatible: true
+  js:
+    js/vendor/dkan-client-tools-vue-full.min.js: { minified: true, weight: -20 }
+
+# DKAN Client Tools Vue library - Runtime-Only Build (WITHOUT template compiler)
+# Self-contained IIFE build with Vue (runtime-only), Vue Query, and all DKAN composables
+# Built from packages/dkan-client-tools-vue
+# Bundle size: 174KB minified (28% smaller than full build)
+# Use this when templates are pre-compiled (.vue SFCs or render functions)
+dkan-client-vue-runtime:
+  version: 0.1.0
+  license:
+    name: MIT
+    url: https://github.com/anthropics/dkan-client-tools/blob/main/LICENSE
+    gpl-compatible: true
+  js:
+    js/vendor/dkan-client-tools-vue-runtime.min.js: { minified: true, weight: -20 }

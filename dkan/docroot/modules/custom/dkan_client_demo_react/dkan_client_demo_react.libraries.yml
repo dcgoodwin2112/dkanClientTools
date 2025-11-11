@@ -1,0 +1,16 @@
+dataset-search-widget:
+  version: 2.0
+  js:
+    # Widget code (externalizes DkanClientToolsReact which is self-contained)
+    # Compiled from JSX source: src/jsx/dataset-search-widget.jsx
+    # Build: npm run build (from module directory)
+    js/dataset-search-widget.min.js: { minified: true, preprocess: false }
+  css:
+    theme:
+      css/dataset-search-widget.css: {}
+  dependencies:
+    # DKAN Client Tools React (self-contained with React, ReactDOM, React Query)
+    - dkan_client_tools_react_base/dkan-client-react
+    # Drupal core
+    - core/drupal
+    - core/once

@@ -1,0 +1,11 @@
+# Dependency directories
+node_modules/
+package-lock.json
+
+# Build artifacts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Note: js/dataset-search-widget.js is committed as the compiled output
+# Edit src/jsx/dataset-search-widget.jsx and rebuild instead

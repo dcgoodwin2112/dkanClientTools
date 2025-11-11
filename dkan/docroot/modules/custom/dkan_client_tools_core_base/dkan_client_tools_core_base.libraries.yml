@@ -1,0 +1,13 @@
+# DKAN Client Tools Core library
+# Self-contained IIFE build with TanStack Query Core and DKAN API client
+# Built from packages/dkan-client-tools-core
+# Bundle size: 40KB minified
+# This is the framework-agnostic core that can be used with vanilla JavaScript
+dkan-client-core:
+  version: 0.1.0
+  license:
+    name: MIT
+    url: https://github.com/anthropics/dkan-client-tools/blob/main/LICENSE
+    gpl-compatible: true
+  js:
+    js/vendor/dkan-client-tools-core.min.js: { minified: true, weight: -20 }

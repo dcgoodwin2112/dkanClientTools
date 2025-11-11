@@ -1,0 +1,22 @@
+{
+  "name": "dkan-client-demo-react",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DKAN Client Demo React module - Vite build with external React",
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "clean": "rm -rf js/dataset-search-widget.min.js js/dataset-search-widget.min.js.map"
+  },
+  "dependencies": {
+    "@dkan-client-tools/react": "file:../../../../../packages/dkan-client-tools-react",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.0",
+    "terser": "^5.44.1",
+    "vite": "^7.2.2"
+  }
+}
