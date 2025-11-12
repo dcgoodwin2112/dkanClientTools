@@ -86,3 +86,28 @@ dkan/docroot/modules/custom/*/node_modules/
 
 # Claude Code local settings
 .claude/
+
+# Temporary development files
+temp-*.js
+temp-*.ts
+scratch/
+.tmp/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Editor backup files
+*~
+*.bak
