@@ -487,7 +487,7 @@ export class DkanClient {
   /**
    * Register a new harvest plan
    */
-  async registerHarvestPlan(plan: Parameters<typeof this.apiClient.registerHarvestPlan>[0]) {
+  async registerHarvestPlan(plan: Parameters<typeof DkanApiClient.prototype.registerHarvestPlan>[0]) {
     return this.apiClient.registerHarvestPlan(plan)
   }
 
@@ -515,7 +515,7 @@ export class DkanClient {
   /**
    * Execute a harvest run
    */
-  async runHarvest(options: Parameters<typeof this.apiClient.runHarvest>[0]) {
+  async runHarvest(options: Parameters<typeof DkanApiClient.prototype.runHarvest>[0]) {
     return this.apiClient.runHarvest(options)
   }
 
@@ -524,21 +524,21 @@ export class DkanClient {
   /**
    * Create a new dataset
    */
-  async createDataset(dataset: Parameters<typeof this.apiClient.createDataset>[0]) {
+  async createDataset(dataset: Parameters<typeof DkanApiClient.prototype.createDataset>[0]) {
     return this.apiClient.createDataset(dataset)
   }
 
   /**
    * Update an existing dataset (full replacement)
    */
-  async updateDataset(identifier: string, dataset: Parameters<typeof this.apiClient.updateDataset>[1]) {
+  async updateDataset(identifier: string, dataset: Parameters<typeof DkanApiClient.prototype.updateDataset>[1]) {
     return this.apiClient.updateDataset(identifier, dataset)
   }
 
   /**
    * Partially update a dataset
    */
-  async patchDataset(identifier: string, partialDataset: Parameters<typeof this.apiClient.patchDataset>[1]) {
+  async patchDataset(identifier: string, partialDataset: Parameters<typeof DkanApiClient.prototype.patchDataset>[1]) {
     return this.apiClient.patchDataset(identifier, partialDataset)
   }
 
@@ -561,7 +561,7 @@ export class DkanClient {
   /**
    * Trigger a datastore import
    */
-  async triggerDatastoreImport(options: Parameters<typeof this.apiClient.triggerDatastoreImport>[0]) {
+  async triggerDatastoreImport(options: Parameters<typeof DkanApiClient.prototype.triggerDatastoreImport>[0]) {
     return this.apiClient.triggerDatastoreImport(options)
   }
 
@@ -601,7 +601,7 @@ export class DkanClient {
   async createRevision(
     schemaId: string,
     identifier: string,
-    revision: Parameters<typeof this.apiClient.createRevision>[2]
+    revision: Parameters<typeof DkanApiClient.prototype.createRevision>[2]
   ) {
     return this.apiClient.createRevision(schemaId, identifier, revision)
   }
@@ -609,7 +609,7 @@ export class DkanClient {
   /**
    * Convenience method to change dataset workflow state
    */
-  async changeDatasetState(identifier: string, state: Parameters<typeof this.apiClient.changeDatasetState>[1], message?: string) {
+  async changeDatasetState(identifier: string, state: Parameters<typeof DkanApiClient.prototype.changeDatasetState>[1], message?: string) {
     return this.apiClient.changeDatasetState(identifier, state, message)
   }
 
@@ -621,7 +621,7 @@ export class DkanClient {
   async downloadQuery(
     datasetId: string,
     index: number,
-    options?: Parameters<typeof this.apiClient.downloadQuery>[2]
+    options?: Parameters<typeof DkanApiClient.prototype.downloadQuery>[2]
   ) {
     return this.apiClient.downloadQuery(datasetId, index, options)
   }
@@ -631,7 +631,7 @@ export class DkanClient {
    */
   async downloadQueryByDistribution(
     distributionId: string,
-    options?: Parameters<typeof this.apiClient.downloadQueryByDistribution>[1]
+    options?: Parameters<typeof DkanApiClient.prototype.downloadQueryByDistribution>[1]
   ) {
     return this.apiClient.downloadQueryByDistribution(distributionId, options)
   }
@@ -641,7 +641,7 @@ export class DkanClient {
   /**
    * Execute a SQL query against the datastore
    */
-  async querySql(options: Parameters<typeof this.apiClient.querySql>[0]) {
+  async querySql(options: Parameters<typeof DkanApiClient.prototype.querySql>[0]) {
     return this.apiClient.querySql(options)
   }
 
@@ -650,14 +650,14 @@ export class DkanClient {
   /**
    * Create a new data dictionary
    */
-  async createDataDictionary(dictionary: Parameters<typeof this.apiClient.createDataDictionary>[0]) {
+  async createDataDictionary(dictionary: Parameters<typeof DkanApiClient.prototype.createDataDictionary>[0]) {
     return this.apiClient.createDataDictionary(dictionary)
   }
 
   /**
    * Update an existing data dictionary
    */
-  async updateDataDictionary(identifier: string, dictionary: Parameters<typeof this.apiClient.updateDataDictionary>[1]) {
+  async updateDataDictionary(identifier: string, dictionary: Parameters<typeof DkanApiClient.prototype.updateDataDictionary>[1]) {
     return this.apiClient.updateDataDictionary(identifier, dictionary)
   }
 
@@ -712,21 +712,21 @@ export class DkanClient {
   /**
    * CKAN-compatible package search
    */
-  async ckanPackageSearch(options?: Parameters<typeof this.apiClient.ckanPackageSearch>[0]) {
+  async ckanPackageSearch(options?: Parameters<typeof DkanApiClient.prototype.ckanPackageSearch>[0]) {
     return this.apiClient.ckanPackageSearch(options)
   }
 
   /**
    * CKAN-compatible datastore search
    */
-  async ckanDatastoreSearch(options: Parameters<typeof this.apiClient.ckanDatastoreSearch>[0]) {
+  async ckanDatastoreSearch(options: Parameters<typeof DkanApiClient.prototype.ckanDatastoreSearch>[0]) {
     return this.apiClient.ckanDatastoreSearch(options)
   }
 
   /**
    * CKAN-compatible SQL query
    */
-  async ckanDatastoreSearchSql(options: Parameters<typeof this.apiClient.ckanDatastoreSearchSql>[0]) {
+  async ckanDatastoreSearchSql(options: Parameters<typeof DkanApiClient.prototype.ckanDatastoreSearchSql>[0]) {
     return this.apiClient.ckanDatastoreSearchSql(options)
   }
 
