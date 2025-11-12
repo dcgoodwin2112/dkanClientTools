@@ -2,7 +2,7 @@
   <div class="dkan-widget-container">
     <header class="dkan-widget-header">
       <h2>DKAN Dataset Search (Vue)</h2>
-      <p>Demonstrating @dkan-client-tools/vue with Runtime-Only Build (28% smaller!)</p>
+      <p>Demonstrating @dkan-client-tools/vue</p>
     </header>
 
     <div class="dkan-widget-body">
