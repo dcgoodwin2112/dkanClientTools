@@ -772,3 +772,4 @@ ddev composer install                   # Install dependencies
 - DDEV uses Mutagen for file synchronization on macOS
 - All Drupal/DKAN commands should be run through DDEV (prefix with `ddev`)
 - Sample content can be regenerated at any time using `ddev drush dkan:sample-content:create`
+- Please remember to never stage or commit changes when currently on the main branch of the repo
