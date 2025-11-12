@@ -10,6 +10,12 @@
   ],
   "scripts": {
     "build": "npm run build -ws --if-present",
+    "build:all": "node scripts/build-orchestrator.js",
+    "build:packages": "node scripts/build-orchestrator.js packages",
+    "build:deploy": "node scripts/build-orchestrator.js deploy",
+    "build:examples": "node scripts/build-orchestrator.js examples",
+    "build:drupal": "node scripts/build-orchestrator.js drupal",
+    "build:all:drupal": "npm run build:all && cd dkan && ddev drush cr",
     "test": "npm run test -ws --if-present",
     "lint": "npm run lint -ws --if-present",
     "typecheck": "npm run typecheck -ws --if-present",

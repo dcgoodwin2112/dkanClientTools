@@ -24,9 +24,15 @@ The repository also includes a local DKAN development environment for testing an
 ├── dkan/                              # DKAN development site (DDEV)
 ├── research/                          # Research and analysis documentation
 ├── docs/                              # User documentation
+│   ├── BUILD_PROCESS.md               # Automated build system guide
+│   ├── BUILD_DOCUMENTATION_INDEX.md   # Index of all build documentation
+│   ├── LIVE_TYPES.md                  # Live types setup guide
 │   ├── REACT_STANDALONE_APP.md        # Guide for creating React apps
 │   ├── VUE_STANDALONE_APP.md          # Guide for creating Vue apps
 │   └── DRUPAL_USAGE.md                # Guide for Drupal integration
+├── scripts/                           # Build automation scripts
+│   ├── build-orchestrator.js          # Automated build orchestrator
+│   └── build-config.js                # Build configuration
 ├── package.json                       # Root workspace configuration
 └── CLAUDE.md                          # This file
 ```
@@ -214,17 +220,35 @@ npm install
 
 ### Building Packages
 
-```bash
-# Build all packages
-npm run build
+The project uses an automated build orchestrator for the complete workflow.
 
-# Build specific package
-cd packages/dkan-client-tools-core
+```bash
+# Complete build workflow (packages → deploy → examples → drupal modules)
+npm run build:all
+
+# Complete build + clear Drupal cache
+npm run build:all:drupal
+
+# Build only packages (core, react, vue)
+npm run build:packages
+
+# Build only standalone examples
+npm run build:examples
+
+# Build only Drupal demo modules
+npm run build:drupal
+
+# Deploy already-built packages to Drupal modules
+npm run build:deploy
+
+# Legacy: Build all packages (no deployment)
 npm run build
 
 # Watch mode for development
 npm run dev
 ```
+
+**See [BUILD_PROCESS.md](docs/BUILD_PROCESS.md) for complete build documentation.**
 
 ### Testing
 
