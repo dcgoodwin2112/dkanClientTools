@@ -11,7 +11,7 @@ export { ReactNamespace as React, ReactDOMNamespace as ReactDOM }
 
 // Re-export QueryClient and DkanClient for IIFE builds
 export { QueryClient } from '@tanstack/react-query'
-export { DkanClient as DkanClientClass } from '@dkan-client-tools/core'
+export { DkanClient } from '@dkan-client-tools/core'
 
 // Provider and context
 export { DkanClientProvider, useDkanClient } from './DkanClientProvider'
@@ -161,9 +161,8 @@ export type {
   UseCkanPackageListOptions,
 } from './useCkanApi'
 
-// Re-export core types and client for convenience
+// Re-export core types for convenience
 export type {
-  DkanClient,
   DkanClientOptions,
   DkanDataset,
   DkanSearchResponse,
