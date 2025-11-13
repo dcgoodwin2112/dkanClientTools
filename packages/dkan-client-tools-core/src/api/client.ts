@@ -425,8 +425,28 @@ export class DkanApiClient {
    *
    * @param options - Query options with resources array, includes format
    * @returns Blob for file download
+   *
+   * @example
+   * // Download CSV for a multi-resource join query
+   * const client = new DkanApiClient({ baseUrl: 'https://demo.getdkan.org' });
+   * const options = {
+   *   resources: [
+   *     { resource: 'abc123', fields: ['id', 'name'] },
+   *     { resource: 'def456', fields: ['id', 'dataset_id'], join: { on: ['id'] } }
+   *   ],
+   *   filters: { 'name': { like: 'Water%' } },
+   *   format: 'csv'
+   * };
+   * const blob = await client.downloadQueryMulti(options);
+   * // Use blob to trigger a file download in the browser
+   * const url = URL.createObjectURL(blob);
+   * const a = document.createElement('a');
+   * a.href = url;
+   * a.download = 'multi-resource.csv';
+   * document.body.appendChild(a);
+   * a.click();
+   * URL.revokeObjectURL(url);
    */
-  async downloadQueryMulti(
     options: QueryDownloadOptions = {}
   ): Promise<Blob> {
     const format = options.format || 'csv'
