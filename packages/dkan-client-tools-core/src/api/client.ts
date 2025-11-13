@@ -15,7 +15,7 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (33 methods across 6 categories):
+ * **API Coverage** (34 methods across 6 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
@@ -33,8 +33,8 @@
  *    - listHarvestPlans, getHarvestPlan, registerHarvestPlan
  *    - listHarvestRuns, getHarvestRun, runHarvest
  *
- * 5. **Datastore Imports** (3 methods)
- *    - listDatastoreImports, getDatastoreImport
+ * 5. **Datastore Imports** (4 methods) - Phase 1 enhanced
+ *    - listDatastoreImports, getDatastoreStatistics
  *    - triggerDatastoreImport, deleteDatastore
  *
  * 6. **Metastore & Revisions** (6 methods)
@@ -110,6 +110,7 @@ import type {
   HarvestRunOptions,
   DatastoreImport,
   DatastoreImportOptions,
+  DatastoreStatistics,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
@@ -226,16 +227,36 @@ export class DkanApiClient {
 
   /**
    * Fetch a single dataset by identifier
+   *
+   * Phase 1 - OpenAPI alignment: Added show-reference-ids support
+   *
+   * @param identifier - Dataset identifier
+   * @param options - Optional parameters
+   * @param options.showReferenceIds - Include internal reference IDs (distribution identifiers)
+   * @returns Dataset metadata
+   *
+   * @example
+   * ```typescript
+   * // Get dataset with distribution identifiers
+   * const dataset = await client.getDataset('abc-123', { showReferenceIds: true })
+   * console.log(dataset.distribution[0].identifier) // Distribution UUID
+   * ```
    */
-  async getDataset(identifier: string): Promise<DkanDataset> {
+  async getDataset(
+    identifier: string,
+    options?: { showReferenceIds?: boolean }
+  ): Promise<DkanDataset> {
+    const queryParams = options?.showReferenceIds ? '?show-reference-ids' : ''
     const response = await this.request<DkanDataset>(
-      `/api/1/metastore/schemas/dataset/items/${identifier}`
+      `/api/1/metastore/schemas/dataset/items/${identifier}${queryParams}`
     )
     return response.data
   }
 
   /**
    * Search datasets with filters
+   *
+   * Phase 1 - OpenAPI alignment: Added support for array sort parameters
    */
   async searchDatasets(options: DatasetQueryOptions = {}): Promise<DkanSearchResponse> {
     const params = new URLSearchParams()
@@ -243,8 +264,25 @@ export class DkanApiClient {
     if (options.keyword) params.append('keyword', options.keyword)
     if (options.theme) params.append('theme', options.theme)
     if (options.fulltext) params.append('fulltext', options.fulltext)
-    if (options.sort) params.append('sort', options.sort)
-    if (options['sort-order']) params.append('sort-order', options['sort-order'])
+
+    // Handle array or string for sort
+    if (options.sort) {
+      if (Array.isArray(options.sort)) {
+        options.sort.forEach(s => params.append('sort', s))
+      } else {
+        params.append('sort', options.sort)
+      }
+    }
+
+    // Handle array or string for sort-order
+    if (options['sort-order']) {
+      if (Array.isArray(options['sort-order'])) {
+        options['sort-order'].forEach(so => params.append('sort-order', so))
+      } else {
+        params.append('sort-order', options['sort-order'])
+      }
+    }
+
     if (options.page !== undefined) params.append('page', options.page.toString())
     if (options['page-size'] !== undefined)
       params.append('page-size', options['page-size'].toString())
@@ -391,10 +429,27 @@ export class DkanApiClient {
 
   /**
    * Get items for a specific schema type
+   *
+   * Phase 1 - OpenAPI alignment: Added show-reference-ids support
+   *
+   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
+   * @param options - Optional parameters
+   * @param options.showReferenceIds - Include internal reference IDs for nested items
+   * @returns Array of items for the schema
+   *
+   * @example
+   * ```typescript
+   * // Get all datasets with distribution identifiers
+   * const datasets = await client.getSchemaItems('dataset', { showReferenceIds: true })
+   * ```
    */
-  async getSchemaItems(schemaId: string): Promise<any[]> {
+  async getSchemaItems(
+    schemaId: string,
+    options?: { showReferenceIds?: boolean }
+  ): Promise<any[]> {
+    const queryParams = options?.showReferenceIds ? '?show-reference-ids' : ''
     const response = await this.request<any>(
-      `/api/1/metastore/schemas/${schemaId}/items`
+      `/api/1/metastore/schemas/${schemaId}/items${queryParams}`
     )
 
     if (response.data && Array.isArray(response.data)) {
@@ -641,10 +696,34 @@ export class DkanApiClient {
    * Delete a datastore (resource or all resources for a dataset)
    */
   async deleteDatastore(identifier: string): Promise<{ message: string }> {
-    const response = await this.request<{ message: string }>(
+    const response = await this.request<{ message: string}>(
       `/api/1/datastore/imports/${identifier}`,
       {
         method: 'DELETE',
+      }
+    )
+    return response.data
+  }
+
+  /**
+   * Get datastore statistics (row/column counts)
+   *
+   * Phase 1 - OpenAPI alignment: Implements GET /api/1/datastore/imports/{identifier}
+   *
+   * @param identifier - Distribution or dataset identifier
+   * @returns Statistics including numOfRows, numOfColumns, and columns metadata
+   *
+   * @example
+   * ```typescript
+   * const stats = await client.getDatastoreStatistics('distribution-uuid')
+   * console.log(`Rows: ${stats.numOfRows}, Columns: ${stats.numOfColumns}`)
+   * ```
+   */
+  async getDatastoreStatistics(identifier: string): Promise<DatastoreStatistics> {
+    const response = await this.request<DatastoreStatistics>(
+      `/api/1/datastore/imports/${identifier}`,
+      {
+        method: 'GET',
       }
     )
     return response.data

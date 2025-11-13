@@ -101,13 +101,15 @@ export interface DatasetQueryOptions {
   keyword?: string
   theme?: string
   fulltext?: string
-  sort?: string
-  'sort-order'?: 'asc' | 'desc'
+  // Phase 1 - OpenAPI alignment: Support both single and array values for multi-field sorting
+  sort?: string | string[]
+  'sort-order'?: 'asc' | 'desc' | Array<'asc' | 'desc'>
   page?: number
   'page-size'?: number
 }
 
 export interface DatastoreQueryOptions {
+  // Query structure
   conditions?: DatastoreCondition[]
   properties?: string[]
   sorts?: DatastoreSort[]
@@ -115,6 +117,18 @@ export interface DatastoreQueryOptions {
   offset?: number
   joins?: DatastoreJoin[]
   expression?: DatastoreExpression
+
+  // Multi-resource query support (Phase 1 - OpenAPI alignment)
+  resources?: Array<{ id: string; alias?: string }>
+  groupings?: Array<{ property: string; resource?: string }>
+
+  // Response control flags (Phase 1 - OpenAPI alignment)
+  count?: boolean          // Include count in response (default: true)
+  results?: boolean        // Include results in response (default: true)
+  schema?: boolean         // Include schema in response (default: true)
+  keys?: boolean           // Include keys in response (default: true)
+  format?: 'json' | 'csv'  // Response format (default: 'json')
+  rowIds?: boolean         // Include row IDs (default: false)
 }
 
 export interface DatastoreCondition {
@@ -297,6 +311,15 @@ export interface DatastoreImport {
 export interface DatastoreImportOptions {
   resource_id: string
   [key: string]: any
+}
+
+/**
+ * Datastore Statistics response from GET /api/1/datastore/imports/{identifier}
+ */
+export interface DatastoreStatistics {
+  numOfRows: number
+  numOfColumns: number
+  columns: Record<string, any>
 }
 
 /**

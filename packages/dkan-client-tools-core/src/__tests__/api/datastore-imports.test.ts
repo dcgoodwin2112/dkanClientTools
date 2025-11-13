@@ -67,4 +67,29 @@ describe('DkanApiClient - Datastore Imports', () => {
     )
     expect(result.message).toContain('deleted')
   })
+
+  // Phase 1 - OpenAPI alignment tests
+  it('should get datastore statistics', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        numOfRows: 1000,
+        numOfColumns: 15,
+        columns: {
+          field1: { type: 'string' },
+          field2: { type: 'integer' },
+        },
+      }),
+    })
+
+    const stats = await client.getDatastoreStatistics('distribution-uuid')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://example.com/api/1/datastore/imports/distribution-uuid',
+      expect.objectContaining({ method: 'GET' })
+    )
+    expect(stats.numOfRows).toBe(1000)
+    expect(stats.numOfColumns).toBe(15)
+    expect(stats.columns).toHaveProperty('field1')
+  })
 })
