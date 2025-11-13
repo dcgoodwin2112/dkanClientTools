@@ -6,19 +6,18 @@
  *
  * **Features**:
  * - Framework-agnostic - works with any JavaScript framework
- * - Full DKAN REST API support (43 methods across 8 categories)
+ * - Full DKAN REST API support (33 methods across 6 categories)
  * - Type-safe with complete DCAT-US schema types
  * - Built on TanStack Query for proven caching patterns
  * - Lightweight - only depends on @tanstack/query-core
  *
  * **API Coverage**:
- * - Dataset operations: CRUD, search, list, properties
+ * - Dataset operations: CRUD, search, list
  * - Datastore operations: query, SQL, download, imports
  * - Data dictionary: CRUD with Frictionless schema support
  * - Harvest operations: plans, runs, registration
  * - Metastore: schemas, facets, revisions
  * - Moderation: workflow states, revision history
- * - CKAN compatibility: migration-friendly endpoints
  *
  * **Architecture**:
  * - {@link DkanClient} - Main client wrapping QueryClient
@@ -94,7 +93,6 @@ export type {
   HarvestRunOptions,
   DatastoreImport,
   DatastoreImportOptions,
-  DatastoreStatistics,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
@@ -102,15 +100,6 @@ export type {
   QueryDownloadOptions,
   SqlQueryOptions,
   SqlQueryResult,
-  DatasetProperty,
-  DatasetPropertyValue,
-  CkanPackageSearchResponse,
-  CkanPackageSearchOptions,
-  CkanDatastoreSearchResponse,
-  CkanDatastoreSearchOptions,
-  CkanDatastoreSearchSqlOptions,
-  CkanResource,
-  CkanPackageWithResources,
 } from './types'
 
 export { DkanApiError } from './types'

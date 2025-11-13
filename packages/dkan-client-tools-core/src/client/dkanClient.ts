@@ -566,13 +566,6 @@ export class DkanClient {
   }
 
   /**
-   * Get datastore statistics for a resource
-   */
-  async getDatastoreStatistics(identifier: string) {
-    return this.apiClient.getDatastoreStatistics(identifier)
-  }
-
-  /**
    * Delete a datastore (resource or all resources for a dataset)
    */
   async deleteDatastore(identifier: string) {
@@ -668,37 +661,7 @@ export class DkanClient {
     return this.apiClient.deleteDataDictionary(identifier)
   }
 
-  // ==================== DATASET PROPERTIES ====================
-
-  /**
-   * Get all dataset properties
-   */
-  async getDatasetProperties() {
-    return this.apiClient.getDatasetProperties()
-  }
-
-  /**
-   * Get all values for a specific property
-   */
-  async getPropertyValues(property: string) {
-    return this.apiClient.getPropertyValues(property)
-  }
-
-  /**
-   * Get all properties with their values
-   */
-  async getAllPropertiesWithValues() {
-    return this.apiClient.getAllPropertiesWithValues()
-  }
-
   // ==================== OPENAPI DOCUMENTATION ====================
-
-  /**
-   * Get OpenAPI specification
-   */
-  async getOpenApiSpec() {
-    return this.apiClient.getOpenApiSpec()
-  }
 
   /**
    * Get OpenAPI documentation UI URL
@@ -707,40 +670,4 @@ export class DkanClient {
     return this.apiClient.getOpenApiDocsUrl()
   }
 
-  // ==================== CKAN API COMPATIBILITY ====================
-
-  /**
-   * CKAN-compatible package search
-   */
-  async ckanPackageSearch(options?: Parameters<typeof DkanApiClient.prototype.ckanPackageSearch>[0]) {
-    return this.apiClient.ckanPackageSearch(options)
-  }
-
-  /**
-   * CKAN-compatible datastore search
-   */
-  async ckanDatastoreSearch(options: Parameters<typeof DkanApiClient.prototype.ckanDatastoreSearch>[0]) {
-    return this.apiClient.ckanDatastoreSearch(options)
-  }
-
-  /**
-   * CKAN-compatible SQL query
-   */
-  async ckanDatastoreSearchSql(options: Parameters<typeof DkanApiClient.prototype.ckanDatastoreSearchSql>[0]) {
-    return this.apiClient.ckanDatastoreSearchSql(options)
-  }
-
-  /**
-   * CKAN-compatible resource show
-   */
-  async ckanResourceShow(resourceId: string) {
-    return this.apiClient.ckanResourceShow(resourceId)
-  }
-
-  /**
-   * CKAN-compatible current package list with resources
-   */
-  async ckanCurrentPackageListWithResources() {
-    return this.apiClient.ckanCurrentPackageListWithResources()
-  }
 }

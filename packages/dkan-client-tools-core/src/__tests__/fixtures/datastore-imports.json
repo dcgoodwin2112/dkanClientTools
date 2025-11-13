@@ -1,0 +1,128 @@
+[
+  {
+    "method": "listDatastoreImports",
+    "category": "Datastore Imports",
+    "endpoint": "/api/1/datastore/imports",
+    "timestamp": "2025-11-13T15:21:22.783Z",
+    "response": {
+      "0310f6c2d28bbee5de1211e5b5bb0b1c_1762982100": {
+        "fileName": "district_centerpoints.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 32378,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "046ab6a6761c2a8c34efdbc828291e54_1762982100": {
+        "fileName": "ViolentCrimeRates.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 1354,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "0821c20012819a030c6fc33f6b329643_1762982100": {
+        "fileName": "data.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 13753,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "247460e99b513a256488a3c882c4c611_1762982100": {
+        "fileName": "demo_varicelladeaths_1974_1990.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 219,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "3a187a87dc6cd47c48b6b4c4785224b7_1762982100": {
+        "fileName": "Bike_Lane.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 146281,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "6e5a8b0e5f9ae95d1e239844aaab2db4_1762982100": {
+        "fileName": "Asthma-Prevalence-Map-2017.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 7915,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "b5c378447521601cd20059ca774c4b6c_1762982100": {
+        "fileName": "polling-places.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 16616,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "cd8897e4815043c8aa3ac49f8e3e7ffd_1762982100": {
+        "fileName": "us_foreclosures_jan_2012_by_state.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 1015,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "e2771c9a17481d9be608b5705fd6c068_1762982100": {
+        "fileName": "CDCSmokingRates.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 2058,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      },
+      "f93f3fe527798ece765176f39407540a_1762982100": {
+        "fileName": "demo_varicelladeaths_1991_2007.csv",
+        "fileFetcherStatus": "done",
+        "fileFetcherBytes": 267,
+        "fileFetcherPercentDone": 100,
+        "importerStatus": "done",
+        "importerBytes": 0,
+        "importerPercentDone": 100,
+        "importerError": ""
+      }
+    },
+    "status": 200,
+    "responseTime": 72
+  },
+  {
+    "method": "triggerDatastoreImport",
+    "category": "Datastore Imports",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.783Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  },
+  {
+    "method": "deleteDatastore",
+    "category": "Datastore Imports",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.783Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  }
+]

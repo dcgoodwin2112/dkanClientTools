@@ -71,14 +71,12 @@ export {
 export {
   useDatastoreImports,
   useDatastoreImport,
-  useDatastoreStatistics,
   useTriggerDatastoreImport,
   useDeleteDatastore,
 } from './useDatastoreImports'
 export type {
   UseDatastoreImportsOptions,
   UseDatastoreImportOptions,
-  UseDatastoreStatisticsOptions,
 } from './useDatastoreImports'
 
 export {
@@ -117,31 +115,7 @@ export {
   useDeleteDataDictionary,
 } from './useDataDictionaryMutations'
 
-export {
-  useDatasetProperties,
-  usePropertyValues,
-  useAllPropertiesWithValues,
-} from './useDatasetProperties'
-export type {
-  UseDatasetPropertiesOptions,
-  UsePropertyValuesOptions,
-  UseAllPropertiesWithValuesOptions,
-} from './useDatasetProperties'
-
-export {
-  useCkanPackageSearch,
-  useCkanDatastoreSearch,
-  useCkanDatastoreSearchSql,
-  useCkanResourceShow,
-  useCkanCurrentPackageListWithResources,
-} from './useCkanApi'
-export type {
-  UseCkanPackageSearchOptions,
-  UseCkanDatastoreSearchOptions,
-  UseCkanDatastoreSearchSqlOptions,
-  UseCkanResourceShowOptions,
-  UseCkanPackageListOptions,
-} from './useCkanApi'
+// Dataset Properties and CKAN API hooks removed - not available in current version
 
 // Re-export commonly used Vue Query hooks
 export { useQuery, useMutation, useQueryClient, useIsFetching, useIsMutating } from '@tanstack/vue-query'

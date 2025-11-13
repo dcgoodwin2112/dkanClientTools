@@ -299,12 +299,6 @@ export interface DatastoreImportOptions {
   [key: string]: any
 }
 
-export interface DatastoreStatistics {
-  numOfRows: number
-  numOfColumns: number
-  columns: string[]
-}
-
 /**
  * Metastore write operation response
  */
@@ -342,89 +336,38 @@ export interface QueryDownloadOptions extends DatastoreQueryOptions {
  * SQL Query types
  */
 export interface SqlQueryOptions {
+  /**
+   * SQL query string in DKAN bracket syntax.
+   *
+   * Format: `[SELECT columns FROM distribution-id][WHERE conditions][ORDER BY fields][LIMIT n OFFSET m];`
+   *
+   * @example
+   * ```typescript
+   * {
+   *   query: '[SELECT * FROM abc123][LIMIT 10];'
+   * }
+   * ```
+   */
   query: string
+
+  /**
+   * Return database column names instead of human-readable descriptions.
+   * Useful for building queries when column headers are very long.
+   *
+   * @default false
+   */
   show_db_columns?: boolean
+
+  /**
+   * HTTP method to use for the request.
+   *
+   * - GET: Recommended for most queries, matches DKAN standard examples
+   * - POST: More permissive (no auth required), useful for complex queries
+   *
+   * @default 'GET'
+   */
+  method?: 'GET' | 'POST'
 }
 
 export type SqlQueryResult = Record<string, any>[]
 
-/**
- * Dataset Properties types
- */
-export interface DatasetProperty {
-  property: string
-  values: string[]
-}
-
-export interface DatasetPropertyValue {
-  value: string
-  count: number
-}
-
-/**
- * CKAN API Compatibility types
- */
-export interface CkanPackageSearchResponse {
-  count: number
-  sort: string
-  facets?: Record<string, any>
-  results: DkanDataset[]
-  search_facets?: Record<string, any>
-}
-
-export interface CkanPackageSearchOptions {
-  q?: string
-  fq?: string
-  rows?: number
-  start?: number
-  sort?: string
-  facet?: boolean
-  'facet.field'?: string[]
-  'facet.limit'?: number
-}
-
-export interface CkanDatastoreSearchResponse {
-  resource_id: string
-  fields: Array<{ id: string; type: string }>
-  records: Record<string, any>[]
-  total: number
-  _links?: {
-    start: string
-    next?: string
-  }
-}
-
-export interface CkanDatastoreSearchOptions {
-  resource_id: string
-  filters?: Record<string, any>
-  q?: string
-  distinct?: boolean
-  plain?: boolean
-  language?: string
-  limit?: number
-  offset?: number
-  fields?: string[]
-  sort?: string
-}
-
-export interface CkanDatastoreSearchSqlOptions {
-  sql: string
-}
-
-export interface CkanResource {
-  id: string
-  package_id?: string
-  url?: string
-  format?: string
-  description?: string
-  name?: string
-  created?: string
-  last_modified?: string
-  mimetype?: string
-  size?: number
-  [key: string]: any
-}
-
-export interface CkanPackageWithResources extends DkanDataset {
-  resources: CkanResource[]
-}

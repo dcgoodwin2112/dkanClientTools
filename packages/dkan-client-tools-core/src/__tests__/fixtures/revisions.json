@@ -1,0 +1,43 @@
+[
+  {
+    "method": "getRevisions",
+    "category": "Revisions",
+    "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions",
+    "timestamp": "2025-11-13T15:21:23.079Z",
+    "response": [
+      {
+        "identifier": "8",
+        "published": true,
+        "message": "Created on 2025-11-12T16:14:59-05:00",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      }
+    ],
+    "status": 200,
+    "responseTime": 78
+  },
+  {
+    "method": "getRevision",
+    "category": "Revisions",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:23.080Z",
+    "skipped": true,
+    "skipReason": "requires revision ID"
+  },
+  {
+    "method": "createRevision",
+    "category": "Revisions",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:23.080Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  },
+  {
+    "method": "changeDatasetState",
+    "category": "Revisions",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:23.080Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  }
+]

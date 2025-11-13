@@ -15,7 +15,7 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (43 methods across 8 categories):
+ * **API Coverage** (33 methods across 6 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
@@ -33,20 +33,13 @@
  *    - listHarvestPlans, getHarvestPlan, registerHarvestPlan
  *    - listHarvestRuns, getHarvestRun, runHarvest
  *
- * 5. **Datastore Imports** (4 methods)
+ * 5. **Datastore Imports** (3 methods)
  *    - listDatastoreImports, getDatastoreImport
- *    - triggerDatastoreImport, deleteDatastore, getDatastoreStatistics
+ *    - triggerDatastoreImport, deleteDatastore
  *
- * 6. **Metastore** (6 methods)
- *    - listSchemas, getSchemaItems
- *    - getDatasetFacets, getDatasetProperties, getPropertyValues, getAllPropertiesWithValues
- *
- * 7. **Revisions/Moderation** (4 methods)
+ * 6. **Metastore & Revisions** (6 methods)
+ *    - listSchemas, getSchemaItems, getDatasetFacets
  *    - getRevisions, getRevision, createRevision, changeDatasetState
- *
- * 8. **CKAN Compatibility** (5 methods)
- *    - ckanPackageSearch, ckanDatastoreSearch, ckanDatastoreSearchSql
- *    - ckanResourceShow, ckanCurrentPackageListWithResources
  *
  * **Authentication**:
  * - HTTP Basic Authentication (username + password)
@@ -117,7 +110,6 @@ import type {
   HarvestRunOptions,
   DatastoreImport,
   DatastoreImportOptions,
-  DatastoreStatistics,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
@@ -125,15 +117,6 @@ import type {
   QueryDownloadOptions,
   SqlQueryOptions,
   SqlQueryResult,
-  DatasetProperty,
-  DatasetPropertyValue,
-  CkanPackageSearchResponse,
-  CkanPackageSearchOptions,
-  CkanDatastoreSearchResponse,
-  CkanDatastoreSearchOptions,
-  CkanDatastoreSearchSqlOptions,
-  CkanResource,
-  CkanPackageWithResources,
 } from '../types'
 import { DkanApiError } from '../types'
 
@@ -655,16 +638,6 @@ export class DkanApiClient {
   }
 
   /**
-   * Get datastore statistics for a resource
-   */
-  async getDatastoreStatistics(identifier: string): Promise<DatastoreStatistics> {
-    const response = await this.request<DatastoreStatistics>(
-      `/api/1/datastore/imports/${identifier}`
-    )
-    return response.data
-  }
-
-  /**
    * Delete a datastore (resource or all resources for a dataset)
    */
   async deleteDatastore(identifier: string): Promise<{ message: string }> {
@@ -750,21 +723,30 @@ export class DkanApiClient {
     const queryOptions = { ...options }
     delete queryOptions.format
 
-    const url = `${this.baseUrl}/api/1/datastore/query/${datasetId}/${index}/download?format=${format}`
+    // Build query string with properly serialized parameters
+    const params = new URLSearchParams({ format })
+
+    // Add query options as JSON-encoded parameters
+    if (Object.keys(queryOptions).length > 0) {
+      for (const [key, value] of Object.entries(queryOptions)) {
+        if (value !== undefined) {
+          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
+        }
+      }
+    }
+
+    const url = `${this.baseUrl}/api/1/datastore/query/${datasetId}/${index}/download?${params.toString()}`
     const authHeader = this.getAuthHeader()
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
+    const headers: Record<string, string> = {}
 
     if (authHeader) {
       headers['Authorization'] = authHeader
     }
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers,
-      body: JSON.stringify(queryOptions),
     })
 
     if (!response.ok) {
@@ -788,21 +770,30 @@ export class DkanApiClient {
     const queryOptions = { ...options }
     delete queryOptions.format
 
-    const url = `${this.baseUrl}/api/1/datastore/query/${distributionId}/download?format=${format}`
+    // Build query string with properly serialized parameters
+    const params = new URLSearchParams({ format })
+
+    // Add query options as JSON-encoded parameters
+    if (Object.keys(queryOptions).length > 0) {
+      for (const [key, value] of Object.entries(queryOptions)) {
+        if (value !== undefined) {
+          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
+        }
+      }
+    }
+
+    const url = `${this.baseUrl}/api/1/datastore/query/${distributionId}/download?${params.toString()}`
     const authHeader = this.getAuthHeader()
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
+    const headers: Record<string, string> = {}
 
     if (authHeader) {
       headers['Authorization'] = authHeader
     }
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers,
-      body: JSON.stringify(queryOptions),
     })
 
     if (!response.ok) {
@@ -818,18 +809,140 @@ export class DkanApiClient {
   // ==================== SQL QUERY ====================
 
   /**
-   * Execute a SQL query against the datastore
-   * Returns query results as array of objects
+   * Execute a SQL query against the datastore using DKAN's bracket syntax.
+   *
+   * **IMPORTANT**: DKAN uses a custom SQL syntax with brackets, NOT standard SQL!
+   *
+   * ## Bracket Syntax Requirements
+   *
+   * Each SQL clause must be wrapped in brackets:
+   * - `[SELECT columns FROM distribution-id]`
+   * - `[WHERE conditions]`
+   * - `[ORDER BY fields ASC|DESC]`
+   * - `[LIMIT n OFFSET m]`
+   * - Query must end with `;`
+   *
+   * ## Getting the Distribution Identifier
+   *
+   * Use the `?show-reference-ids` parameter to get distribution identifiers:
+   *
+   * ```typescript
+   * const dataset = await client.getDataset('dataset-id', { 'show-reference-ids': true });
+   * const distributionId = dataset.distribution[0].identifier;
+   * ```
+   *
+   * ## Syntax Rules
+   *
+   * 1. **No spaces after commas** in SELECT: `[SELECT a,b,c FROM id]` ✓ not `[SELECT a, b, c FROM id]` ✗
+   * 2. **Double quotes for strings**: `[WHERE status = "active"]` ✓
+   * 3. **ORDER BY requires ASC or DESC**: `[ORDER BY name ASC]` ✓
+   * 4. **AND is the only boolean operator**: `[WHERE a = "1" AND b = "2"]` ✓
+   * 5. **End with semicolon**: `[SELECT * FROM id];` ✓
+   *
+   * ## Pagination
+   *
+   * DKAN has a default 500 record limit. Use LIMIT and OFFSET for pagination:
+   *
+   * ```typescript
+   * // First page
+   * await client.querySql({
+   *   query: '[SELECT * FROM dist-id][LIMIT 500 OFFSET 0];'
+   * });
+   *
+   * // Second page
+   * await client.querySql({
+   *   query: '[SELECT * FROM dist-id][LIMIT 500 OFFSET 500];'
+   * });
+   * ```
+   *
+   * ## Using show_db_columns
+   *
+   * Returns database column names instead of human-readable headers.
+   * Useful when column descriptions are very long:
+   *
+   * ```typescript
+   * const result = await client.querySql({
+   *   query: '[SELECT * FROM dist-id][LIMIT 10];',
+   *   show_db_columns: true
+   * });
+   * ```
+   *
+   * @param options - Query options
+   * @param options.query - SQL query in bracket syntax
+   * @param options.show_db_columns - Return DB column names instead of descriptions
+   * @param options.method - HTTP method (GET or POST). Defaults to GET.
+   * @returns Array of row objects
+   *
+   * @example
+   * Simple query:
+   * ```typescript
+   * const results = await client.querySql({
+   *   query: '[SELECT * FROM 6ca7e14e-8f28-5337-84f9-1086c4a0b820][LIMIT 10];'
+   * });
+   * ```
+   *
+   * @example
+   * Query with WHERE and ORDER BY:
+   * ```typescript
+   * const results = await client.querySql({
+   *   query: '[SELECT name,status FROM dist-id][WHERE status = "active"][ORDER BY name ASC][LIMIT 100];'
+   * });
+   * ```
+   *
+   * @example
+   * COUNT query:
+   * ```typescript
+   * const results = await client.querySql({
+   *   query: '[SELECT COUNT(*) FROM dist-id];'
+   * });
+   * console.log(results[0].expression); // Total count
+   * ```
+   *
+   * @example
+   * Using POST method for complex queries:
+   * ```typescript
+   * const results = await client.querySql({
+   *   query: '[SELECT * FROM dist-id][WHERE field = "value with spaces"][LIMIT 100];',
+   *   method: 'POST'
+   * });
+   * ```
+   *
+   * @throws {DkanApiError} If query syntax is invalid or distribution not found
+   *
+   * @see https://data.medicaid.gov/about/api - Official DKAN SQL endpoint documentation
+   * @see https://data.healthcare.gov/api - Additional DKAN API examples
    */
   async querySql(options: SqlQueryOptions): Promise<SqlQueryResult> {
-    const response = await this.request<SqlQueryResult>(
-      '/api/1/datastore/sql',
-      {
-        method: 'POST',
-        body: JSON.stringify(options),
+    const method = options.method || 'GET'
+
+    if (method === 'GET') {
+      // GET method: Use query parameters
+      const params = new URLSearchParams({ query: options.query })
+      if (options.show_db_columns) {
+        params.append('show_db_columns', 'true')
       }
-    )
-    return response.data
+
+      const response = await this.request<SqlQueryResult>(
+        `/api/1/datastore/sql?${params.toString()}`,
+        {
+          method: 'GET',
+        }
+      )
+      return response.data
+    } else {
+      // POST method: Use JSON body
+      const response = await this.request<SqlQueryResult>(
+        '/api/1/datastore/sql',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            query: options.query,
+            show_db_columns: options.show_db_columns,
+          }),
+        }
+      )
+      return response.data
+    }
   }
 
   // ==================== DATA DICTIONARY CRUD ====================
@@ -880,50 +993,7 @@ export class DkanApiClient {
     return response.data
   }
 
-  // ==================== DATASET PROPERTIES ====================
-
-  /**
-   * Get all dataset properties (fields available for filtering)
-   */
-  async getDatasetProperties(): Promise<string[]> {
-    const response = await this.request<string[]>(
-      '/api/1/properties'
-    )
-    return response.data
-  }
-
-  /**
-   * Get all values for a specific property across datasets
-   */
-  async getPropertyValues(property: string): Promise<string[]> {
-    const response = await this.request<string[]>(
-      `/api/1/properties/${property}`
-    )
-    return response.data
-  }
-
-  /**
-   * Get all properties with their values
-   * Useful for building faceted search UIs
-   */
-  async getAllPropertiesWithValues(): Promise<Record<string, string[]>> {
-    const response = await this.request<Record<string, string[]>>(
-      '/api/1/properties?show_values=true'
-    )
-    return response.data
-  }
-
   // ==================== OPENAPI DOCUMENTATION ====================
-
-  /**
-   * Get OpenAPI specification as JSON
-   */
-  async getOpenApiSpec(): Promise<Record<string, any>> {
-    const response = await this.request<Record<string, any>>(
-      '/api/1/spec'
-    )
-    return response.data
-  }
 
   /**
    * Get OpenAPI documentation UI URL
@@ -933,95 +1003,4 @@ export class DkanApiClient {
     return `${this.baseUrl}/api/1/docs`
   }
 
-  // ==================== CKAN API COMPATIBILITY ====================
-
-  /**
-   * CKAN-compatible package (dataset) search
-   * Provides compatibility with CKAN-based tools
-   */
-  async ckanPackageSearch(options: CkanPackageSearchOptions = {}): Promise<CkanPackageSearchResponse> {
-    const params = new URLSearchParams()
-
-    if (options.q) params.append('q', options.q)
-    if (options.fq) params.append('fq', options.fq)
-    if (options.rows !== undefined) params.append('rows', options.rows.toString())
-    if (options.start !== undefined) params.append('start', options.start.toString())
-    if (options.sort) params.append('sort', options.sort)
-    if (options.facet !== undefined) params.append('facet', String(options.facet))
-    if (options['facet.field']) {
-      options['facet.field'].forEach(field => params.append('facet.field', field))
-    }
-    if (options['facet.limit'] !== undefined) {
-      params.append('facet.limit', options['facet.limit'].toString())
-    }
-
-    const queryString = params.toString()
-    const path = `/api/3/action/package_search${queryString ? `?${queryString}` : ''}`
-
-    const response = await this.request<{ result: CkanPackageSearchResponse }>(path)
-    return response.data.result
-  }
-
-  /**
-   * CKAN-compatible datastore search
-   * Query a specific resource's datastore
-   */
-  async ckanDatastoreSearch(options: CkanDatastoreSearchOptions): Promise<CkanDatastoreSearchResponse> {
-    const params = new URLSearchParams()
-    params.append('resource_id', options.resource_id)
-
-    if (options.filters) {
-      params.append('filters', JSON.stringify(options.filters))
-    }
-    if (options.q) params.append('q', options.q)
-    if (options.distinct !== undefined) params.append('distinct', String(options.distinct))
-    if (options.plain !== undefined) params.append('plain', String(options.plain))
-    if (options.language) params.append('language', options.language)
-    if (options.limit !== undefined) params.append('limit', options.limit.toString())
-    if (options.offset !== undefined) params.append('offset', options.offset.toString())
-    if (options.fields) params.append('fields', options.fields.join(','))
-    if (options.sort) params.append('sort', options.sort)
-
-    const queryString = params.toString()
-    const path = `/api/3/action/datastore_search?${queryString}`
-
-    const response = await this.request<{ result: CkanDatastoreSearchResponse }>(path)
-    return response.data.result
-  }
-
-  /**
-   * CKAN-compatible SQL query endpoint
-   * Execute SQL queries against the datastore
-   */
-  async ckanDatastoreSearchSql(options: CkanDatastoreSearchSqlOptions): Promise<SqlQueryResult> {
-    const params = new URLSearchParams()
-    params.append('sql', options.sql)
-
-    const path = `/api/3/action/datastore_search_sql?${params.toString()}`
-
-    const response = await this.request<{ result: { records: SqlQueryResult } }>(path)
-    return response.data.result.records
-  }
-
-  /**
-   * CKAN-compatible resource show
-   * Get metadata about a specific resource
-   */
-  async ckanResourceShow(resourceId: string): Promise<CkanResource> {
-    const response = await this.request<{ result: CkanResource }>(
-      `/api/3/action/resource_show?id=${resourceId}`
-    )
-    return response.data.result
-  }
-
-  /**
-   * CKAN-compatible current package list with resources
-   * Get all datasets with their resources included
-   */
-  async ckanCurrentPackageListWithResources(): Promise<CkanPackageWithResources[]> {
-    const response = await this.request<{ result: CkanPackageWithResources[] }>(
-      '/api/3/action/current_package_list_with_resources'
-    )
-    return response.data.result
-  }
 }

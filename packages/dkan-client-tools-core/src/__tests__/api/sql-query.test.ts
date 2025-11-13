@@ -16,7 +16,7 @@ describe('DkanApiClient - SQL Query', () => {
     client = new DkanApiClient({ baseUrl: 'https://example.com' })
   })
 
-  it('should execute SQL query', async () => {
+  it('should execute SQL query with GET by default', async () => {
     const mockResult = [
       { id: 1, name: 'Test 1', value: 100 },
       { id: 2, name: 'Test 2', value: 200 },
@@ -30,6 +30,34 @@ describe('DkanApiClient - SQL Query', () => {
     const result = await client.querySql({
       query: 'SELECT * FROM datastore_12345 LIMIT 10',
       show_db_columns: false,
+    })
+
+    // show_db_columns: false is not included in the URL (only added when truthy)
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://example.com/api/1/datastore/sql?query=SELECT+*+FROM+datastore_12345+LIMIT+10',
+      expect.objectContaining({
+        method: 'GET',
+      })
+    )
+    expect(result).toEqual(mockResult)
+    expect(result).toHaveLength(2)
+  })
+
+  it('should execute SQL query with POST when specified', async () => {
+    const mockResult = [
+      { id: 1, name: 'Test 1', value: 100 },
+      { id: 2, name: 'Test 2', value: 200 },
+    ]
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResult,
+    })
+
+    const result = await client.querySql({
+      query: 'SELECT * FROM datastore_12345 LIMIT 10',
+      show_db_columns: false,
+      method: 'POST',
     })
 
     expect(mockFetch).toHaveBeenCalledWith(

@@ -8,7 +8,7 @@ import { defineComponent, h, ref } from 'vue'
 import { QueryClient } from '@tanstack/vue-query'
 import { DkanClient } from '@dkan-client-tools/core'
 import { DkanClientPlugin } from '../plugin'
-import { useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore } from '../useDatastoreImports'
+import { useDatastoreImports, useDatastoreImport, useTriggerDatastoreImport, useDeleteDatastore } from '../useDatastoreImports'
 
 describe('useDatastoreImports', () => {
   let mockClient: DkanClient
@@ -59,23 +59,6 @@ describe('useDatastoreImports', () => {
       }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
 
       await vi.waitFor(() => expect(wrapper.text()).toBe('done'))
-    })
-  })
-
-  describe('useDatastoreStatistics', () => {
-    it('should fetch statistics', async () => {
-      vi.spyOn(mockClient, 'getDatastoreStatistics').mockResolvedValue({
-        num_records: 1000,
-        columns: ['id', 'name'],
-      })
-      const wrapper = mount(defineComponent({
-        setup() {
-          const { data } = useDatastoreStatistics({ identifier: ref('resource-1') })
-          return () => h('div', `Records: ${data.value?.num_records || 0}`)
-        },
-      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
-
-      await vi.waitFor(() => expect(wrapper.text()).toBe('Records: 1000'))
     })
   })
 

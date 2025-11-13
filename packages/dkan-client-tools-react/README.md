@@ -254,8 +254,6 @@ runHarvest.mutate({ plan_id: 'my-plan' })
 
 **`useDatastoreImport`** - Get a specific import
 
-**`useDatastoreStatistics`** - Get datastore statistics
-
 **`useTriggerDatastoreImport`** - Trigger a datastore import (mutation)
 
 **`useDeleteDatastore`** - Delete a datastore (mutation)

@@ -111,10 +111,9 @@ const { data: searchResults, isLoading } = useDatasetSearch({
 - `useRegisterHarvestPlan()` - Register a new plan
 - `useRunHarvest()` - Execute a harvest
 
-### Datastore Import Composables (5)
+### Datastore Import Composables (4)
 - `useDatastoreImports()` - List all imports
 - `useDatastoreImport()` - Get import status
-- `useDatastoreStatistics()` - Get datastore stats
 - `useTriggerDatastoreImport()` - Trigger an import
 - `useDeleteDatastore()` - Delete a datastore
 

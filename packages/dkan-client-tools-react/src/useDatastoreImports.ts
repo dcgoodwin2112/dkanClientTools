@@ -7,7 +7,6 @@ import { useDkanClient } from './DkanClientProvider'
 import type {
   DatastoreImport,
   DatastoreImportOptions,
-  DatastoreStatistics,
 } from '@dkan-client-tools/core'
 
 export interface UseDatastoreImportsOptions {
@@ -23,11 +22,6 @@ export interface UseDatastoreImportOptions {
   refetchInterval?: number
 }
 
-export interface UseDatastoreStatisticsOptions {
-  identifier: string
-  enabled?: boolean
-  staleTime?: number
-}
 
 /**
  * Fetches the status of all datastore import operations.
@@ -233,7 +227,6 @@ export interface UseDatastoreStatisticsOptions {
  *
  * @see {@link useDatastoreImport} for monitoring a specific import
  * @see {@link useTriggerDatastoreImport} for triggering new imports
- * @see {@link useDatastoreStatistics} for viewing imported data statistics
  * @see https://dkan.readthedocs.io/en/latest/apis/datastore-import.html
  */
 export function useDatastoreImports(options: UseDatastoreImportsOptions = {}) {
@@ -452,7 +445,6 @@ export function useDatastoreImports(options: UseDatastoreImportsOptions = {}) {
  *
  * @see {@link useDatastoreImports} for monitoring all imports
  * @see {@link useTriggerDatastoreImport} for starting new imports
- * @see {@link useDatastoreStatistics} for viewing statistics after import completes
  * @see https://dkan.readthedocs.io/en/latest/apis/datastore-import.html
  */
 export function useDatastoreImport(options: UseDatastoreImportOptions) {
@@ -469,268 +461,6 @@ export function useDatastoreImport(options: UseDatastoreImportOptions) {
   }
 }
 
-/**
- * Fetches statistical information about imported datastore data.
- *
- * After a datastore import completes successfully, this hook provides metadata about the
- * imported data including row counts, column counts, and column names. This information
- * is useful for validating imports, building data previews, and understanding the structure
- * of imported datasets.
- *
- * The statistics include:
- * - **numOfRows**: Total number of data rows imported
- * - **numOfColumns**: Number of columns in the data table
- * - **columns**: Array of column names from the imported data
- *
- * This hook is particularly valuable for building data exploration interfaces, as it tells
- * you exactly what fields are available for querying without needing to fetch actual data.
- * You can use this information to generate dynamic query builders, column selectors, or
- * table schemas.
- *
- * Use this hook when you need to:
- * - Display summary information about imported data
- * - Validate that imports completed with expected row/column counts
- * - Build dynamic column selectors or query interfaces
- * - Show data previews with column headers
- * - Generate data table schemas or documentation
- *
- * @param options - Configuration options including the resource identifier
- *
- * @returns TanStack Query result object containing:
- *   - `data`: Statistics object with row count, column count, and column names
- *   - `isLoading`: True during initial fetch
- *   - `isError`: True if fetch failed
- *   - `error`: Error object if request failed
- *   - `refetch`: Function to manually re-fetch statistics
- *
- * @example
- * Basic usage - display datastore statistics:
- * ```tsx
- * function DatastoreStats({ identifier }: { identifier: string }) {
- *   const { data: stats, isLoading, error } = useDatastoreStatistics({
- *     identifier,
- *   })
- *
- *   if (isLoading) return <div>Loading statistics...</div>
- *   if (error) return <div>Error: {error.message}</div>
- *   if (!stats) return <div>No datastore data found</div>
- *
- *   return (
- *     <div className="datastore-stats">
- *       <h3>Datastore Statistics</h3>
- *       <div className="stats-grid">
- *         <div className="stat">
- *           <span className="label">Rows:</span>
- *           <span className="value">{stats.numOfRows.toLocaleString()}</span>
- *         </div>
- *         <div className="stat">
- *           <span className="label">Columns:</span>
- *           <span className="value">{stats.numOfColumns}</span>
- *         </div>
- *       </div>
- *
- *       <details>
- *         <summary>Column Names ({stats.columns.length})</summary>
- *         <ul className="column-list">
- *           {stats.columns.map(col => (
- *             <li key={col}><code>{col}</code></li>
- *           ))}
- *         </ul>
- *       </details>
- *     </div>
- *   )
- * }
- * ```
- *
- * @example
- * Dynamic column selector for queries:
- * ```tsx
- * function DatastoreColumnSelector({ identifier }: { identifier: string }) {
- *   const { data: stats } = useDatastoreStatistics({ identifier })
- *   const [selectedColumns, setSelectedColumns] = useState<string[]>([])
- *
- *   const toggleColumn = (column: string) => {
- *     setSelectedColumns(prev =>
- *       prev.includes(column)
- *         ? prev.filter(c => c !== column)
- *         : [...prev, column]
- *     )
- *   }
- *
- *   if (!stats) return <div>Loading columns...</div>
- *
- *   return (
- *     <div className="column-selector">
- *       <h4>Select Columns to Query</h4>
- *       <div className="column-checkboxes">
- *         {stats.columns.map(column => (
- *           <label key={column} className="column-checkbox">
- *             <input
- *               type="checkbox"
- *               checked={selectedColumns.includes(column)}
- *               onChange={() => toggleColumn(column)}
- *             />
- *             {column}
- *           </label>
- *         ))}
- *       </div>
- *
- *       <div className="selected-summary">
- *         {selectedColumns.length > 0 ? (
- *           <p>Selected {selectedColumns.length} of {stats.columns.length} columns</p>
- *         ) : (
- *           <p>Select columns to include in your query</p>
- *         )}
- *       </div>
- *
- *       <button
- *         disabled={selectedColumns.length === 0}
- *         onClick={() => {
- *           // Use selectedColumns for query
- *           console.log('Query columns:', selectedColumns)
- *         }}
- *       >
- *         Build Query
- *       </button>
- *     </div>
- *   )
- * }
- * ```
- *
- * @example
- * Import validation with expected schema:
- * ```tsx
- * interface ExpectedSchema {
- *   rowCount: number
- *   requiredColumns: string[]
- * }
- *
- * function ImportValidator({
- *   identifier,
- *   expected,
- * }: {
- *   identifier: string
- *   expected: ExpectedSchema
- * }) {
- *   const { data: stats, isLoading } = useDatastoreStatistics({
- *     identifier,
- *   })
- *
- *   if (isLoading) return <div>Validating import...</div>
- *   if (!stats) return <div>No data to validate</div>
- *
- *   // Validation checks
- *   const rowCountValid = stats.numOfRows === expected.rowCount
- *   const missingColumns = expected.requiredColumns.filter(
- *     col => !stats.columns.includes(col)
- *   )
- *   const hasAllRequiredColumns = missingColumns.length === 0
- *
- *   const isValid = rowCountValid && hasAllRequiredColumns
- *
- *   return (
- *     <div className={`validation ${isValid ? 'valid' : 'invalid'}`}>
- *       <h3>Import Validation Results</h3>
- *
- *       <div className="validation-check">
- *         <span className={rowCountValid ? 'pass' : 'fail'}>
- *           {rowCountValid ? '✓' : '✗'}
- *         </span>
- *         <span>
- *           Row count: {stats.numOfRows} {rowCountValid ? '(matches expected)' : `(expected ${expected.rowCount})`}
- *         </span>
- *       </div>
- *
- *       <div className="validation-check">
- *         <span className={hasAllRequiredColumns ? 'pass' : 'fail'}>
- *           {hasAllRequiredColumns ? '✓' : '✗'}
- *         </span>
- *         <span>
- *           Required columns: {hasAllRequiredColumns ? 'All present' : `Missing: ${missingColumns.join(', ')}`}
- *         </span>
- *       </div>
- *
- *       <div className="extra-columns">
- *         <h4>Available Columns:</h4>
- *         <ul>
- *           {stats.columns.map(col => (
- *             <li key={col} className={expected.requiredColumns.includes(col) ? 'required' : 'extra'}>
- *               {col}
- *               {expected.requiredColumns.includes(col) && <span className="badge">Required</span>}
- *             </li>
- *           ))}
- *         </ul>
- *       </div>
- *
- *       {isValid && (
- *         <div className="success-message">
- *           Import is valid and ready for use!
- *         </div>
- *       )}
- *     </div>
- *   )
- * }
- * ```
- *
- * @example
- * Data preview with statistics:
- * ```tsx
- * function DataPreview({ identifier }: { identifier: string }) {
- *   const { data: stats } = useDatastoreStatistics({ identifier })
- *   const { data: preview } = useDatastore({
- *     identifier,
- *     limit: 10, // Just show first 10 rows
- *   })
- *
- *   if (!stats || !preview) return <div>Loading preview...</div>
- *
- *   return (
- *     <div className="data-preview">
- *       <div className="preview-header">
- *         <h3>Data Preview</h3>
- *         <p className="stats-summary">
- *           Showing 10 of {stats.numOfRows.toLocaleString()} rows
- *           ({stats.numOfColumns} columns)
- *         </p>
- *       </div>
- *
- *       <table>
- *         <thead>
- *           <tr>
- *             {stats.columns.map(col => (
- *               <th key={col}>{col}</th>
- *             ))}
- *           </tr>
- *         </thead>
- *         <tbody>
- *           {preview.results.map((row, idx) => (
- *             <tr key={idx}>
- *               {stats.columns.map(col => (
- *                 <td key={col}>{row[col]}</td>
- *               ))}
- *             </tr>
- *           ))}
- *         </tbody>
- *       </table>
- *     </div>
- *   )
- * }
- * ```
- *
- * @see {@link useDatastoreImport} for monitoring the import process
- * @see {@link useDatastore} for querying the imported data
- * @see https://dkan.readthedocs.io/en/latest/apis/datastore-import.html
- */
-export function useDatastoreStatistics(options: UseDatastoreStatisticsOptions) {
-  const client = useDkanClient()
-
-  return useQuery({
-    queryKey: ['datastore', 'statistics', options.identifier] as const,
-    queryFn: () => client.getDatastoreStatistics(options.identifier),
-    enabled: (options.enabled ?? true) && !!options.identifier,
-    staleTime: options.staleTime,
-  })
-}
 
 /**
  * Triggers a new datastore import operation for a distribution resource.
@@ -1279,7 +1009,6 @@ export function useTriggerDatastoreImport() {
  *
  * @see {@link useTriggerDatastoreImport} for importing data after deletion
  * @see {@link useDatastoreImports} for viewing active imports
- * @see {@link useDatastoreStatistics} for viewing datastore size before deletion
  * @see https://dkan.readthedocs.io/en/latest/apis/datastore-import.html
  */
 export function useDeleteDatastore() {
