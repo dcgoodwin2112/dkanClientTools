@@ -3,24 +3,604 @@
     "method": "listDataDictionaries",
     "category": "Data Dictionary",
     "endpoint": "/api/1/metastore/schemas/data-dictionary/items",
-    "timestamp": "2025-11-13T15:21:22.491Z",
-    "response": [],
+    "timestamp": "2025-11-13T21:36:58.191Z",
+    "response": [
+      {
+        "identifier": "6ca7e14e-8f28-5337-84f9-1086c4a0b820-dict",
+        "data": {
+          "title": "Florida Bike Lanes",
+          "fields": [
+            {
+              "name": "objectid",
+              "title": "Objectid",
+              "type": "integer"
+            },
+            {
+              "name": "roadway",
+              "title": "Roadway",
+              "type": "integer"
+            },
+            {
+              "name": "road_side",
+              "title": "Road Side",
+              "type": "string"
+            },
+            {
+              "name": "lncd",
+              "title": "Lncd",
+              "type": "integer"
+            },
+            {
+              "name": "descr",
+              "title": "Descr",
+              "type": "string"
+            },
+            {
+              "name": "begin_post",
+              "title": "Begin Post",
+              "type": "number"
+            },
+            {
+              "name": "end_post",
+              "title": "End Post",
+              "type": "number"
+            },
+            {
+              "name": "shape_leng",
+              "title": "Shape Leng",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "98e7998d-5e11-5743-a414-81ab3a5d86b8-dict",
+        "data": {
+          "title": "Violent Crime Data for the Ten Most Populous Cities in the U.S.",
+          "fields": [
+            {
+              "name": "city",
+              "title": "City",
+              "type": "string"
+            },
+            {
+              "name": "state",
+              "title": "State",
+              "type": "string"
+            },
+            {
+              "name": "population",
+              "title": "Population",
+              "type": "integer"
+            },
+            {
+              "name": "violent_crimes",
+              "title": "Violent Crimes",
+              "type": "integer"
+            },
+            {
+              "name": "murder_and_non_negligent_manslaughter",
+              "title": "Murder And Non Negligent Manslaughter",
+              "type": "integer"
+            },
+            {
+              "name": "rape",
+              "title": "Rape",
+              "type": "integer"
+            },
+            {
+              "name": "robbery",
+              "title": "Robbery",
+              "type": "integer"
+            },
+            {
+              "name": "aggravated_assault",
+              "title": "Aggravated Assault",
+              "type": "integer"
+            },
+            {
+              "name": "violent_crime_rate_per_100",
+              "title": "Violent Crime Rate Per 100",
+              "type": "number"
+            },
+            {
+              "name": "000_people",
+              "title": "000 People",
+              "type": "string"
+            },
+            {
+              "name": "murder_rate_per_100",
+              "title": "Murder Rate Per 100",
+              "type": "number"
+            },
+            {
+              "name": "000_people",
+              "title": "000 People",
+              "type": "string"
+            },
+            {
+              "name": "rape_rate_per_100",
+              "title": "Rape Rate Per 100",
+              "type": "number"
+            },
+            {
+              "name": "000_people",
+              "title": "000 People",
+              "type": "string"
+            },
+            {
+              "name": "robbery_rate_per_100",
+              "title": "Robbery Rate Per 100",
+              "type": "number"
+            },
+            {
+              "name": "000_people",
+              "title": "000 People",
+              "type": "string"
+            },
+            {
+              "name": "aggravated_assault_rate_per_100",
+              "title": "Aggravated Assault Rate Per 100",
+              "type": "string"
+            },
+            {
+              "name": "000_people",
+              "title": "000 People",
+              "type": "string"
+            },
+            {
+              "name": "latitude",
+              "title": "Latitude",
+              "type": "string"
+            },
+            {
+              "name": "longitude",
+              "title": "Longitude",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "2abefe80-cd42-5b92-9af0-b265dbb5d0b6-dict",
+        "data": {
+          "title": "Asthma prevalence by location",
+          "fields": [
+            {
+              "name": "state",
+              "title": "State",
+              "type": "string"
+            },
+            {
+              "name": "abbreviation",
+              "title": "Abbreviation",
+              "type": "string"
+            },
+            {
+              "name": "age_range",
+              "title": "Age Range",
+              "type": "string"
+            },
+            {
+              "name": "current_asthma_prevalence",
+              "title": "Current Asthma Prevalence",
+              "type": "string"
+            },
+            {
+              "name": "standard_error",
+              "title": "Standard Error",
+              "type": "string"
+            },
+            {
+              "name": "2011ranges",
+              "title": "2011ranges",
+              "type": "string"
+            },
+            {
+              "name": "__hashkey",
+              "title": "  Hashkey",
+              "type": "string"
+            },
+            {
+              "name": "__stateabbreviation",
+              "title": "  Stateabbreviation",
+              "type": "string"
+            },
+            {
+              "name": "__statename",
+              "title": "  Statename",
+              "type": "string"
+            },
+            {
+              "name": "__stateid",
+              "title": "  Stateid",
+              "type": "integer"
+            },
+            {
+              "name": "timeintervaldataval",
+              "title": "Timeintervaldataval",
+              "type": "integer"
+            },
+            {
+              "name": "__color",
+              "title": "  Color",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "957a9748-056e-5683-9c58-52c9dd59cfc3-dict",
+        "data": {
+          "title": "U.S. Adult Smoking Rate",
+          "fields": [
+            {
+              "name": "state_abbreviation",
+              "title": "State Abbreviation",
+              "type": "string"
+            },
+            {
+              "name": "state",
+              "title": "State",
+              "type": "string"
+            },
+            {
+              "name": "__smokers",
+              "title": "  Smokers",
+              "type": "number"
+            },
+            {
+              "name": "quality__share_of_smokers_who_have_tried_to_quit",
+              "title": "Quality  Share Of Smokers Who Have Tried To Quit",
+              "type": "number"
+            },
+            {
+              "name": "quality__smoking_attributable_deaths_per_year__per_100",
+              "title": "Quality  Smoking Attributable Deaths Per Year  Per 100",
+              "type": "number"
+            },
+            {
+              "name": "000_",
+              "title": "000 ",
+              "type": "number"
+            },
+            {
+              "name": "quality_costs_attributable_to_smoking",
+              "title": "Quality Costs Attributable To Smoking",
+              "type": "number"
+            },
+            {
+              "name": "tax__",
+              "title": "Tax  ",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "4db9922d-f109-5941-a83f-e1eef020c49b-dict",
+        "data": {
+          "title": "Varicella Mortality by Age Group, 1991-2007",
+          "fields": [
+            {
+              "name": "year",
+              "title": "Year",
+              "type": "integer"
+            },
+            {
+              "name": "less_than_1",
+              "title": "Less Than 1",
+              "type": "number"
+            },
+            {
+              "name": "1_to_4_years_old",
+              "title": "1 To 4 Years Old",
+              "type": "number"
+            },
+            {
+              "name": "5_to_9_years_old",
+              "title": "5 To 9 Years Old",
+              "type": "number"
+            },
+            {
+              "name": "10_to_14_years_old",
+              "title": "10 To 14 Years Old",
+              "type": "number"
+            },
+            {
+              "name": "15_to_19_years_old",
+              "title": "15 To 19 Years Old",
+              "type": "number"
+            },
+            {
+              "name": "20_plus",
+              "title": "20 Plus",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "d7f9d686-746b-55e2-9d1f-7989b7c57888-dict",
+        "data": {
+          "title": "Varicella Mortality by Age Group, 1974-1990",
+          "fields": [
+            {
+              "name": "year",
+              "title": "Year",
+              "type": "integer"
+            },
+            {
+              "name": "less_than_1",
+              "title": "Less Than 1",
+              "type": "integer"
+            },
+            {
+              "name": "1_to_4_years_old",
+              "title": "1 To 4 Years Old",
+              "type": "integer"
+            },
+            {
+              "name": "5_to_9_years_old",
+              "title": "5 To 9 Years Old",
+              "type": "integer"
+            },
+            {
+              "name": "10_to_14_years_old",
+              "title": "10 To 14 Years Old",
+              "type": "integer"
+            },
+            {
+              "name": "15_to_19_years_old",
+              "title": "15 To 19 Years Old",
+              "type": "integer"
+            },
+            {
+              "name": "20_plus",
+              "title": "20 Plus",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "400c0dba-1d9e-5fe7-beca-2983267b7f52-dict",
+        "data": {
+          "title": "Madison Polling Places",
+          "fields": [
+            {
+              "name": "x",
+              "title": "X",
+              "type": "number"
+            },
+            {
+              "name": "y",
+              "title": "Y",
+              "type": "number"
+            },
+            {
+              "name": "objectid",
+              "title": "Objectid",
+              "type": "integer"
+            },
+            {
+              "name": "tvpoll_p_ward",
+              "title": "Tvpoll P Ward",
+              "type": "integer"
+            },
+            {
+              "name": "tvpoll_p_bldg_name",
+              "title": "Tvpoll P Bldg Name",
+              "type": "string"
+            },
+            {
+              "name": "tvpoll_p_address",
+              "title": "Tvpoll P Address",
+              "type": "string"
+            },
+            {
+              "name": "tvpoll_p_handicap_access",
+              "title": "Tvpoll P Handicap Access",
+              "type": "string"
+            },
+            {
+              "name": "tvpoll_p_spec_comments",
+              "title": "Tvpoll P Spec Comments",
+              "type": "string"
+            },
+            {
+              "name": "tvpoll_p_ald_dist",
+              "title": "Tvpoll P Ald Dist",
+              "type": "string"
+            },
+            {
+              "name": "tvpoll_p_phone_no",
+              "title": "Tvpoll P Phone No",
+              "type": "string"
+            },
+            {
+              "name": "tvpoll_p_sup_dist",
+              "title": "Tvpoll P Sup Dist",
+              "type": "integer"
+            },
+            {
+              "name": "tvpoll_p_sen_dist",
+              "title": "Tvpoll P Sen Dist",
+              "type": "integer"
+            },
+            {
+              "name": "tvpoll_p_asm_dist",
+              "title": "Tvpoll P Asm Dist",
+              "type": "integer"
+            },
+            {
+              "name": "tvpoll_p_ballot_color",
+              "title": "Tvpoll P Ballot Color",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "03e93e18-d55d-5f1a-9301-ad0d7208e89f-dict",
+        "data": {
+          "title": "1-2012-Foreclosures-by-State",
+          "fields": [
+            {
+              "name": "state",
+              "title": "State",
+              "type": "string"
+            },
+            {
+              "name": "total_foreclosures",
+              "title": "Total Foreclosures",
+              "type": "integer"
+            },
+            {
+              "name": "foreclosure_ratio",
+              "title": "Foreclosure Ratio",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "b6fe02be-a5f7-5e44-8663-2e6bdf682089-dict",
+        "data": {
+          "title": "Table of Gold Prices",
+          "fields": [
+            {
+              "name": "date",
+              "title": "Date",
+              "type": "date",
+              "format": "default"
+            },
+            {
+              "name": "price",
+              "title": "Price",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      {
+        "identifier": "85026241-791b-5b85-b62e-93265c0de74d-dict",
+        "data": {
+          "title": "District Names",
+          "fields": [
+            {
+              "name": "lon",
+              "title": "Lon",
+              "type": "number"
+            },
+            {
+              "name": "lat",
+              "title": "Lat",
+              "type": "number"
+            },
+            {
+              "name": "unit_type",
+              "title": "Unit Type",
+              "type": "string"
+            },
+            {
+              "name": "dist_name",
+              "title": "Dist Name",
+              "type": "string"
+            },
+            {
+              "name": "prov_name",
+              "title": "Prov Name",
+              "type": "string"
+            },
+            {
+              "name": "dari_dist",
+              "title": "Dari Dist",
+              "type": "string"
+            },
+            {
+              "name": "dari_prov",
+              "title": "Dari Prov",
+              "type": "string"
+            },
+            {
+              "name": "dist_id",
+              "title": "Dist Id",
+              "type": "integer"
+            },
+            {
+              "name": "prov_id",
+              "title": "Prov Id",
+              "type": "integer"
+            }
+          ]
+        }
+      }
+    ],
     "status": 200,
-    "responseTime": 70
+    "responseTime": 71
   },
   {
     "method": "getDataDictionary",
     "category": "Data Dictionary",
-    "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.492Z",
-    "skipped": true,
-    "skipReason": "no dictionary found"
+    "endpoint": "/api/1/metastore/schemas/data-dictionary/items/6ca7e14e-8f28-5337-84f9-1086c4a0b820-dict",
+    "timestamp": "2025-11-13T21:36:58.266Z",
+    "response": {
+      "identifier": "6ca7e14e-8f28-5337-84f9-1086c4a0b820-dict",
+      "data": {
+        "title": "Florida Bike Lanes",
+        "fields": [
+          {
+            "name": "objectid",
+            "title": "Objectid",
+            "type": "integer"
+          },
+          {
+            "name": "roadway",
+            "title": "Roadway",
+            "type": "integer"
+          },
+          {
+            "name": "road_side",
+            "title": "Road Side",
+            "type": "string"
+          },
+          {
+            "name": "lncd",
+            "title": "Lncd",
+            "type": "integer"
+          },
+          {
+            "name": "descr",
+            "title": "Descr",
+            "type": "string"
+          },
+          {
+            "name": "begin_post",
+            "title": "Begin Post",
+            "type": "number"
+          },
+          {
+            "name": "end_post",
+            "title": "End Post",
+            "type": "number"
+          },
+          {
+            "name": "shape_leng",
+            "title": "Shape Leng",
+            "type": "number"
+          }
+        ]
+      }
+    },
+    "status": 200,
+    "responseTime": 75
   },
   {
     "method": "getDataDictionaryFromUrl",
     "category": "Data Dictionary",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.492Z",
+    "timestamp": "2025-11-13T21:36:58.267Z",
     "skipped": true,
     "skipReason": "requires URL"
   },
@@ -28,7 +608,7 @@
     "method": "createDataDictionary",
     "category": "Data Dictionary",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.492Z",
+    "timestamp": "2025-11-13T21:36:58.267Z",
     "skipped": true,
     "skipReason": "read-only mode"
   },
@@ -36,7 +616,7 @@
     "method": "updateDataDictionary",
     "category": "Data Dictionary",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.492Z",
+    "timestamp": "2025-11-13T21:36:58.267Z",
     "skipped": true,
     "skipReason": "read-only mode"
   },
@@ -44,7 +624,7 @@
     "method": "deleteDataDictionary",
     "category": "Data Dictionary",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.492Z",
+    "timestamp": "2025-11-13T21:36:58.267Z",
     "skipped": true,
     "skipReason": "read-only mode"
   }

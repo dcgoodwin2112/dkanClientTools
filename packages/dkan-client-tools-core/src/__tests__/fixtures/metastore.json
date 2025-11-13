@@ -3,7 +3,7 @@
     "method": "listSchemas",
     "category": "Metastore",
     "endpoint": "/api/1/metastore/schemas",
-    "timestamp": "2025-11-13T15:21:22.856Z",
+    "timestamp": "2025-11-13T21:36:58.732Z",
     "response": [
       "catalog",
       "dataset",
@@ -19,13 +19,13 @@
       "data-dictionary"
     ],
     "status": 200,
-    "responseTime": 73
+    "responseTime": 82
   },
   {
     "method": "getSchemaItems",
     "category": "Metastore",
     "endpoint": "/api/1/metastore/schemas/dataset/items",
-    "timestamp": "2025-11-13T15:21:22.928Z",
+    "timestamp": "2025-11-13T21:36:58.807Z",
     "response": [
       {
         "@type": "dcat:Dataset",
@@ -476,13 +476,13 @@
       }
     ],
     "status": 200,
-    "responseTime": 71
+    "responseTime": 75
   },
   {
     "method": "getDatasetFacets",
     "category": "Metastore",
     "endpoint": "/api/1/metastore/schemas/dataset/items",
-    "timestamp": "2025-11-13T15:21:23.001Z",
+    "timestamp": "2025-11-13T21:36:58.883Z",
     "response": {
       "theme": [
         "City Planning",
@@ -521,6 +521,6 @@
       ]
     },
     "status": 200,
-    "responseTime": 73
+    "responseTime": 76
   }
 ]

@@ -3,7 +3,7 @@
     "method": "getOpenApiDocsUrl",
     "category": "OpenAPI",
     "endpoint": "/api/1/docs",
-    "timestamp": "2025-11-13T15:21:23.080Z",
+    "timestamp": "2025-11-13T21:36:58.978Z",
     "response": "http://dkan.ddev.site/api/1/docs",
     "status": 200
   }

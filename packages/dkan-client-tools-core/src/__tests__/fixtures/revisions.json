@@ -3,7 +3,7 @@
     "method": "getRevisions",
     "category": "Revisions",
     "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions",
-    "timestamp": "2025-11-13T15:21:23.079Z",
+    "timestamp": "2025-11-13T21:36:58.978Z",
     "response": [
       {
         "identifier": "8",
@@ -14,13 +14,13 @@
       }
     ],
     "status": 200,
-    "responseTime": 78
+    "responseTime": 95
   },
   {
     "method": "getRevision",
     "category": "Revisions",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:23.080Z",
+    "timestamp": "2025-11-13T21:36:58.978Z",
     "skipped": true,
     "skipReason": "requires revision ID"
   },
@@ -28,7 +28,7 @@
     "method": "createRevision",
     "category": "Revisions",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:23.080Z",
+    "timestamp": "2025-11-13T21:36:58.978Z",
     "skipped": true,
     "skipReason": "read-only mode"
   },
@@ -36,7 +36,7 @@
     "method": "changeDatasetState",
     "category": "Revisions",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:23.080Z",
+    "timestamp": "2025-11-13T21:36:58.978Z",
     "skipped": true,
     "skipReason": "read-only mode"
   }
