@@ -773,3 +773,4 @@ ddev composer install                   # Install dependencies
 - All Drupal/DKAN commands should be run through DDEV (prefix with `ddev`)
 - Sample content can be regenerated at any time using `ddev drush dkan:sample-content:create`
 - Please remember to never stage or commit changes when currently on the main branch of the repo
+- Try to keep commit messages and documentation concise and developer focused. No need to hype or oversell improvements and features.

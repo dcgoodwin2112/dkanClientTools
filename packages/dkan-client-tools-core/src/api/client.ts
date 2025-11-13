@@ -15,7 +15,7 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (34 methods across 6 categories):
+ * **API Coverage** (38 methods across 6 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
@@ -33,12 +33,12 @@
  *    - listHarvestPlans, getHarvestPlan, registerHarvestPlan
  *    - listHarvestRuns, getHarvestRun, runHarvest
  *
- * 5. **Datastore Imports** (4 methods) - Phase 1 enhanced
+ * 5. **Datastore Imports** (4 methods)
  *    - listDatastoreImports, getDatastoreStatistics
  *    - triggerDatastoreImport, deleteDatastore
  *
- * 6. **Metastore & Revisions** (6 methods)
- *    - listSchemas, getSchemaItems, getDatasetFacets
+ * 6. **Metastore & Revisions** (7 methods) - Phase 2 enhanced
+ *    - listSchemas, getSchema, getSchemaItems, getDatasetFacets
  *    - getRevisions, getRevision, createRevision, changeDatasetState
  *
  * **Authentication**:
@@ -111,6 +111,9 @@ import type {
   DatastoreImport,
   DatastoreImportOptions,
   DatastoreStatistics,
+  JsonSchema,
+  FacetsApiResponse,
+  FacetItem,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
@@ -192,10 +195,25 @@ export class DkanApiClient {
 
       if (!response.ok) {
         const errorText = await response.text()
+        let errorData: any
+        let timestamp: string | undefined
+        let data: Record<string, any> | undefined
+
+        // Try to parse error response as JSON
+        try {
+          errorData = JSON.parse(errorText)
+          timestamp = errorData.timestamp
+          data = errorData.data
+        } catch {
+          // Not JSON, keep as text
+        }
+
         throw new DkanApiError(
-          `HTTP ${response.status}: ${response.statusText}`,
+          errorData?.message || `HTTP ${response.status}: ${response.statusText}`,
           response.status,
-          errorText
+          errorText,
+          timestamp,
+          data
         )
       }
 
@@ -434,6 +452,21 @@ export class DkanApiClient {
   }
 
   /**
+   * Get a specific schema definition
+   *
+   * Phase 2 - OpenAPI alignment
+   *
+   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
+   * @returns JSON Schema definition
+   */
+  async getSchema(schemaId: string): Promise<JsonSchema> {
+    const response = await this.request<JsonSchema>(
+      `/api/1/metastore/schemas/${schemaId}`
+    )
+    return response.data
+  }
+
+  /**
    * Get items for a specific schema type
    *
    * Phase 1 - OpenAPI alignment: Added show-reference-ids support
@@ -469,41 +502,38 @@ export class DkanApiClient {
 
   /**
    * Get facet values for datasets (themes, keywords, publishers)
-   * Useful for building filter UIs
+   *
+   * Phase 2 - OpenAPI alignment: Switched from client-side computation to API endpoint
+   *
+   * @returns Facet information from the search API
    */
   async getDatasetFacets(): Promise<{
     theme: string[]
     keyword: string[]
     publisher: string[]
   }> {
-    const datasets = await this.listAllDatasets()
+    const response = await this.request<FacetsApiResponse>('/api/1/search/facets')
 
-    const themes = new Set<string>()
-    const keywords = new Set<string>()
-    const publishers = new Set<string>()
-
-    datasets.forEach(dataset => {
-      // Collect themes
-      if (dataset.theme) {
-        dataset.theme.forEach(t => themes.add(t))
-      }
-
-      // Collect keywords
-      if (dataset.keyword) {
-        dataset.keyword.forEach(k => keywords.add(k))
-      }
-
-      // Collect publishers
-      if (dataset.publisher?.name) {
-        publishers.add(dataset.publisher.name)
-      }
-    })
-
-    return {
-      theme: Array.from(themes).sort(),
-      keyword: Array.from(keywords).sort(),
-      publisher: Array.from(publishers).sort(),
+    // Transform API response to expected format
+    const facets = {
+      theme: [] as string[],
+      keyword: [] as string[],
+      publisher: [] as string[],
     }
+
+    if (Array.isArray(response.data)) {
+      response.data.forEach((facet: FacetItem) => {
+        if (facet.type === 'theme' && Array.isArray(facet.values)) {
+          facets.theme = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
+        } else if (facet.type === 'keyword' && Array.isArray(facet.values)) {
+          facets.keyword = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
+        } else if (facet.type === 'publisher' && Array.isArray(facet.values)) {
+          facets.publisher = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
+        }
+      })
+    }
+
+    return facets
   }
 
   /**
