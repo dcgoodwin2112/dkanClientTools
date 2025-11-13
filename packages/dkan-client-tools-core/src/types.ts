@@ -272,12 +272,16 @@ export interface DataDictionaryListResponse {
 
 /**
  * API Error types
+ *
+ * Phase 2 - OpenAPI alignment: Added timestamp and data properties
  */
 export class DkanApiError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public response?: any
+    public response?: any,
+    public timestamp?: string,
+    public data?: Record<string, any>
   ) {
     super(message)
     this.name = 'DkanApiError'
