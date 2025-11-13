@@ -288,6 +288,20 @@ export class DkanApiClient {
   }
 
   /**
+   * Serialize datastore query options as URL query parameters
+   * Used for GET requests to datastore query endpoints
+   */
+  private serializeQueryOptions(options: DatastoreQueryOptions): string {
+    const params = new URLSearchParams()
+    for (const [key, value] of Object.entries(options)) {
+      if (value !== undefined) {
+        params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
+      }
+    }
+    return params.toString()
+  }
+
+  /**
    * Search datasets with filters
    *
    * Phase 1 - OpenAPI alignment: Added support for array sort parameters
@@ -350,14 +364,7 @@ export class DkanApiClient {
     method: 'GET' | 'POST' = 'POST'
   ): Promise<DkanDatastoreQueryResponse> {
     if (method === 'GET') {
-      // For GET requests, serialize options as query parameters
-      const params = new URLSearchParams()
-      for (const [key, value] of Object.entries(options)) {
-        if (value !== undefined) {
-          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
-        }
-      }
-      const queryString = params.toString()
+      const queryString = this.serializeQueryOptions(options)
       const url = queryString
         ? `/api/1/datastore/query/${datasetId}/${index}?${queryString}`
         : `/api/1/datastore/query/${datasetId}/${index}`
@@ -385,20 +392,25 @@ export class DkanApiClient {
    * @param options - Query options with resources array for multi-resource queries
    * @param method - HTTP method: POST (default) or GET
    * @returns Query results
+   *
+   * @example
+   * // Join two resources
+   * const results = await client.queryDatastoreMulti({
+   *   resources: [
+   *     { id: 'resource-1', alias: 'r1' },
+   *     { id: 'resource-2', alias: 'r2' }
+   *   ],
+   *   joins: [{ resource: 'r2', condition: 'r1.id = r2.ref_id' }],
+   *   conditions: [{ property: 'r1.name', value: 'Test' }],
+   *   limit: 100
+   * });
    */
   async queryDatastoreMulti(
     options: DatastoreQueryOptions,
     method: 'GET' | 'POST' = 'POST'
   ): Promise<DkanDatastoreQueryResponse> {
     if (method === 'GET') {
-      // For GET requests, serialize options as query parameters
-      const params = new URLSearchParams()
-      for (const [key, value] of Object.entries(options)) {
-        if (value !== undefined) {
-          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
-        }
-      }
-      const queryString = params.toString()
+      const queryString = this.serializeQueryOptions(options)
       const url = queryString
         ? `/api/1/datastore/query?${queryString}`
         : '/api/1/datastore/query'
@@ -425,28 +437,8 @@ export class DkanApiClient {
    *
    * @param options - Query options with resources array, includes format
    * @returns Blob for file download
-   *
-   * @example
-   * // Download CSV for a multi-resource join query
-   * const client = new DkanApiClient({ baseUrl: 'https://demo.getdkan.org' });
-   * const options = {
-   *   resources: [
-   *     { resource: 'abc123', fields: ['id', 'name'] },
-   *     { resource: 'def456', fields: ['id', 'dataset_id'], join: { on: ['id'] } }
-   *   ],
-   *   filters: { 'name': { like: 'Water%' } },
-   *   format: 'csv'
-   * };
-   * const blob = await client.downloadQueryMulti(options);
-   * // Use blob to trigger a file download in the browser
-   * const url = URL.createObjectURL(blob);
-   * const a = document.createElement('a');
-   * a.href = url;
-   * a.download = 'multi-resource.csv';
-   * document.body.appendChild(a);
-   * a.click();
-   * URL.revokeObjectURL(url);
    */
+  async downloadQueryMulti(
     options: QueryDownloadOptions = {}
   ): Promise<Blob> {
     const format = options.format || 'csv'
