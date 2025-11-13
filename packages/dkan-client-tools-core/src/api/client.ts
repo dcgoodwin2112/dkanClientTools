@@ -334,12 +334,39 @@ export class DkanApiClient {
 
   /**
    * Query datastore for a specific dataset resource
+   *
+   * Phase 3 - OpenAPI alignment: Added GET method support
+   *
+   * @param datasetId - Dataset identifier
+   * @param index - Resource index (default: 0)
+   * @param options - Query options
+   * @param method - HTTP method: POST (default) or GET
+   * @returns Query results
    */
   async queryDatastore(
     datasetId: string,
     index = 0,
-    options: DatastoreQueryOptions = {}
+    options: DatastoreQueryOptions = {},
+    method: 'GET' | 'POST' = 'POST'
   ): Promise<DkanDatastoreQueryResponse> {
+    if (method === 'GET') {
+      // For GET requests, serialize options as query parameters
+      const params = new URLSearchParams()
+      for (const [key, value] of Object.entries(options)) {
+        if (value !== undefined) {
+          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
+        }
+      }
+      const queryString = params.toString()
+      const url = queryString
+        ? `/api/1/datastore/query/${datasetId}/${index}?${queryString}`
+        : `/api/1/datastore/query/${datasetId}/${index}`
+
+      const response = await this.request<DkanDatastoreQueryResponse>(url)
+      return response.data
+    }
+
+    // Default POST behavior
     const response = await this.request<DkanDatastoreQueryResponse>(
       `/api/1/datastore/query/${datasetId}/${index}`,
       {
@@ -348,6 +375,89 @@ export class DkanApiClient {
       }
     )
     return response.data
+  }
+
+  /**
+   * Query multiple datastore resources with joins
+   *
+   * Phase 3 - OpenAPI alignment
+   *
+   * @param options - Query options with resources array for multi-resource queries
+   * @param method - HTTP method: POST (default) or GET
+   * @returns Query results
+   */
+  async queryDatastoreMulti(
+    options: DatastoreQueryOptions,
+    method: 'GET' | 'POST' = 'POST'
+  ): Promise<DkanDatastoreQueryResponse> {
+    if (method === 'GET') {
+      // For GET requests, serialize options as query parameters
+      const params = new URLSearchParams()
+      for (const [key, value] of Object.entries(options)) {
+        if (value !== undefined) {
+          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
+        }
+      }
+      const queryString = params.toString()
+      const url = queryString
+        ? `/api/1/datastore/query?${queryString}`
+        : '/api/1/datastore/query'
+
+      const response = await this.request<DkanDatastoreQueryResponse>(url)
+      return response.data
+    }
+
+    // Default POST behavior
+    const response = await this.request<DkanDatastoreQueryResponse>(
+      '/api/1/datastore/query',
+      {
+        method: 'POST',
+        body: JSON.stringify(options),
+      }
+    )
+    return response.data
+  }
+
+  /**
+   * Download results from multi-resource query
+   *
+   * Phase 3 - OpenAPI alignment
+   *
+   * @param options - Query options with resources array, includes format
+   * @returns Blob for file download
+   */
+  async downloadQueryMulti(
+    options: QueryDownloadOptions = {}
+  ): Promise<Blob> {
+    const format = options.format || 'csv'
+    const queryOptions = { ...options }
+    delete queryOptions.format
+
+    const url = `${this.baseUrl}/api/1/datastore/query/download?format=${format}`
+    const authHeader = this.getAuthHeader()
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    if (authHeader) {
+      headers['Authorization'] = authHeader
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(queryOptions),
+    })
+
+    if (!response.ok) {
+      throw new DkanApiError(
+        `HTTP ${response.status}: ${response.statusText}`,
+        response.status
+      )
+    }
+
+    return await response.blob()
   }
 
   /**
