@@ -450,8 +450,7 @@ export class DkanApiClient {
     options: QueryDownloadOptions = {}
   ): Promise<Blob> {
     const format = options.format || 'csv'
-    const queryOptions = { ...options }
-    delete queryOptions.format
+    const { format: _, ...queryOptions } = options
 
     const url = `${this.baseUrl}/api/1/datastore/query/download?format=${format}`
     const authHeader = this.getAuthHeader()
