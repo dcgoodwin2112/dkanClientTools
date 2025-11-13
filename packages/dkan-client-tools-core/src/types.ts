@@ -101,13 +101,46 @@ export interface DatasetQueryOptions {
   keyword?: string
   theme?: string
   fulltext?: string
-  sort?: string
-  'sort-order'?: 'asc' | 'desc'
+
+  /**
+   * Field(s) to sort by. Supports both single field and multi-field sorting.
+   *
+   * Phase 1 - OpenAPI alignment: Added array support for multi-field sorting
+   *
+   * @example
+   * ```typescript
+   * // Single field
+   * sort: 'title'
+   *
+   * // Multiple fields (sort by modified date, then title)
+   * sort: ['modified', 'title']
+   * ```
+   */
+  sort?: string | string[]
+
+  /**
+   * Sort order(s). Supports both single order and multiple orders for multi-field sorting.
+   * When using multiple sort fields, provide corresponding sort orders.
+   *
+   * Phase 1 - OpenAPI alignment: Added array support for multi-field sorting
+   *
+   * @example
+   * ```typescript
+   * // Single order
+   * 'sort-order': 'asc'
+   *
+   * // Multiple orders (descending by date, then ascending by title)
+   * 'sort-order': ['desc', 'asc']
+   * ```
+   */
+  'sort-order'?: 'asc' | 'desc' | Array<'asc' | 'desc'>
+
   page?: number
   'page-size'?: number
 }
 
 export interface DatastoreQueryOptions {
+  // Query structure
   conditions?: DatastoreCondition[]
   properties?: string[]
   sorts?: DatastoreSort[]
@@ -115,6 +148,18 @@ export interface DatastoreQueryOptions {
   offset?: number
   joins?: DatastoreJoin[]
   expression?: DatastoreExpression
+
+  // Multi-resource query support (Phase 1 - OpenAPI alignment)
+  resources?: Array<{ id: string; alias?: string }>
+  groupings?: Array<{ property: string; resource?: string }>
+
+  // Response control flags (Phase 1 - OpenAPI alignment)
+  count?: boolean          // Include count in response (default: true)
+  results?: boolean        // Include results in response (default: true)
+  schema?: boolean         // Include schema in response (default: true)
+  keys?: boolean           // Include keys in response (default: true)
+  format?: 'json' | 'csv'  // Response format (default: 'json')
+  rowIds?: boolean         // Include row IDs (default: false)
 }
 
 export interface DatastoreCondition {
@@ -297,6 +342,15 @@ export interface DatastoreImport {
 export interface DatastoreImportOptions {
   resource_id: string
   [key: string]: any
+}
+
+/**
+ * Datastore Statistics response from GET /api/1/datastore/imports/{identifier}
+ */
+export interface DatastoreStatistics {
+  numOfRows: number
+  numOfColumns: number
+  columns: Record<string, any>
 }
 
 /**

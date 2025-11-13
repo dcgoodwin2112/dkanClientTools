@@ -93,6 +93,7 @@ export type {
   HarvestRunOptions,
   DatastoreImport,
   DatastoreImportOptions,
+  DatastoreStatistics,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
