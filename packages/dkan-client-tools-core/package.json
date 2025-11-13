@@ -31,7 +31,8 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "record:api": "tsx scripts/record-api-responses.ts",
-    "record:api:readonly": "READ_ONLY=true tsx scripts/record-api-responses.ts"
+    "record:api:readonly": "READ_ONLY=true tsx scripts/record-api-responses.ts",
+    "create:dictionaries": "tsx scripts/create-data-dictionaries.ts"
   },
   "keywords": [
     "dkan",

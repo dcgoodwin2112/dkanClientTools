@@ -3,18 +3,18 @@
     "method": "listHarvestPlans",
     "category": "Harvest",
     "endpoint": "/api/1/harvest/plans",
-    "timestamp": "2025-11-13T15:21:22.564Z",
+    "timestamp": "2025-11-13T21:36:58.342Z",
     "response": [
       "sample_content"
     ],
     "status": 200,
-    "responseTime": 72
+    "responseTime": 75
   },
   {
     "method": "getHarvestPlan",
     "category": "Harvest",
     "endpoint": "/api/1/harvest/plans/sample_content",
-    "timestamp": "2025-11-13T15:21:22.640Z",
+    "timestamp": "2025-11-13T21:36:58.417Z",
     "response": {
       "identifier": "sample_content",
       "extract": {
@@ -29,24 +29,24 @@
       }
     },
     "status": 200,
-    "responseTime": 76
+    "responseTime": 75
   },
   {
     "method": "listHarvestRuns",
     "category": "Harvest",
     "endpoint": "/api/1/harvest/runs?plan=sample_content",
-    "timestamp": "2025-11-13T15:21:22.711Z",
+    "timestamp": "2025-11-13T21:36:58.489Z",
     "response": [
       "1"
     ],
     "status": 200,
-    "responseTime": 71
+    "responseTime": 72
   },
   {
     "method": "getHarvestRun",
     "category": "Harvest",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.711Z",
+    "timestamp": "2025-11-13T21:36:58.489Z",
     "skipped": true,
     "skipReason": "no run found"
   },
@@ -54,7 +54,7 @@
     "method": "registerHarvestPlan",
     "category": "Harvest",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.711Z",
+    "timestamp": "2025-11-13T21:36:58.489Z",
     "skipped": true,
     "skipReason": "read-only mode"
   },
@@ -62,7 +62,7 @@
     "method": "runHarvest",
     "category": "Harvest",
     "endpoint": "",
-    "timestamp": "2025-11-13T15:21:22.711Z",
+    "timestamp": "2025-11-13T21:36:58.489Z",
     "skipped": true,
     "skipReason": "read-only mode"
   }
