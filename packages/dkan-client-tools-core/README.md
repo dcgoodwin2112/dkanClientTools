@@ -95,7 +95,6 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 - `downloadQuery(datasetId, index, options)` - Download query results
 - `downloadQueryByDistribution(distributionId, options)` - Download by distribution
 - `querySql(options)` - Execute SQL query
-- `getDatastoreStatistics(identifier)` - Get datastore statistics
 
 ### Data Dictionary Operations
 
@@ -127,7 +126,6 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 ### Datastore Import Operations
 
 - `listDatastoreImports()` - List datastore imports
-- `getDatastoreStatistics(identifier)` - Get datastore statistics
 - `triggerDatastoreImport(options)` - Trigger a datastore import
 - `deleteDatastore(identifier)` - Delete a datastore
 
@@ -210,6 +208,124 @@ try {
     console.error('API Error:', error.message, error.status)
   }
 }
+```
+
+## API Response Recording
+
+This package includes a script to record real API responses from a DKAN instance for testing and documentation purposes.
+
+### Recording API Responses
+
+#### Setup (Recommended)
+
+Create a `.env` file in the core package directory:
+
+```bash
+cd packages/dkan-client-tools-core
+cp .env.example .env
+```
+
+Edit `.env` with your DKAN instance details:
+
+```env
+DKAN_URL=http://dkan.ddev.site
+DKAN_USER=admin
+DKAN_PASS=admin
+READ_ONLY=true
+```
+
+Then run:
+
+```bash
+# From project root
+npm run record:api:readonly
+
+# Or from core package directory
+cd packages/dkan-client-tools-core
+npm run record:api:readonly
+```
+
+#### Without .env File
+
+You can also pass credentials as environment variables:
+
+From the project root:
+
+```bash
+# Read-only mode (recommended for production sites)
+npm run record:api:readonly
+
+# With authentication (for harvest plans, revisions, etc.)
+DKAN_URL=http://dkan.ddev.site \
+DKAN_USER=admin \
+DKAN_PASS=admin \
+npm run record:api:readonly
+
+# From a different DKAN site
+DKAN_URL=https://demo.getdkan.org \
+DKAN_USER=your-username \
+DKAN_PASS=your-password \
+npm run record:api:readonly
+```
+
+From the core package directory:
+
+```bash
+cd packages/dkan-client-tools-core
+
+# Read-only mode without authentication
+npm run record:api:readonly
+
+# With authentication to access protected endpoints
+DKAN_URL=http://dkan.ddev.site \
+DKAN_USER=admin \
+DKAN_PASS=admin \
+npm run record:api:readonly
+
+# Full mode (includes mutations - use with caution!)
+DKAN_URL=http://dkan.ddev.site \
+DKAN_USER=admin \
+DKAN_PASS=admin \
+npm run record:api
+```
+
+### What Gets Recorded
+
+The script systematically calls all DKAN API methods and saves responses to JSON files in `src/__tests__/fixtures/`:
+
+- **Read operations** - Always recorded
+  - Dataset operations: get, search, list
+  - Datastore queries and downloads
+  - Data dictionaries
+  - Harvest plans and runs
+  - Metastore schemas and facets
+  - Revisions
+
+- **Write operations** - Skipped in read-only mode
+  - Dataset create/update/delete
+  - Data dictionary create/update/delete
+  - Harvest plan registration
+  - Datastore import triggers
+
+### Output Files
+
+- `summary.json` - Complete recording summary with metadata
+- `dataset-operations.json` - Dataset CRUD responses
+- `datastore-operations.json` - Datastore query responses
+- `data-dictionary.json` - Data dictionary responses
+- `harvest.json` - Harvest plan/run responses
+- `metastore.json` - Metastore schema responses
+- `revisions.json` - Revision/moderation responses
+- `openapi.json` - OpenAPI documentation responses
+
+### Using Fixtures in Tests
+
+```typescript
+import datasetFixtures from '@dkan-client-tools/core/src/__tests__/fixtures/dataset-operations.json'
+
+// Find specific response
+const getDatasetResponse = datasetFixtures.find(f => f.method === 'getDataset')
+expect(actualResponse).toEqual(getDatasetResponse.response)
 ```
 
 ## License

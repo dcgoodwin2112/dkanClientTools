@@ -30,10 +30,9 @@ describe('DkanApiClient - Query Download', () => {
     })
 
     expect(mockFetch).toHaveBeenCalledWith(
-      'https://example.com/api/1/datastore/query/dataset-123/0/download?format=csv',
+      'https://example.com/api/1/datastore/query/dataset-123/0/download?format=csv&limit=100',
       expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ limit: 100 }),
+        method: 'GET',
       })
     )
     expect(result).toBeInstanceOf(Blob)
@@ -51,7 +50,7 @@ describe('DkanApiClient - Query Download', () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       'https://example.com/api/1/datastore/query/dataset-123/0/download?format=json',
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: 'GET' })
     )
     expect(result).toBeInstanceOf(Blob)
   })
@@ -70,10 +69,9 @@ describe('DkanApiClient - Query Download', () => {
     })
 
     expect(mockFetch).toHaveBeenCalledWith(
-      'https://example.com/api/1/datastore/query/dist-123/download?format=csv',
+      'https://example.com/api/1/datastore/query/dist-123/download?format=csv&conditions=%5B%7B%22property%22%3A%22state%22%2C%22value%22%3A%22CA%22%7D%5D',
       expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ conditions: [{ property: 'state', value: 'CA' }] }),
+        method: 'GET',
       })
     )
     expect(result).toBeInstanceOf(Blob)

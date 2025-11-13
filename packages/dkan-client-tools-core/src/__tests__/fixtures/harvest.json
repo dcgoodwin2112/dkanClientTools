@@ -1,0 +1,69 @@
+[
+  {
+    "method": "listHarvestPlans",
+    "category": "Harvest",
+    "endpoint": "/api/1/harvest/plans",
+    "timestamp": "2025-11-13T15:21:22.564Z",
+    "response": [
+      "sample_content"
+    ],
+    "status": 200,
+    "responseTime": 72
+  },
+  {
+    "method": "getHarvestPlan",
+    "category": "Harvest",
+    "endpoint": "/api/1/harvest/plans/sample_content",
+    "timestamp": "2025-11-13T15:21:22.640Z",
+    "response": {
+      "identifier": "sample_content",
+      "extract": {
+        "type": "\\Drupal\\harvest\\ETL\\Extract\\DataJson",
+        "uri": "file:///var/www/html/docroot/modules/contrib/dkan/modules/sample_content/sample_content.json"
+      },
+      "transforms": [
+        "\\Drupal\\harvest\\Transform\\ResourceImporter"
+      ],
+      "load": {
+        "type": "\\Drupal\\harvest\\Load\\Dataset"
+      }
+    },
+    "status": 200,
+    "responseTime": 76
+  },
+  {
+    "method": "listHarvestRuns",
+    "category": "Harvest",
+    "endpoint": "/api/1/harvest/runs?plan=sample_content",
+    "timestamp": "2025-11-13T15:21:22.711Z",
+    "response": [
+      "1"
+    ],
+    "status": 200,
+    "responseTime": 71
+  },
+  {
+    "method": "getHarvestRun",
+    "category": "Harvest",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.711Z",
+    "skipped": true,
+    "skipReason": "no run found"
+  },
+  {
+    "method": "registerHarvestPlan",
+    "category": "Harvest",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.711Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  },
+  {
+    "method": "runHarvest",
+    "category": "Harvest",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.711Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  }
+]

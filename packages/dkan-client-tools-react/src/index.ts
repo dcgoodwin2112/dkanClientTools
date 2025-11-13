@@ -83,14 +83,12 @@ export type {
 export {
   useDatastoreImports,
   useDatastoreImport,
-  useDatastoreStatistics,
   useTriggerDatastoreImport,
   useDeleteDatastore,
 } from './useDatastoreImports'
 export type {
   UseDatastoreImportsOptions,
   UseDatastoreImportOptions,
-  UseDatastoreStatisticsOptions,
 } from './useDatastoreImports'
 
 // Revision/Moderation hooks
@@ -133,33 +131,6 @@ export {
   useDeleteDataDictionary,
 } from './useDataDictionaryMutations'
 
-// Dataset Properties hooks
-export {
-  useDatasetProperties,
-  usePropertyValues,
-  useAllPropertiesWithValues,
-} from './useDatasetProperties'
-export type {
-  UseDatasetPropertiesOptions,
-  UsePropertyValuesOptions,
-  UseAllPropertiesWithValuesOptions,
-} from './useDatasetProperties'
-
-// CKAN API Compatibility hooks
-export {
-  useCkanPackageSearch,
-  useCkanDatastoreSearch,
-  useCkanDatastoreSearchSql,
-  useCkanResourceShow,
-  useCkanCurrentPackageListWithResources,
-} from './useCkanApi'
-export type {
-  UseCkanPackageSearchOptions,
-  UseCkanDatastoreSearchOptions,
-  UseCkanDatastoreSearchSqlOptions,
-  UseCkanResourceShowOptions,
-  UseCkanPackageListOptions,
-} from './useCkanApi'
 
 // Re-export core types for convenience
 export type {
@@ -180,20 +151,10 @@ export type {
   HarvestRunOptions,
   DatastoreImport,
   DatastoreImportOptions,
-  DatastoreStatistics,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
   WorkflowState,
-  DatasetProperty,
-  DatasetPropertyValue,
-  CkanPackageSearchResponse,
-  CkanPackageSearchOptions,
-  CkanDatastoreSearchResponse,
-  CkanDatastoreSearchOptions,
-  CkanDatastoreSearchSqlOptions,
-  CkanResource,
-  CkanPackageWithResources,
 } from '@dkan-client-tools/core'
 
 // Re-export TanStack React Query for advanced usage

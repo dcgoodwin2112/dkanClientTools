@@ -52,25 +52,6 @@ describe('DkanApiClient - Datastore Imports', () => {
     expect(result.status).toBe('in_progress')
   })
 
-  it('should get datastore statistics', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        numOfRows: 1000,
-        numOfColumns: 5,
-        columns: ['id', 'name', 'value', 'date', 'category'],
-      }),
-    })
-
-    const stats = await client.getDatastoreStatistics('resource-1')
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://example.com/api/1/datastore/imports/resource-1',
-      expect.any(Object)
-    )
-    expect(stats.numOfRows).toBe(1000)
-    expect(stats.columns).toHaveLength(5)
-  })
 
   it('should delete a datastore', async () => {
     mockFetch.mockResolvedValueOnce({

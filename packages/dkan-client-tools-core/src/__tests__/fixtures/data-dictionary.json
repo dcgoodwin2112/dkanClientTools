@@ -1,0 +1,51 @@
+[
+  {
+    "method": "listDataDictionaries",
+    "category": "Data Dictionary",
+    "endpoint": "/api/1/metastore/schemas/data-dictionary/items",
+    "timestamp": "2025-11-13T15:21:22.491Z",
+    "response": [],
+    "status": 200,
+    "responseTime": 70
+  },
+  {
+    "method": "getDataDictionary",
+    "category": "Data Dictionary",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.492Z",
+    "skipped": true,
+    "skipReason": "no dictionary found"
+  },
+  {
+    "method": "getDataDictionaryFromUrl",
+    "category": "Data Dictionary",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.492Z",
+    "skipped": true,
+    "skipReason": "requires URL"
+  },
+  {
+    "method": "createDataDictionary",
+    "category": "Data Dictionary",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.492Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  },
+  {
+    "method": "updateDataDictionary",
+    "category": "Data Dictionary",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.492Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  },
+  {
+    "method": "deleteDataDictionary",
+    "category": "Data Dictionary",
+    "endpoint": "",
+    "timestamp": "2025-11-13T15:21:22.492Z",
+    "skipped": true,
+    "skipReason": "read-only mode"
+  }
+]
