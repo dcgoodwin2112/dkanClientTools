@@ -222,7 +222,7 @@ const downloadURL = normalizedBaseUrl + urlPath
 - Inconsistent column counts
 - Edge cases and malformed CSVs
 
-**Size**: ~50KB (minimal overhead)
+**Size (v5.5.6)**: ~50KB (minimal overhead)
 
 ---
 
