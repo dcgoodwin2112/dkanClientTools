@@ -86,7 +86,7 @@ describe('DkanApiClient - Datastore Imports', () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       'https://example.com/api/1/datastore/imports/distribution-uuid',
-      expect.objectContaining({ method: 'GET' })
+      expect.any(Object)
     )
     expect(stats.numOfRows).toBe(1000)
     expect(stats.numOfColumns).toBe(15)

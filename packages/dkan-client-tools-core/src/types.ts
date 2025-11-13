@@ -101,9 +101,40 @@ export interface DatasetQueryOptions {
   keyword?: string
   theme?: string
   fulltext?: string
-  // Phase 1 - OpenAPI alignment: Support both single and array values for multi-field sorting
+
+  /**
+   * Field(s) to sort by. Supports both single field and multi-field sorting.
+   *
+   * Phase 1 - OpenAPI alignment: Added array support for multi-field sorting
+   *
+   * @example
+   * ```typescript
+   * // Single field
+   * sort: 'title'
+   *
+   * // Multiple fields (sort by modified date, then title)
+   * sort: ['modified', 'title']
+   * ```
+   */
   sort?: string | string[]
+
+  /**
+   * Sort order(s). Supports both single order and multiple orders for multi-field sorting.
+   * When using multiple sort fields, provide corresponding sort orders.
+   *
+   * Phase 1 - OpenAPI alignment: Added array support for multi-field sorting
+   *
+   * @example
+   * ```typescript
+   * // Single order
+   * 'sort-order': 'asc'
+   *
+   * // Multiple orders (descending by date, then ascending by title)
+   * 'sort-order': ['desc', 'asc']
+   * ```
+   */
   'sort-order'?: 'asc' | 'desc' | Array<'asc' | 'desc'>
+
   page?: number
   'page-size'?: number
 }

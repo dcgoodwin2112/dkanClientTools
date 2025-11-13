@@ -254,6 +254,22 @@ export class DkanApiClient {
   }
 
   /**
+   * Helper function to append string or array values to URLSearchParams
+   * Reduces code duplication for handling both single and array parameter values
+   */
+  private appendArrayOrString(
+    params: URLSearchParams,
+    key: string,
+    value: string | string[]
+  ): void {
+    if (Array.isArray(value)) {
+      value.forEach(v => params.append(key, v))
+    } else {
+      params.append(key, value)
+    }
+  }
+
+  /**
    * Search datasets with filters
    *
    * Phase 1 - OpenAPI alignment: Added support for array sort parameters
@@ -265,22 +281,12 @@ export class DkanApiClient {
     if (options.theme) params.append('theme', options.theme)
     if (options.fulltext) params.append('fulltext', options.fulltext)
 
-    // Handle array or string for sort
+    // Handle array or string for sort parameters
     if (options.sort) {
-      if (Array.isArray(options.sort)) {
-        options.sort.forEach(s => params.append('sort', s))
-      } else {
-        params.append('sort', options.sort)
-      }
+      this.appendArrayOrString(params, 'sort', options.sort)
     }
-
-    // Handle array or string for sort-order
     if (options['sort-order']) {
-      if (Array.isArray(options['sort-order'])) {
-        options['sort-order'].forEach(so => params.append('sort-order', so))
-      } else {
-        params.append('sort-order', options['sort-order'])
-      }
+      this.appendArrayOrString(params, 'sort-order', options['sort-order'])
     }
 
     if (options.page !== undefined) params.append('page', options.page.toString())
@@ -721,10 +727,7 @@ export class DkanApiClient {
    */
   async getDatastoreStatistics(identifier: string): Promise<DatastoreStatistics> {
     const response = await this.request<DatastoreStatistics>(
-      `/api/1/datastore/imports/${identifier}`,
-      {
-        method: 'GET',
-      }
+      `/api/1/datastore/imports/${identifier}`
     )
     return response.data
   }
