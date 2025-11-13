@@ -78,6 +78,21 @@ export interface DkanSearchResponse {
   facets?: Record<string, any>
 }
 
+/**
+ * Facets API response structure
+ */
+export interface FacetValue {
+  value?: string
+  count?: number
+}
+
+export interface FacetItem {
+  type: string
+  values: (string | FacetValue)[]
+}
+
+export type FacetsApiResponse = FacetItem[]
+
 export interface DkanDatastoreQueryResponse {
   results: Record<string, any>[]
   count: number
@@ -355,6 +370,19 @@ export interface DatastoreStatistics {
   numOfRows: number
   numOfColumns: number
   columns: Record<string, any>
+}
+
+/**
+ * JSON Schema definition structure
+ */
+export interface JsonSchema {
+  $schema?: string
+  title?: string
+  description?: string
+  type?: string
+  properties?: Record<string, any>
+  required?: string[]
+  [key: string]: any
 }
 
 /**

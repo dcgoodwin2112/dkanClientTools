@@ -15,7 +15,7 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (35 methods across 6 categories):
+ * **API Coverage** (38 methods across 6 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
@@ -111,6 +111,9 @@ import type {
   DatastoreImport,
   DatastoreImportOptions,
   DatastoreStatistics,
+  JsonSchema,
+  FacetsApiResponse,
+  FacetItem,
   MetastoreWriteResponse,
   MetastoreRevision,
   MetastoreNewRevision,
@@ -454,10 +457,10 @@ export class DkanApiClient {
    * Phase 2 - OpenAPI alignment
    *
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @returns Schema definition object
+   * @returns JSON Schema definition
    */
-  async getSchema(schemaId: string): Promise<any> {
-    const response = await this.request<any>(
+  async getSchema(schemaId: string): Promise<JsonSchema> {
+    const response = await this.request<JsonSchema>(
       `/api/1/metastore/schemas/${schemaId}`
     )
     return response.data
@@ -509,7 +512,7 @@ export class DkanApiClient {
     keyword: string[]
     publisher: string[]
   }> {
-    const response = await this.request<any>('/api/1/search/facets')
+    const response = await this.request<FacetsApiResponse>('/api/1/search/facets')
 
     // Transform API response to expected format
     const facets = {
@@ -519,13 +522,13 @@ export class DkanApiClient {
     }
 
     if (Array.isArray(response.data)) {
-      response.data.forEach((facet: any) => {
+      response.data.forEach((facet: FacetItem) => {
         if (facet.type === 'theme' && Array.isArray(facet.values)) {
-          facets.theme = facet.values.map((v: any) => v.value || v)
+          facets.theme = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
         } else if (facet.type === 'keyword' && Array.isArray(facet.values)) {
-          facets.keyword = facet.values.map((v: any) => v.value || v)
+          facets.keyword = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
         } else if (facet.type === 'publisher' && Array.isArray(facet.values)) {
-          facets.publisher = facet.values.map((v: any) => v.value || v)
+          facets.publisher = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
         }
       })
     }
