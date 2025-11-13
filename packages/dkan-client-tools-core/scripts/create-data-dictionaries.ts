@@ -22,6 +22,7 @@
  */
 
 import { config } from 'dotenv'
+import { parse } from 'csv-parse/sync'
 import { DkanApiClient } from '../src/api/client'
 import type { DkanDataset, DataDictionary, DataDictionaryField } from '../src/types'
 
@@ -64,8 +65,9 @@ function inferFieldType(values: any[]): 'string' | 'number' | 'integer' | 'boole
     return 'number'
   }
 
-  // Check if values look like dates (basic check)
-  const datePattern = /^\d{4}-\d{2}-\d{2}/
+  // Check if values look like ISO 8601 dates (YYYY-MM-DD)
+  // Use end-of-string anchor to avoid matching filenames like "2024-01-15_report.csv"
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/
   if (nonNullValues.every(v => datePattern.test(String(v)))) {
     return 'date'
   }
@@ -140,29 +142,57 @@ async function fetchDatasetsWithDistributions(client: DkanApiClient): Promise<Di
 }
 
 /**
+ * Sanitize field name for use as a valid identifier
+ * Converts to lowercase, replaces non-alphanumeric with underscores,
+ * collapses multiple underscores, and trims leading/trailing underscores
+ */
+function sanitizeFieldName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '_')  // Replace invalid chars with underscore
+    .replace(/_+/g, '_')           // Collapse multiple underscores
+    .replace(/^_+|_+$/g, '')       // Trim leading/trailing underscores
+    || 'field'                     // Fallback if name is empty after sanitization
+}
+
+/**
  * Parse CSV data to get field information
+ * Uses proper CSV parser to handle quoted fields, commas in values, etc.
  */
 function parseCSV(csvData: string): { headers: string[]; records: Record<string, string>[] } {
-  const lines = csvData.trim().split('\n')
-  if (lines.length < 2) {
+  try {
+    // Parse CSV with proper library that handles quoted fields
+    const parsed = parse(csvData, {
+      columns: false,          // We'll handle headers manually
+      skip_empty_lines: true,
+      trim: true,
+      relax_quotes: true,     // Be lenient with quote handling
+      relax_column_count: true // Allow rows with different column counts
+    })
+
+    if (!parsed || parsed.length < 2) {
+      return { headers: [], records: [] }
+    }
+
+    // First row is headers - sanitize them
+    const rawHeaders = parsed[0] as string[]
+    const headers = rawHeaders.map(h => sanitizeFieldName(h))
+
+    // Remaining rows are data (limit to first 100 for analysis)
+    const dataRows = parsed.slice(1, 101)
+    const records: Record<string, string>[] = dataRows.map((row: string[]) => {
+      const record: Record<string, string> = {}
+      headers.forEach((header, index) => {
+        record[header] = row[index] || ''
+      })
+      return record
+    })
+
+    return { headers, records }
+  } catch (error) {
+    console.error(`CSV parsing error: ${error instanceof Error ? error.message : String(error)}`)
     return { headers: [], records: [] }
   }
-
-  // Parse headers
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase().replace(/[^a-z0-9_]/g, '_'))
-
-  // Parse records (limit to first 100 for analysis)
-  const records: Record<string, string>[] = []
-  for (let i = 1; i < Math.min(lines.length, 101); i++) {
-    const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''))
-    const record: Record<string, string> = {}
-    headers.forEach((header, index) => {
-      record[header] = values[index] || ''
-    })
-    records.push(record)
-  }
-
-  return { headers, records }
 }
 
 /**
@@ -294,7 +324,11 @@ async function main() {
       }
 
       // Analyze CSV file (normalize URL to use configured baseUrl)
-      const downloadURL = distribution.downloadURL.replace(/^https?:\/\/[^/]+/, DKAN_URL)
+      // Extract the path from the distribution URL and combine with base URL
+      // This prevents double slashes and ensures proper URL construction
+      const urlPath = distribution.downloadURL.replace(/^https?:\/\/[^/]+/, '')
+      const normalizedBaseUrl = DKAN_URL.replace(/\/+$/, '') // Remove trailing slashes
+      const downloadURL = normalizedBaseUrl + urlPath
       const fields = await analyzeCSV(downloadURL)
 
       if (!fields) {
