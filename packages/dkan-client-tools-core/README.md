@@ -150,16 +150,11 @@ This package leverages [TanStack Query Core](https://tanstack.com/query) for sta
 
 Supports two authentication methods:
 
-```typescript
-// Token-based authentication
-const client = new DkanClient({
-  baseUrl: 'https://your-dkan-site.com',
-  auth: {
-    token: 'your-api-token',
-  },
-})
+### HTTP Basic Authentication (Recommended)
 
-// Basic authentication
+**Works with DKAN 2.x out-of-the-box.** This is the standard authentication method for DKAN.
+
+```typescript
 const client = new DkanClient({
   baseUrl: 'https://your-dkan-site.com',
   auth: {
@@ -168,6 +163,22 @@ const client = new DkanClient({
   },
 })
 ```
+
+### Bearer Token Authentication
+
+**Requires additional Drupal modules.** Token authentication is NOT supported by DKAN 2.x by default. You must install and configure additional modules (e.g., Simple OAuth) on your DKAN instance to use this method.
+
+```typescript
+// Only works if your DKAN instance has token auth modules installed
+const client = new DkanClient({
+  baseUrl: 'https://your-dkan-site.com',
+  auth: {
+    token: 'your-api-token',
+  },
+})
+```
+
+**Note**: If you're using a standard DKAN 2.x installation, use Basic Authentication.
 
 ## TypeScript Types
 

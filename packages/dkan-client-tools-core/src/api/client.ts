@@ -49,8 +49,8 @@
  *     - getBaseUrl, getDefaultOptions, getOpenApiDocsUrl
  *
  * **Authentication**:
- * - HTTP Basic Authentication (username + password)
- * - Bearer token authentication
+ * - HTTP Basic Authentication (username + password) - **RECOMMENDED** for DKAN 2.x
+ * - Bearer token authentication - Requires additional Drupal modules (NOT supported by default)
  * - Anonymous access for public endpoints
  *
  * **Error Handling**:
