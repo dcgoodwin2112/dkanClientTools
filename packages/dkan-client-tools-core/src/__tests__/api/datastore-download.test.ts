@@ -1,5 +1,9 @@
 /**
- * Tests for Query Download
+ * Tests for Datastore Download Operations
+ *
+ * Covers datastore download functionality:
+ * - downloadQuery() - Download query results by dataset ID and index
+ * - downloadQueryByDistribution() - Download query results by distribution ID
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
