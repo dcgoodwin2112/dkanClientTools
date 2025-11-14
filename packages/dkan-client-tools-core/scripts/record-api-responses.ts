@@ -38,6 +38,7 @@ import type {
 // Load environment variables from .env file in project root
 // Script location: /packages/dkan-client-tools-core/scripts/record-api-responses.ts
 // .env location: /.env (project root)
+// @ts-expect-error - import.meta is valid in Node ESM (see tsconfig.scripts.json)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const projectRoot = join(__dirname, '../../..')

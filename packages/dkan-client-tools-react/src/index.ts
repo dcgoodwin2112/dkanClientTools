@@ -85,6 +85,7 @@ export type {
 export {
   useDatastoreImports,
   useDatastoreImport,
+  useDatastoreStatistics,
   useTriggerDatastoreImport,
   useDeleteDatastore,
 } from './useDatastoreImports'

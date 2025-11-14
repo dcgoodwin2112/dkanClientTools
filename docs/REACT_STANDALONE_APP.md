@@ -4,7 +4,7 @@ This guide walks through creating a standalone React application that uses the `
 
 ## Overview
 
-The `@dkan-client-tools/react` package provides 40+ React hooks for working with DKAN APIs, built on top of TanStack React Query for robust data fetching, caching, and state management.
+The `@dkan-client-tools/react` package provides comprehensive React hooks for working with DKAN APIs, built on top of TanStack React Query for robust data fetching, caching, and state management.
 
 ## Prerequisites
 
@@ -188,135 +188,9 @@ export default function DatasetList() {
 }
 ```
 
-### 5. Add Some Basic Styles
+### 5. Add Styles
 
-Create `src/components/DatasetList.css`:
-
-```css
-.dataset-list {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.search-box {
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #61dafb;
-}
-
-.fetching {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.loading, .error, .no-results {
-  text-align: center;
-  padding: 2rem;
-}
-
-.error {
-  background: #fee;
-  color: #c33;
-  border-radius: 4px;
-}
-
-.dataset-card {
-  padding: 1.5rem;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: box-shadow 0.2s;
-}
-
-.dataset-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.metadata {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin: 0.5rem 0;
-}
-
-.tag {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: #61dafb;
-  color: white;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-
-.keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.keyword {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: #f0f0f0;
-  color: #666;
-  border-radius: 4px;
-  font-size: 0.85rem;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.pagination button {
-  padding: 0.5rem 1rem;
-  background: #61dafb;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.pagination button:hover:not(:disabled) {
-  background: #4fa8c5;
-}
-
-.pagination button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-```
-
-Import the CSS in your component:
-
-```tsx
-import './DatasetList.css'
-```
+Add CSS styling to your component as needed (CSS Modules, Tailwind, styled-components, etc.).
 
 ### 6. Run the Development Server
 
@@ -362,77 +236,9 @@ const dkanClient = new DkanClient({
 
 ## Available Hooks
 
-The `@dkan-client-tools/react` package provides 40+ hooks for working with DKAN:
+The package provides comprehensive hooks for all DKAN APIs, including datasets, datastore, data dictionaries, harvest operations, metastore, revisions, and more. Each hook follows TanStack Query patterns for loading states, error handling, and caching.
 
-### Query Hooks (Read Operations)
-
-- **Dataset Operations**
-  - `useDataset(identifier, options?)` - Fetch a single dataset by ID
-  - `useDatasetSearch(options)` - Search datasets with filters
-  - `useAllDatasets(options?)` - Fetch all datasets
-
-- **Datastore Operations**
-  - `useDatastore(params, options?)` - Query datastore data
-  - `useSqlQuery(params, options?)` - Execute SQL queries
-  - `useExecuteSqlQuery(params, options?)` - Execute SQL with different format
-  - `useDownloadQuery(params, options?)` - Download query results
-  - `useDownloadQueryByDistribution(params, options?)` - Download by distribution ID
-
-- **Data Dictionary Operations**
-  - `useDataDictionary(params, options?)` - Fetch data dictionary
-  - `useDataDictionaryList(datasetId, options?)` - List data dictionaries
-  - `useDataDictionaryFromUrl(url, options?)` - Fetch from external URL
-  - `useDatastoreSchema(params, options?)` - Get datastore schema
-
-- **Harvest Operations**
-  - `useHarvestPlans(options?)` - List harvest plans
-  - `useHarvestPlan(planId, options?)` - Get harvest plan details
-  - `useHarvestRuns(planId, options?)` - List harvest runs for a plan
-  - `useHarvestRun(runId, options?)` - Get harvest run details
-
-- **Datastore Import Operations**
-  - `useDatastoreImports(options?)` - List datastore imports
-  - `useDatastoreImport(datasetId, index, options?)` - Get import details
-  - `useDatastoreStatistics(datasetId, index, options?)` - Get import statistics
-
-- **Metastore Operations**
-  - `useSchemas(options?)` - List metastore schemas
-  - `useSchemaItems(schemaId, options?)` - Get items for a schema
-  - `useDatasetFacets(options?)` - Get dataset facets for filtering
-
-- **Dataset Properties**
-  - `useDatasetProperties(options?)` - List all properties
-  - `usePropertyValues(propertyId, options?)` - Get values for a property
-  - `useAllPropertiesWithValues(options?)` - Get all properties with their values
-
-- **Revision/Moderation**
-  - `useRevisions(datasetId, options?)` - List dataset revisions
-  - `useRevision(datasetId, revisionId, options?)` - Get revision details
-
-### Mutation Hooks (Write Operations)
-
-- **Dataset Mutations**
-  - `useCreateDataset(options?)` - Create a new dataset
-  - `useUpdateDataset(options?)` - Update an existing dataset
-  - `usePatchDataset(options?)` - Partially update a dataset
-  - `useDeleteDataset(options?)` - Delete a dataset
-
-- **Data Dictionary Mutations**
-  - `useCreateDataDictionary(options?)` - Create a data dictionary
-  - `useUpdateDataDictionary(options?)` - Update a data dictionary
-  - `useDeleteDataDictionary(options?)` - Delete a data dictionary
-
-- **Harvest Mutations**
-  - `useRegisterHarvestPlan(options?)` - Register a new harvest plan
-  - `useRunHarvest(options?)` - Trigger a harvest run
-
-- **Datastore Import Mutations**
-  - `useTriggerDatastoreImport(options?)` - Trigger datastore import
-  - `useDeleteDatastore(options?)` - Delete datastore data
-
-- **Revision/Moderation Mutations**
-  - `useCreateRevision(options?)` - Create a new revision
-  - `useChangeDatasetState(options?)` - Change dataset workflow state
+For the complete hook reference, see the [package README](../packages/dkan-client-tools-react/README.md).
 
 ## TypeScript Support
 
@@ -615,236 +421,46 @@ my-dkan-app/
 
 ## Testing
 
-### Unit Testing with Vitest
-
-Install Vitest and testing libraries:
-
-```bash
-npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom
-```
-
-Example test:
+Use Vitest with React Testing Library. Wrap components in `DkanClientProvider` with a test client:
 
 ```tsx
-import { render, screen, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { render } from '@testing-library/react'
 import { DkanClient } from '@dkan-client-tools/core'
 import { DkanClientProvider } from '@dkan-client-tools/react'
-import DatasetList from './DatasetList'
 
-describe('DatasetList', () => {
-  it('renders dataset titles', async () => {
-    const mockClient = new DkanClient({
-      baseUrl: 'https://test.example.com',
-      defaultOptions: { retry: 0 }
-    })
-
-    render(
-      <DkanClientProvider client={mockClient}>
-        <DatasetList />
-      </DkanClientProvider>
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText(/DKAN Dataset Search/i)).toBeInTheDocument()
-    })
-  })
+const testClient = new DkanClient({
+  baseUrl: 'https://test.example.com',
+  defaultOptions: { retry: 0 }
 })
-```
 
-Add Vitest config to `vite.config.ts`:
-
-```typescript
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-  },
-})
+render(
+  <DkanClientProvider client={testClient}>
+    <YourComponent />
+  </DkanClientProvider>
+)
 ```
 
 ## Performance Optimization
 
-### 1. Lazy Loading Components
+- **Lazy Loading**: Use `React.lazy()` and `Suspense` for code splitting
+- **Virtual Scrolling**: Use `react-virtual` or `react-window` for large dataset lists
+- **Query Prefetching**: Prefetch data on hover using TanStack Query's `prefetchQuery`
+- **Optimistic Updates**: Update UI immediately using `onMutate` callback for better UX
+- **Stale Time**: Configure appropriate `staleTime` to reduce unnecessary network requests
 
-```tsx
-import { lazy, Suspense } from 'react'
+## Styling
 
-const DatasetDetail = lazy(() => import('./components/DatasetDetail'))
-
-function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <DatasetDetail />
-    </Suspense>
-  )
-}
-```
-
-### 2. Virtual Scrolling for Large Lists
-
-Use libraries like `react-virtual` or `react-window` for large dataset lists.
-
-### 3. Query Prefetching
-
-```tsx
-import { useQueryClient } from '@tanstack/react-query'
-import { useDkanClient } from '@dkan-client-tools/react'
-
-function DatasetListItem({ id }: { id: string }) {
-  const queryClient = useQueryClient()
-  const dkanClient = useDkanClient()
-
-  const handleMouseEnter = () => {
-    // Prefetch dataset details on hover
-    queryClient.prefetchQuery({
-      queryKey: ['dataset', id],
-      queryFn: () => dkanClient.getDataset(id),
-    })
-  }
-
-  return (
-    <div onMouseEnter={handleMouseEnter}>
-      {/* ... */}
-    </div>
-  )
-}
-```
-
-### 4. Optimistic Updates
-
-```tsx
-import { useUpdateDataset } from '@dkan-client-tools/react'
-import { useQueryClient } from '@tanstack/react-query'
-
-function EditDataset({ dataset }) {
-  const queryClient = useQueryClient()
-  const { mutate } = useUpdateDataset()
-
-  const handleUpdate = (updates) => {
-    mutate({ identifier: dataset.identifier, ...updates }, {
-      onMutate: async (newData) => {
-        // Cancel outgoing refetches
-        await queryClient.cancelQueries(['dataset', dataset.identifier])
-
-        // Snapshot previous value
-        const previousDataset = queryClient.getQueryData(['dataset', dataset.identifier])
-
-        // Optimistically update to new value
-        queryClient.setQueryData(['dataset', dataset.identifier], newData)
-
-        return { previousDataset }
-      },
-      onError: (err, newData, context) => {
-        // Rollback on error
-        queryClient.setQueryData(['dataset', dataset.identifier], context.previousDataset)
-      },
-      onSettled: () => {
-        // Refetch after error or success
-        queryClient.invalidateQueries(['dataset', dataset.identifier])
-      },
-    })
-  }
-}
-```
-
-## Styling Options
-
-### Tailwind CSS
-
-```bash
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-```
-
-Configure `tailwind.config.js`:
-
-```js
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
-
-### CSS Modules
-
-Vite supports CSS Modules out of the box:
-
-```tsx
-import styles from './DatasetList.module.css'
-
-export default function DatasetList() {
-  return <div className={styles.container}>...</div>
-}
-```
-
-### Styled Components
-
-```bash
-npm install styled-components
-```
-
-```tsx
-import styled from 'styled-components'
-
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-`
-```
+Use any CSS solution compatible with Vite/React: Tailwind CSS, CSS Modules (built-in), styled-components, or plain CSS. The DKAN Client Tools package is styling-agnostic.
 
 ## Troubleshooting
 
-### CORS Errors
-
-If you see CORS errors, use the Vite proxy configuration shown above or configure CORS on your DKAN server.
-
-### TypeScript Errors
-
-Ensure your `tsconfig.json` includes:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "moduleResolution": "bundler",
-    "types": ["vite/client"]
-  }
-}
-```
-
-### React 19 Support
-
-The package supports both React 18 and React 19. If you encounter issues with React 19:
-
-```bash
-npm install react@^19.1.1 react-dom@^19.1.1 @types/react@^19.1.16 @types/react-dom@^19.1.9
-```
+- **CORS Errors**: Use Vite proxy configuration or configure CORS on your DKAN server
+- **TypeScript Errors**: Ensure `tsconfig.json` has `moduleResolution: "bundler"` and `types: ["vite/client"]`
+- **React 18/19**: Package supports both React 18 and 19
 
 ## Next Steps
 
-- Explore the [React package README](../packages/dkan-client-tools-react/README.md)
-- Review [DKAN API documentation](../research/DKAN_API_RESEARCH.md)
-- Check out [TanStack Query React documentation](https://tanstack.com/query/latest/docs/react/overview)
-- See the [examples/react-demo-app](../examples/react-demo-app/) directory for a complete working example
-- Learn about [Drupal integration](./DRUPAL_USAGE.md)
-
-## Example Repository
-
-See the included `examples/react-demo-app` directory for a complete, working example that demonstrates:
-- DkanClient setup with provider
-- Dataset search with live filtering
-- Dataset details view
-- Loading and error states
-- TypeScript integration
-- Vite proxy configuration for local DKAN
-- Tailwind CSS styling
+- See [examples/react-demo-app](../examples/react-demo-app/) for a complete working example
+- Explore the [React package README](../packages/dkan-client-tools-react/README.md) for full API reference
+- Review [DKAN API documentation](../research/DKAN_API_RESEARCH.md) for backend details
+- Learn about [Drupal integration](./DRUPAL_USAGE.md) for DKAN themes/modules

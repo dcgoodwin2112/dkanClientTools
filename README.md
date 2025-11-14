@@ -5,13 +5,10 @@ A monorepo of packages containing tools to help developers build frontend applic
 ## Features
 
 - 🎯 **Framework Agnostic Core** - Use with any JavaScript framework
-- ⚛️ **React Hooks** - 40+ React hooks for all DKAN APIs
-- 💚 **Vue Composables** - 40+ Vue 3 composables with full reactivity support
+- ⚛️ **React Hooks** - Comprehensive React hooks for all DKAN APIs
+- 💚 **Vue Composables** - Full Vue 3 composables with reactivity support
 - 🔄 **Smart Caching** - Automatic caching, deduplication, and background refetching
 - 🔍 **Type Safe** - Full TypeScript support with DCAT-US schema types
-- 📦 **Tree-shakeable** - Only bundle what you use
-- ✏️ **Mutations** - First-class support for create, update, delete operations
-- 🎨 **Extensible** - Easy to create adapters for other frameworks
 
 ## Packages
 
@@ -145,7 +142,7 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 
 ## Available Hooks & Composables
 
-Both the React and Vue packages provide 40+ hooks/composables covering all DKAN APIs. The API is identical between frameworks, with Vue using reactive refs and React using standard hooks.
+Both the React and Vue packages provide comprehensive hooks/composables covering all DKAN APIs. The API is identical between frameworks, with Vue using reactive refs and React using standard hooks.
 
 ### Dataset Hooks (Query)
 
@@ -163,6 +160,7 @@ Both the React and Vue packages provide 40+ hooks/composables covering all DKAN 
 ### Datastore Hooks
 
 - `useDatastore` - Query datastore data
+- `useQueryDatastoreMulti` - Query multiple datastore resources with JOINs
 - `useSqlQuery` - Execute SQL queries
 - `useExecuteSqlQuery` - Execute SQL queries on demand (mutation)
 - `useDownloadQuery` - Download query results (mutation)
@@ -201,14 +199,9 @@ Both the React and Vue packages provide 40+ hooks/composables covering all DKAN 
 ### Metastore Hooks
 
 - `useSchemas` - List available metastore schemas
+- `useSchema` - Get a specific metastore schema definition
 - `useSchemaItems` - Get items for a specific schema
 - `useDatasetFacets` - Get dataset facets (themes, keywords, publishers)
-
-### Dataset Properties Hooks
-
-- `useDatasetProperties` - Get all available dataset properties
-- `usePropertyValues` - Get all values for a specific property
-- `useAllPropertiesWithValues` - Get all properties with their values
 
 ### Revision/Moderation Hooks
 
@@ -229,9 +222,6 @@ The packages support all major DKAN REST APIs:
 - **Datastore API** - Query data with SQL-like filters, statistics, imports
 - **Search API** - Search datasets with faceting and full-text search
 - **Harvest API** - Manage harvest plans and runs
-- **Properties API** - Dataset property values for faceted search
-
-See [DKAN_API_RESEARCH.md](./research/DKAN_API_RESEARCH.md) for comprehensive API documentation.
 
 ## Architecture
 
@@ -240,7 +230,7 @@ Built on the proven [TanStack Query](https://tanstack.com/query) architecture:
 ```
 ┌──────────────────────┐  ┌──────────────────────┐
 │  React Components    │  │  Vue Components      │
-│  (40+ hooks)         │  │  (40+ composables)   │
+│  (Comprehensive API) │  │  (Comprehensive API) │
 └──────────┬───────────┘  └──────────┬───────────┘
            │                         │
            ▼                         ▼
@@ -288,7 +278,7 @@ npm run build
 # Run in watch mode
 npm run dev
 
-# Run tests (218 comprehensive tests)
+# Run tests
 npm test
 
 # Type checking
@@ -308,14 +298,14 @@ npm run typecheck
 │   │   └── __tests__/             # Core tests
 │   ├── dkan-client-tools-react/   # React package
 │   │   ├── src/
-│   │   │   ├── use*.ts            # 40+ React hooks
+│   │   │   ├── use*.ts            # React hooks
 │   │   │   └── DkanClientProvider.tsx
-│   │   └── __tests__/             # Hook tests (218 tests)
+│   │   └── __tests__/             # Comprehensive hook tests
 │   └── dkan-client-tools-vue/     # Vue package
 │       ├── src/
-│       │   ├── use*.ts            # 40+ Vue composables
+│       │   ├── use*.ts            # Vue composables
 │       │   └── plugin.ts          # Vue plugin
-│       └── __tests__/             # Composable tests (91 tests)
+│       └── __tests__/             # Comprehensive composable tests
 ├── examples/                      # Demo applications
 │   ├── react-demo-app/            # React example app
 │   └── vue-demo-app/              # Vue example app
@@ -328,7 +318,7 @@ npm run typecheck
 
 ### Testing
 
-Comprehensive test suite with 300+ tests across React and Vue packages:
+Comprehensive test suite across React and Vue packages:
 
 ```bash
 # Run all tests
@@ -399,57 +389,17 @@ The example apps demonstrate:
 - Authentication setup
 - TypeScript integration
 
-## Authentication
-
-Supports two authentication methods:
-
-```typescript
-// Token-based authentication
-const client = new DkanClient({
-  baseUrl: 'https://your-dkan-site.com',
-  auth: {
-    token: 'your-api-token',
-  },
-})
-
-// Basic authentication
-const client = new DkanClient({
-  baseUrl: 'https://your-dkan-site.com',
-  auth: {
-    username: 'admin',
-    password: 'password',
-  },
-})
-```
-
 ## Framework Support
 
 Currently supported frameworks:
 
-- ✅ **React** - 40+ hooks via `@tanstack/react-query`
-- ✅ **Vue** - 40+ composables via `@tanstack/vue-query`
-
-Future framework support (contributions welcome):
-
-- **Svelte** (via Svelte stores and `@tanstack/svelte-query`)
-- **Solid** (via Solid signals and `@tanstack/solid-query`)
-- **Angular** (via RxJS and `@tanstack/angular-query-experimental`)
+- ✅ **React** - Comprehensive hooks via `@tanstack/react-query`
+- ✅ **Vue** - Comprehensive composables via `@tanstack/vue-query`
 
 Each framework adapter:
 1. Depends on `@dkan-client-tools/core`
 2. Uses the corresponding TanStack Query framework adapter
 3. Provides framework-specific hooks/composables/components
-
-## Contributing
-
-Contributions are welcome! This project is actively developed.
-
-### Adding Features
-
-1. **New API methods** - Add to `DkanApiClient` in core package
-2. **New hooks** - Create new hook file in React package following existing patterns
-3. **Tests** - Add comprehensive tests for all new functionality
-4. **Documentation** - Update READMEs with new features
 
 ### Code Style
 
@@ -457,8 +407,6 @@ Contributions are welcome! This project is actively developed.
 - Comprehensive JSDoc comments on all hooks
 - Test coverage for all functionality
 - Follow existing patterns and conventions
-
-See [CLAUDE.md](./CLAUDE.md) for detailed contribution guidelines.
 
 ## Documentation
 
@@ -485,16 +433,10 @@ MIT
 **Status**: Active Development
 
 This project provides comprehensive coverage of DKAN APIs with:
-- ✅ 40+ React hooks
-- ✅ 40+ Vue composables
-- ✅ 300+ comprehensive tests
+- ✅ Complete React hooks for all DKAN APIs
+- ✅ Complete Vue composables for all DKAN APIs
+- ✅ Comprehensive test coverage
 - ✅ Full TypeScript support
 - ✅ Complete DCAT-US type definitions
 - ✅ All major DKAN APIs supported
-- ✅ Example application
-
-Future development:
-- Additional framework adapters (Svelte, Solid, Angular)
-- Advanced caching strategies
-- Optimistic updates
-- Real-time subscriptions (if DKAN adds WebSocket support)
+- ✅ Example applications
