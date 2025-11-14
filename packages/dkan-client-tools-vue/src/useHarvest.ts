@@ -768,7 +768,7 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
   const client = useDkanClient()
 
   return useQuery({
-    queryKey: computed(() => ['harvest', 'run', toValue(options.runId), toValue(options.planId)] as const),
+    queryKey: ['harvest', 'run', options.runId, options.planId] as const,
     queryFn: () => client.getHarvestRun(toValue(options.runId), toValue(options.planId)),
     enabled: () => (toValue(options.enabled) ?? true) && !!toValue(options.runId) && !!toValue(options.planId),
     staleTime: options.staleTime ?? 0,

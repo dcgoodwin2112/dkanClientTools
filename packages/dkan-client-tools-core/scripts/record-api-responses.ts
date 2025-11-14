@@ -415,7 +415,7 @@ class ApiResponseRecorder {
 
           // Get runs for this plan
           const runs = await this.client.listHarvestRuns(this.testHarvestPlanId)
-          if (runs.length > 0) {
+          if (Array.isArray(runs) && runs.length > 0) {
             // listHarvestRuns returns an array of run IDs (strings)
             this.testHarvestRunId = runs[0]
             console.log(`  Found harvest run: ${this.testHarvestRunId}`)
@@ -1070,7 +1070,8 @@ class ApiResponseRecorder {
     // getRevision - try to get first revision if available
     if (revisionsResult.response && Array.isArray(revisionsResult.response) && revisionsResult.response.length > 0) {
       const firstRevision = revisionsResult.response[0]
-      // The revision object uses 'identifier' property. Fallbacks included for API version compatibility.
+      // DKAN 2.x uses 'identifier' property for revisions.
+      // Fallbacks to 'revision_id' and 'id' included for compatibility with older DKAN versions or custom implementations.
       const revisionId = firstRevision.identifier || firstRevision.revision_id || firstRevision.id
       if (revisionId) {
         this.results.push(
