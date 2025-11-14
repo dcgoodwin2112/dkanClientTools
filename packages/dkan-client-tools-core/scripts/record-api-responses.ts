@@ -41,8 +41,8 @@ import type {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const projectRoot = join(__dirname, '../../..')
-// Override existing environment variables with .env values
-config({ path: join(projectRoot, '.env'), override: true })
+// Load environment variables from .env file (shell/CI vars take precedence)
+config({ path: join(projectRoot, '.env'), override: false })
 
 interface RecordingConfig {
   baseUrl: string

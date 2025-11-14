@@ -48,7 +48,7 @@ export interface UseHarvestRunOptions {
  *
  * **What is a Harvest Plan?**
  * A harvest plan automates the process of importing datasets from external catalogs:
- * - **Extract**: Fetch data from an external source (data.json, Socrata, etc.)
+ * - **Extract**: Fetch data from an external source (data.json catalogs, Socrata platforms, etc.)
  * - **Transform**: Convert the external format to DCAT-US schema
  * - **Load**: Import datasets into DKAN's metastore
  *
