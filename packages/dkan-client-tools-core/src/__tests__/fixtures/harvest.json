@@ -3,18 +3,18 @@
     "method": "listHarvestPlans",
     "category": "Harvest",
     "endpoint": "/api/1/harvest/plans",
-    "timestamp": "2025-11-13T21:36:58.342Z",
+    "timestamp": "2025-11-14T05:49:23.748Z",
     "response": [
       "sample_content"
     ],
     "status": 200,
-    "responseTime": 75
+    "responseTime": 71
   },
   {
     "method": "getHarvestPlan",
     "category": "Harvest",
     "endpoint": "/api/1/harvest/plans/sample_content",
-    "timestamp": "2025-11-13T21:36:58.417Z",
+    "timestamp": "2025-11-14T05:49:23.821Z",
     "response": {
       "identifier": "sample_content",
       "extract": {
@@ -29,41 +29,87 @@
       }
     },
     "status": 200,
-    "responseTime": 75
+    "responseTime": 73
   },
   {
     "method": "listHarvestRuns",
     "category": "Harvest",
     "endpoint": "/api/1/harvest/runs?plan=sample_content",
-    "timestamp": "2025-11-13T21:36:58.489Z",
+    "timestamp": "2025-11-14T05:49:23.897Z",
     "response": [
       "1"
     ],
     "status": 200,
-    "responseTime": 72
+    "responseTime": 75
   },
   {
     "method": "getHarvestRun",
     "category": "Harvest",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.489Z",
-    "skipped": true,
-    "skipReason": "no run found"
+    "endpoint": "/api/1/harvest/runs/1?plan=sample_content",
+    "timestamp": "2025-11-14T05:49:23.973Z",
+    "response": {
+      "plan": "{\"identifier\":\"sample_content\",\"extract\":{\"type\":\"\\\\Drupal\\\\harvest\\\\ETL\\\\Extract\\\\DataJson\",\"uri\":\"file:\\/\\/\\/var\\/www\\/html\\/docroot\\/modules\\/contrib\\/dkan\\/modules\\/sample_content\\/sample_content.json\"},\"transforms\":[\"\\\\Drupal\\\\harvest\\\\Transform\\\\ResourceImporter\"],\"load\":{\"type\":\"\\\\Drupal\\\\harvest\\\\Load\\\\Dataset\"}}",
+      "status": {
+        "transform": {
+          "Drupal\\harvest\\Transform\\ResourceImporter": {
+            "cedcd327-4e5d-43f9-8eb1-c11850fa7c55": "SUCCESS",
+            "fb3525f2-d32a-451e-8869-906ed41f7695": "SUCCESS",
+            "d460252e-d42c-474a-9ea9-5287b1d595f6": "SUCCESS",
+            "95f8eac4-fd1f-4b35-8472-5c87e9425dfa": "SUCCESS",
+            "1f2042ad-c513-4fcf-a933-cae6c6fd35e6": "SUCCESS",
+            "e1f2ebcd-ee23-454f-87b5-df0306658418": "SUCCESS",
+            "934400f2-a5dc-4abf-bf16-3f17335888d3": "SUCCESS",
+            "74c06c81-9fe0-439c-aba9-cd5c980a6df4": "SUCCESS",
+            "5dc1cfcf-8028-476c-a020-f58ec6dd621c": "SUCCESS",
+            "c9e2d352-e24c-4051-9158-f48127aa5692": "SUCCESS"
+          }
+        },
+        "load": {
+          "cedcd327-4e5d-43f9-8eb1-c11850fa7c55": "NEW",
+          "fb3525f2-d32a-451e-8869-906ed41f7695": "NEW",
+          "d460252e-d42c-474a-9ea9-5287b1d595f6": "NEW",
+          "95f8eac4-fd1f-4b35-8472-5c87e9425dfa": "NEW",
+          "1f2042ad-c513-4fcf-a933-cae6c6fd35e6": "NEW",
+          "e1f2ebcd-ee23-454f-87b5-df0306658418": "NEW",
+          "934400f2-a5dc-4abf-bf16-3f17335888d3": "NEW",
+          "74c06c81-9fe0-439c-aba9-cd5c980a6df4": "NEW",
+          "5dc1cfcf-8028-476c-a020-f58ec6dd621c": "NEW",
+          "c9e2d352-e24c-4051-9158-f48127aa5692": "NEW"
+        },
+        "extract": "SUCCESS",
+        "extracted_items_ids": [
+          "cedcd327-4e5d-43f9-8eb1-c11850fa7c55",
+          "fb3525f2-d32a-451e-8869-906ed41f7695",
+          "d460252e-d42c-474a-9ea9-5287b1d595f6",
+          "95f8eac4-fd1f-4b35-8472-5c87e9425dfa",
+          "1f2042ad-c513-4fcf-a933-cae6c6fd35e6",
+          "e1f2ebcd-ee23-454f-87b5-df0306658418",
+          "934400f2-a5dc-4abf-bf16-3f17335888d3",
+          "74c06c81-9fe0-439c-aba9-cd5c980a6df4",
+          "5dc1cfcf-8028-476c-a020-f58ec6dd621c",
+          "c9e2d352-e24c-4051-9158-f48127aa5692"
+        ],
+        "orphan_ids": []
+      },
+      "identifier": "1762982099"
+    },
+    "status": 200,
+    "responseTime": 75
   },
   {
     "method": "registerHarvestPlan",
     "category": "Harvest",
     "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.489Z",
+    "timestamp": "2025-11-14T05:49:23.973Z",
     "skipped": true,
-    "skipReason": "read-only mode"
+    "skipReason": "skipped - creates datasets with complex cleanup"
   },
   {
     "method": "runHarvest",
     "category": "Harvest",
     "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.489Z",
+    "timestamp": "2025-11-14T05:49:23.973Z",
     "skipped": true,
-    "skipReason": "read-only mode"
+    "skipReason": "skipped - async operation with dataset side effects"
   }
 ]

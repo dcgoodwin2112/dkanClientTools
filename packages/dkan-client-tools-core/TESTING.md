@@ -80,10 +80,6 @@ Tests for HTTP API client:
 - ✅ Max retries handling
 - ✅ No retry on HTTP errors (404, etc.)
 
-**CKAN Compatibility:**
-- ✅ List datasets endpoint
-- ✅ Get dataset via CKAN API
-
 ### 3. DkanClient (`client/dkanClient.test.ts`)
 
 Tests for main client coordinator:

@@ -115,15 +115,7 @@ Download functionality:
 - **useDownloadQuery**: download results, error handling
 - **useDownloadQueryByDistribution**: download by distribution
 
-### 14. **useCkanApi.test.ts** (5 tests)
-CKAN compatibility:
-- **useCkanPackageSearch**: package search
-- **useCkanDatastoreSearch**: datastore search
-- **useCkanDatastoreSearchSql**: SQL search
-- **useCkanResourceShow**: resource details
-- **useCkanCurrentPackageListWithResources**: list packages
-
-### 15. **plugin.test.ts** (2 tests - existing)
+### 14. **plugin.test.ts** (2 tests - existing)
 Plugin setup and configuration
 
 ## Vue Testing Patterns Used

@@ -136,14 +136,6 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 - `createRevision(schemaId, identifier, revision)` - Create a new revision
 - `changeDatasetState(identifier, state, message)` - Change dataset workflow state
 
-### CKAN Compatibility
-
-- `ckanPackageSearch(options)` - Search packages (CKAN-compatible)
-- `ckanDatastoreSearch(options)` - Search datastore (CKAN-compatible)
-- `ckanDatastoreSearchSql(options)` - SQL search (CKAN-compatible)
-- `ckanResourceShow(id)` - Get resource info (CKAN-compatible)
-- `ckanCurrentPackageListWithResources(options)` - List packages (CKAN-compatible)
-
 ## Architecture
 
 This package leverages [TanStack Query Core](https://tanstack.com/query) for state management and caching:
@@ -302,10 +294,35 @@ The script systematically calls all DKAN API methods and saves responses to JSON
   - Revisions
 
 - **Write operations** - Skipped in read-only mode
-  - Dataset create/update/delete
-  - Data dictionary create/update/delete
-  - Harvest plan registration
-  - Datastore import triggers
+  - Dataset create/update/delete (with automatic cleanup)
+  - Data dictionary create/update/delete (with automatic cleanup)
+  - Revision operations: createRevision, changeDatasetState
+  - Harvest/datastore mutations (skipped - complex side effects)
+
+### Cleanup & Safety
+
+The script includes robust cleanup to prevent test data accumulation:
+
+- **Pre-cleanup** - Removes orphaned test resources from previous failed runs
+- **Post-cleanup** - Verifies all created resources were deleted
+- **Unique IDs** - Uses UUIDs (not timestamps) to avoid collisions
+- **Error recovery** - Cleanup runs even if the script crashes
+- **Cleanup report** - Shows created/deleted/failed counts
+
+Test resources use predictable prefixes:
+- Datasets: `test-recorder-{uuid}`
+- Data dictionaries: `test-dict-{uuid}`
+
+#### Manual Cleanup
+
+If test resources are orphaned, clean them up manually:
+
+```bash
+# Clean up orphaned test resources only (no recording)
+CLEANUP_ONLY=true DKAN_USER=admin DKAN_PASS=admin npm run record:api
+```
+
+This mode finds all test resources (matching prefixes above), attempts to delete each one, and reports success/failure.
 
 ### Output Files
 

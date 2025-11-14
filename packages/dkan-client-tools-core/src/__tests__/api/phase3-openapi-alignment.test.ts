@@ -76,71 +76,6 @@ describe('DkanApiClient - Phase 3 OpenAPI Alignment', () => {
     })
   })
 
-  describe('downloadQueryMulti() method', () => {
-    it('should download multi-resource query results as CSV', async () => {
-      const mockBlob = new Blob(['id,name\n1,Test'], { type: 'text/csv' })
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        blob: async () => mockBlob,
-      })
-
-      const blob = await client.downloadQueryMulti({
-        resources: [{ id: 'resource-1' }],
-        format: 'csv',
-      })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://example.com/api/1/datastore/query/download?format=csv',
-        expect.objectContaining({
-          method: 'POST',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
-        })
-      )
-      expect(blob).toBeInstanceOf(Blob)
-    })
-
-    it('should download multi-resource query results as JSON', async () => {
-      const mockBlob = new Blob(['[{"id":1}]'], { type: 'application/json' })
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        blob: async () => mockBlob,
-      })
-
-      const blob = await client.downloadQueryMulti({
-        resources: [{ id: 'resource-1' }, { id: 'resource-2' }],
-        format: 'json',
-        limit: 100,
-      })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://example.com/api/1/datastore/query/download?format=json',
-        expect.objectContaining({
-          method: 'POST',
-        })
-      )
-      expect(blob).toBeInstanceOf(Blob)
-    })
-
-    it('should default to CSV format', async () => {
-      const mockBlob = new Blob(['data'], { type: 'text/csv' })
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        blob: async () => mockBlob,
-      })
-
-      await client.downloadQueryMulti({
-        resources: [{ id: 'resource-1' }],
-      })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('format=csv'),
-        expect.any(Object)
-      )
-    })
-  })
-
   describe('queryDatastore() GET method support', () => {
     it('should query datastore with POST (default)', async () => {
       mockFetch.mockResolvedValueOnce({
@@ -247,21 +182,6 @@ describe('DkanApiClient - Phase 3 OpenAPI Alignment', () => {
           resources: [{ id: 'invalid' }],
         })
       ).rejects.toThrow('Invalid query parameters')
-    })
-
-    it('should handle downloadQueryMulti errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-        text: async () => 'Resource not found',
-      })
-
-      await expect(
-        client.downloadQueryMulti({
-          resources: [{ id: 'missing' }],
-        })
-      ).rejects.toThrow()
     })
 
     it('should handle queryDatastore GET errors', async () => {

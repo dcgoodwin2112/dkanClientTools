@@ -371,7 +371,7 @@ export class DkanClient {
    * List all datasets (full metadata objects).
    *
    * Returns complete metadata for all datasets in the catalog.
-   * For just identifiers, use the CKAN-compatible listDatasets() method.
+   * For a lightweight alternative, use the Search API with minimal parameters.
    *
    * @returns Array of complete dataset metadata objects
    * @throws {DkanApiError} If request fails
@@ -631,11 +631,11 @@ export class DkanClient {
   /**
    * List harvest runs for a specific plan.
    *
-   * Returns all harvest run records for a given plan, including status,
-   * counts of created/updated/orphaned datasets, and timestamps.
+   * Returns an array of harvest run identifiers for the given plan.
+   * Use getHarvestRun() with a specific run ID to get full run details.
    *
    * @param planId - Harvest plan identifier
-   * @returns Array of harvest run records with status and statistics
+   * @returns Array of harvest run identifiers (strings)
    * @throws {DkanApiError} If harvest plan not found or request fails
    */
   async listHarvestRuns(planId: string) {
@@ -649,11 +649,12 @@ export class DkanClient {
    * including status, counts, error messages, and timestamps.
    *
    * @param runId - Harvest run identifier
+   * @param planId - Harvest plan identifier (required by DKAN API)
    * @returns Harvest run details with execution status and statistics
    * @throws {DkanApiError} If harvest run not found or request fails
    */
-  async getHarvestRun(runId: string) {
-    return this.apiClient.getHarvestRun(runId)
+  async getHarvestRun(runId: string, planId: string) {
+    return this.apiClient.getHarvestRun(runId, planId)
   }
 
   /**
