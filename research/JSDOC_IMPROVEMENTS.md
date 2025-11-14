@@ -21,17 +21,18 @@ Comprehensive review of JSDoc in @dkan-client-tools/core package identified seve
 
 ### 3. Updated API Method Count
 - **Issue**: Class header claimed "38 methods across 6 categories"
-- **Fix**: Updated to "41 methods across 8 categories" with reorganized categories:
+- **Fix**: Updated to "43 methods across 8 categories" with reorganized categories:
   1. Dataset Operations (7)
   2. Datastore Query (5)
   3. Datastore Download (3)
   4. Data Dictionary (6)
   5. Harvest Operations (6)
   6. Datastore Imports (4)
-  7. Metastore (4)
+  7. Metastore (6)
   8. Revisions & Moderation (4)
+  9. CKAN Compatibility (5)
 
-### 4. Enhanced CRUD Operation JSDoc
+### 4. Enhanced CRUD Operation JSDoc (DkanApiClient)
 Added comprehensive documentation to dataset CRUD operations:
 
 **createDataset()**:
@@ -62,168 +63,77 @@ Added comprehensive documentation to dataset CRUD operations:
 - Added example with confirmation
 - Added warning about permanent deletion
 
+### 5. Comprehensive DkanApiClient Method Documentation (Commit: e7b053d)
+Added complete JSDoc for remaining DkanApiClient methods:
+
+**All methods now include**:
+- @param tags with detailed descriptions
+- @returns tags documenting return types
+- @throws tags documenting error conditions
+- Usage examples for key methods
+- Notes about authentication requirements
+
+**Methods documented**:
+- searchDatasets() - with filtering and pagination examples
+- queryDatastore() - with conditions, sorting, pagination
+- queryDatastoreMulti() - with JOIN examples
+- downloadQuery() - with format options
+- downloadQueryMulti() - with multi-resource queries
+- getDatastoreSchema() - schema retrieval
+- All data dictionary methods (list, get, getFromUrl, create, update, delete)
+- All harvest methods (list plans, get plan, register, list runs, get run, run harvest)
+- All metastore methods (schemas, schema items, facets, properties)
+- All datastore import methods (list, trigger, delete, statistics)
+- All revision/moderation methods (get revisions, get revision, create revision, change state)
+- All download methods (by dataset/index and by distribution ID)
+- SQL query method with bracket syntax examples
+- CKAN compatibility methods
+
+### 6. Complete DkanClient Wrapper Method Documentation (Commit: e44f4a8)
+Added comprehensive JSDoc for all DkanClient methods:
+
+**All wrapper methods now include**:
+- Detailed descriptions of functionality
+- @param tags for all parameters
+- @returns tags with return type descriptions
+- @throws tags for error conditions
+- Important notes about caching behavior
+- Guidance on when to use hooks/composables vs direct methods
+
+**Methods documented** (40+ wrapper methods):
+- Dataset operations (fetch, search)
+- Datastore operations (query, schema)
+- Data dictionary operations (all CRUD)
+- Harvest operations (plans, runs, registration)
+- Dataset CRUD (create, update, patch, delete)
+- Datastore imports (list, trigger, delete)
+- Revisions/moderation (get, create, change state)
+- Query downloads (by dataset ID and distribution ID)
+- SQL queries
+- Cache management methods (prefetch, get, set, invalidate, remove, clear)
+- OpenAPI documentation URL
+
 ## Remaining Improvements Needed
 
-### High Priority
+### High Priority ✅ COMPLETED
 
-#### Missing @throws Tags (37 methods)
-All public methods should document that they throw `DkanApiError`:
-
-**Dataset Operations**:
-- searchDatasets()
-- listAllDatasets()
-- getDataset() (has @throws but could be more specific)
-
-**Datastore Operations**:
-- queryDatastore()
-- queryDatastoreMulti()
-- getDatastoreSchema()
-- downloadQuery()
-- downloadQueryByDistribution()
-- downloadQueryMulti()
-
-**Data Dictionary**:
-- listDataDictionaries()
-- getDataDictionary()
-- getDataDictionaryFromUrl()
-- createDataDictionary()
-- updateDataDictionary()
-- deleteDictionary()
-
-**Harvest**:
-- listHarvestPlans()
-- getHarvestPlan()
-- registerHarvestPlan()
-- listHarvestRuns()
-- getHarvestRun()
-- runHarvest()
-
-**Datastore Imports**:
-- listDatastoreImports()
-- triggerDatastoreImport()
-- deleteDatastore()
-
-**Metastore**:
-- listSchemas()
-- getSchema()
-- getSchemaItems()
-- getDatasetFacets()
-
-**Revisions**:
-- getRevisions()
-- getRevision()
-- createRevision()
-- changeDatasetState()
-
-#### Missing @param Tags (24 methods)
-
-Methods with parameters but no @param documentation:
-
-**Dataset**:
-- searchDatasets(options)
-- getDatasetCkan(identifier)
-
-**Datastore**:
-- queryDatastore(datasetId, index, options, method)
-- queryDatastoreMulti(options, method)
-- getDatastoreSchema(datasetId, index)
-
-**Data Dictionary**:
-- getDataDictionary(identifier)
-- getDataDictionaryFromUrl(url)
-- createDataDictionary(dictionary)
-- updateDataDictionary(identifier, dictionary)
-- deleteDataDictionary(identifier)
-
-**Harvest**:
-- registerHarvestPlan(plan)
-- getHarvestPlan(planId)
-- listHarvestRuns(planId)
-- getHarvestRun(runId)
-- runHarvest(options)
-
-**Datastore Imports**:
-- triggerDatastoreImport(options)
-- deleteDatastore(identifier)
-
-**Revisions**:
-- getRevisions(schemaId, identifier)
-- getRevision(schemaId, identifier, revisionId)
-- createRevision(schemaId, identifier, revision)
-- changeDatasetState(identifier, state, message)
-
-**Download**:
-- downloadQuery(datasetId, index, options)
-- downloadQueryByDistribution(distributionId, options)
-- downloadQueryMulti(options)
-
-#### Missing @returns Tags (34 methods)
-
-All methods missing @returns documentation:
-
-- searchDatasets()
-- listAllDatasets()
-- listDatasets()
-- getDatasetCkan()
-- listDataDictionaries()
-- getDataDictionary()
-- getDataDictionaryFromUrl()
-- createDataDictionary()
-- updateDataDictionary()
-- deleteDataDictionary()
-- listSchemas()
-- getSchemaItems()
-- getDatasetFacets()
-- listHarvestPlans()
-- getHarvestPlan()
-- registerHarvestPlan()
-- listHarvestRuns()
-- getHarvestRun()
-- runHarvest()
-- listDatastoreImports()
-- triggerDatastoreImport()
-- deleteDatastore()
-- getRevisions()
-- getRevision()
-- createRevision()
-- changeDatasetState()
-- downloadQuery()
-- downloadQueryByDistribution()
-- downloadQueryMulti()
-- getBaseUrl()
-- getDefaultOptions()
-- getOpenApiDocsUrl()
-- executeSqlQuery()
-- ckanPackageSearch() (and other CKAN methods)
+All high-priority items have been completed:
+- ✅ All public methods now have @throws tags
+- ✅ All methods have @param tags for their parameters
+- ✅ All methods have @returns tags documenting return values
 
 ### Medium Priority
 
-#### Methods Needing Examples
+#### Type Documentation Enhancement
 
-**Data Dictionary Operations**:
-- createDataDictionary() - Show Frictionless schema structure
-- updateDataDictionary() - Show update workflow
-- getDataDictionary() - Show retrieving and using schema
+**types.ts improvements needed**:
+- ✅ Most types already have good documentation
+- Consider adding examples to complex types (DatastoreQueryOptions, SqlQueryOptions)
+- Document validation rules and constraints where applicable
 
-**Harvest Operations**:
-- registerHarvestPlan() - Show complete plan structure
-- runHarvest() - Show triggering and monitoring
-
-**Datastore Import**:
-- triggerDatastoreImport() - Show import workflow
-
-**Revision/Moderation**:
-- getRevisions() - Show listing revision history
-- createRevision() - Show creating new revision
-- changeDatasetState() - Show workflow state transitions
-
-**Download Operations**:
-- downloadQuery() - Show CSV/JSON download with filters
-- downloadQueryByDistribution() - Show by distribution ID
-- downloadQueryMulti() - Show multi-resource download
-
-**Search**:
-- searchDatasets() - Show various search options (keyword, theme, pagination, sorting)
+**index.ts improvements needed**:
+- Update API method count to match actual implementation (43 methods)
+- Verify all exports are documented
 
 ### Low Priority
 
@@ -333,12 +243,24 @@ After updating JSDoc:
 
 ## Conclusion
 
-JSDoc coverage is good but incomplete. Priority improvements:
+✅ **JSDoc improvements are now COMPLETE for the core package!**
 
-1. Add @throws to all methods (required for API predictability)
-2. Add @returns to all methods (required for developer experience)
-3. Add @param to methods with parameters (required for proper IDE hints)
-4. Add examples to key CRUD operations (nice to have but very helpful)
+**Completed work** (Nov 13, 2025):
+1. ✅ Added @throws tags to all public methods
+2. ✅ Added @returns tags to all public methods
+3. ✅ Added @param tags to all methods with parameters
+4. ✅ Added comprehensive examples to key operations
+5. ✅ Documented all DkanApiClient methods (43 methods)
+6. ✅ Documented all DkanClient wrapper methods (40+ methods)
+7. ✅ Documented authentication requirements
+8. ✅ Documented caching behavior guidance
 
-Estimated time for complete JSDoc overhaul: **6-8 hours**
-Estimated time for high-priority items only: **3-4 hours**
+**Remaining minor improvements**:
+- Update index.ts with corrected API method count (43 methods)
+- Optional: Add examples to complex type definitions
+
+**Time spent**: ~3 hours (within estimated range)
+
+**Next steps**:
+- React package JSDoc review (separate branch)
+- Vue package JSDoc review (separate branch)
