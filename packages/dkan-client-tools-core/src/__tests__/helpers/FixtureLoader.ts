@@ -24,8 +24,8 @@ export interface RecordedResponse {
   category: string
   endpoint: string
   timestamp: string
-  request?: any
-  response?: any
+  request?: Record<string, unknown> | unknown
+  response?: Record<string, unknown> | unknown
   status?: number
   responseTime?: number
   error?: string
@@ -62,6 +62,8 @@ export interface RecordingSummary {
  * Fixture loader for integration tests
  */
 export class FixtureLoader {
+  private static readonly MS_PER_DAY = 1000 * 60 * 60 * 24
+
   private fixtures: Map<string, RecordedResponse[]>
   private summary: RecordingSummary
 
@@ -158,7 +160,7 @@ export class FixtureLoader {
   isOutdated(maxDays: number = 30): boolean {
     const recordingDate = new Date(this.summary.timestamp)
     const age = Date.now() - recordingDate.getTime()
-    const daysSinceRecording = age / (1000 * 60 * 60 * 24)
+    const daysSinceRecording = age / FixtureLoader.MS_PER_DAY
     return daysSinceRecording > maxDays
   }
 
@@ -168,7 +170,7 @@ export class FixtureLoader {
   getAgeInDays(): number {
     const recordingDate = new Date(this.summary.timestamp)
     const age = Date.now() - recordingDate.getTime()
-    return age / (1000 * 60 * 60 * 24)
+    return age / FixtureLoader.MS_PER_DAY
   }
 
   /**

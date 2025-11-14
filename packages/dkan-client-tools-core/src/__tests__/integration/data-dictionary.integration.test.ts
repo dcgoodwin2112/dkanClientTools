@@ -9,6 +9,24 @@ import { describe, it, expect } from 'vitest'
 import { fixtureLoader } from '../helpers/FixtureLoader'
 import { expectFrictionlessSchema } from '../helpers/matchers'
 
+interface FrictionlessField {
+  name: string
+  type: string
+  title?: string
+  description?: string
+  constraints?: {
+    required?: boolean
+    minimum?: number
+    maximum?: number
+    pattern?: string
+    enum?: unknown[]
+  }
+}
+
+interface FrictionlessIndex {
+  fields: Array<{ name: string }>
+}
+
 describe('Data Dictionary Operations Integration', () => {
   describe('listDataDictionaries', () => {
     it('should return array of data dictionaries', () => {
@@ -96,14 +114,15 @@ describe('Data Dictionary Operations Integration', () => {
 
       const schema = dictionaries[0].data
 
-      schema.fields.forEach((field: any) => {
+      schema.fields.forEach((field: unknown) => {
+        const f = field as FrictionlessField
         const validTypes = [
           'string', 'number', 'integer', 'boolean',
           'object', 'array', 'date', 'time', 'datetime',
           'year', 'yearmonth', 'duration', 'geopoint', 'geojson'
         ]
 
-        expect(validTypes).toContain(field.type)
+        expect(validTypes).toContain(f.type)
       })
     })
 
@@ -117,29 +136,30 @@ describe('Data Dictionary Operations Integration', () => {
 
       const schema = dictionaries[0].data
 
-      schema.fields.forEach((field: any) => {
-        if (field.constraints) {
-          expect(typeof field.constraints).toBe('object')
+      schema.fields.forEach((field: unknown) => {
+        const f = field as FrictionlessField
+        if (f.constraints) {
+          expect(typeof f.constraints).toBe('object')
 
           // Validate common constraint properties
-          if (field.constraints.required !== undefined) {
-            expect(typeof field.constraints.required).toBe('boolean')
+          if (f.constraints.required !== undefined) {
+            expect(typeof f.constraints.required).toBe('boolean')
           }
 
-          if (field.constraints.minimum !== undefined) {
-            expect(typeof field.constraints.minimum).toBe('number')
+          if (f.constraints.minimum !== undefined) {
+            expect(typeof f.constraints.minimum).toBe('number')
           }
 
-          if (field.constraints.maximum !== undefined) {
-            expect(typeof field.constraints.maximum).toBe('number')
+          if (f.constraints.maximum !== undefined) {
+            expect(typeof f.constraints.maximum).toBe('number')
           }
 
-          if (field.constraints.pattern) {
-            expect(typeof field.constraints.pattern).toBe('string')
+          if (f.constraints.pattern) {
+            expect(typeof f.constraints.pattern).toBe('string')
           }
 
-          if (field.constraints.enum) {
-            expect(Array.isArray(field.constraints.enum)).toBe(true)
+          if (f.constraints.enum) {
+            expect(Array.isArray(f.constraints.enum)).toBe(true)
           }
         }
       })
@@ -158,12 +178,14 @@ describe('Data Dictionary Operations Integration', () => {
       if (schema.indexes) {
         expect(Array.isArray(schema.indexes)).toBe(true)
 
-        schema.indexes.forEach((index: any) => {
-          expect(index).toHaveProperty('fields')
-          expect(Array.isArray(index.fields)).toBe(true)
+        schema.indexes.forEach((index: unknown) => {
+          const idx = index as FrictionlessIndex
+          expect(idx).toHaveProperty('fields')
+          expect(Array.isArray(idx.fields)).toBe(true)
 
-          index.fields.forEach((fieldRef: any) => {
-            expect(fieldRef).toHaveProperty('name')
+          idx.fields.forEach((fieldRef: unknown) => {
+            const ref = fieldRef as { name: string }
+            expect(ref).toHaveProperty('name')
           })
         })
       }

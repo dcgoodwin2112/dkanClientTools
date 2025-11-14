@@ -15,6 +15,12 @@ import {
   expectDistributionShape,
 } from '../helpers/matchers'
 
+interface SearchFacet {
+  type: string
+  name: string
+  total: number
+}
+
 describe('Dataset Operations Integration', () => {
   describe('getDataset', () => {
     it('should handle real DKAN dataset response structure', () => {
@@ -141,10 +147,11 @@ describe('Dataset Operations Integration', () => {
       const response = fixture!.response
 
       if (response.facets && Array.isArray(response.facets)) {
-        response.facets.forEach((facet: any) => {
-          expect(facet).toHaveProperty('type')
-          expect(facet).toHaveProperty('name')
-          expect(facet).toHaveProperty('total')
+        response.facets.forEach((facet: unknown) => {
+          const f = facet as SearchFacet
+          expect(f).toHaveProperty('type')
+          expect(f).toHaveProperty('name')
+          expect(f).toHaveProperty('total')
         })
       }
     })
