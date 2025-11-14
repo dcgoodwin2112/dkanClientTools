@@ -108,7 +108,7 @@ const mockClient = { getDataset: vi.fn() } as any
 
 ### 4. API Coverage & Completeness
 
-**43 API Methods** across 8 categories (see CLAUDE.md for full list):
+**38 API Methods** across 7 categories (see CLAUDE.md for full list):
 - Dataset operations (7 methods)
 - Datastore operations (5 methods)
 - Data dictionary operations (6 methods)
@@ -116,7 +116,6 @@ const mockClient = { getDataset: vi.fn() } as any
 - Metastore operations (6 methods)
 - Datastore import operations (4 methods)
 - Revision/moderation operations (4 methods)
-- CKAN compatibility (5 methods)
 
 When adding new API methods:
 1. Add to `DkanApiClient` in core package

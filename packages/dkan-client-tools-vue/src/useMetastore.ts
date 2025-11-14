@@ -3,7 +3,7 @@
  */
 
 import { useQuery } from '@tanstack/vue-query'
-import { type MaybeRefOrGetter, toValue } from 'vue'
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useDkanClient } from './plugin'
 
 export interface UseAllDatasetsOptions {
@@ -19,6 +19,23 @@ export interface UseAllDatasetsOptions {
 }
 
 export interface UseSchemasOptions {
+  /**
+   * Enable/disable the query
+   */
+  enabled?: MaybeRefOrGetter<boolean>
+
+  /**
+   * Time before data is considered stale (ms)
+   */
+  staleTime?: number
+}
+
+export interface UseSchemaOptions {
+  /**
+   * The schema ID to fetch
+   */
+  schemaId: MaybeRefOrGetter<string>
+
   /**
    * Enable/disable the query
    */
@@ -460,6 +477,119 @@ export function useSchemas(options: UseSchemasOptions = {}) {
     queryFn: () => client.listSchemas(),
     enabled: () => toValue(options.enabled) ?? true,
     staleTime: options.staleTime,
+  })
+}
+
+/**
+ * Fetches a specific metastore schema definition with reactive parameters.
+ *
+ * This composable retrieves the JSON Schema definition for a specific schema type in the DKAN metastore.
+ * JSON Schemas define the structure, validation rules, and expected format for metadata objects stored in DKAN.
+ * Understanding schema definitions is useful for building dynamic forms, validating metadata, and generating
+ * documentation. Fully reactive with Vue's MaybeRefOrGetter pattern for dynamic schema inspection.
+ *
+ * **Common Schemas**:
+ * - `dataset`: DCAT-US schema for dataset metadata (distributions, publisher, theme, etc.)
+ * - `data-dictionary`: Frictionless Table Schema for describing data structure
+ * - `distribution`: Schema for dataset distributions (downloadURL, mediaType, etc.)
+ *
+ * Use this composable when you need to:
+ * - Build dynamic forms based on schema definitions
+ * - Validate metadata before submission
+ * - Generate schema documentation
+ * - Display field constraints and data types
+ * - Create metadata editors with reactive schema switching
+ *
+ * @param options - Configuration options including the schema ID
+ *
+ * @returns TanStack Vue Query result object with reactive JSON Schema
+ *
+ * @example
+ * Basic usage with reactive schema ID:
+ * ```vue
+ * <script setup lang="ts">
+ * import { ref } from 'vue'
+ * import { useSchema } from '@dkan-client-tools/vue'
+ *
+ * const schemaId = ref('dataset')
+ * const { data: schema, isLoading, error } = useSchema({
+ *   schemaId,
+ * })
+ * </script>
+ *
+ * <template>
+ *   <div v-if="isLoading">Loading schema...</div>
+ *   <div v-else-if="error">Error: {{ error.message }}</div>
+ *   <div v-else-if="schema" class="schema-viewer">
+ *     <h2>{{ schema.title || schemaId }}</h2>
+ *     <p v-if="schema.description">{{ schema.description }}</p>
+ *
+ *     <h3>Properties</h3>
+ *     <ul>
+ *       <li v-for="(propDef, propName) in schema.properties" :key="propName">
+ *         <strong>{{ propName }}</strong>
+ *         <span v-if="propDef.type"> ({{ propDef.type }})</span>
+ *         <span v-if="schema.required?.includes(propName)" class="required"> *</span>
+ *         <p v-if="propDef.description">{{ propDef.description }}</p>
+ *       </li>
+ *     </ul>
+ *   </div>
+ * </template>
+ * ```
+ *
+ * @example
+ * Schema selector with reactive updates:
+ * ```vue
+ * <script setup lang="ts">
+ * import { ref, computed } from 'vue'
+ * import { useSchemas, useSchema } from '@dkan-client-tools/vue'
+ *
+ * const selectedSchemaId = ref('dataset')
+ * const { data: availableSchemas } = useSchemas()
+ * const { data: schema } = useSchema({
+ *   schemaId: selectedSchemaId,
+ * })
+ *
+ * const requiredFields = computed(() => schema.value?.required || [])
+ * const optionalFields = computed(() => {
+ *   if (!schema.value?.properties) return []
+ *   return Object.keys(schema.value.properties).filter(
+ *     (field) => !requiredFields.value.includes(field)
+ *   )
+ * })
+ * </script>
+ *
+ * <template>
+ *   <div class="schema-inspector">
+ *     <select v-model="selectedSchemaId">
+ *       <option v-for="schemaId in availableSchemas" :key="schemaId" :value="schemaId">
+ *         {{ schemaId }}
+ *       </option>
+ *     </select>
+ *
+ *     <div v-if="schema" class="schema-details">
+ *       <h3>{{ schema.title }}</h3>
+ *       <div class="field-summary">
+ *         <p>Required fields: {{ requiredFields.length }}</p>
+ *         <p>Optional fields: {{ optionalFields.length }}</p>
+ *       </div>
+ *     </div>
+ *   </div>
+ * </template>
+ * ```
+ *
+ * @see {@link useSchemas} for listing all available schemas
+ * @see {@link useSchemaItems} for fetching items within a schema
+ * @see https://dkan.readthedocs.io/en/latest/apis/metastore.html
+ */
+export function useSchema(options: UseSchemaOptions) {
+  const client = useDkanClient()
+
+  return useQuery({
+    queryKey: computed(() => ['metastore', 'schema', toValue(options.schemaId)] as const),
+    queryFn: () => client.getSchema(toValue(options.schemaId)),
+    enabled: () => toValue(options.enabled) !== false && !!toValue(options.schemaId),
+    staleTime: options.staleTime ?? 10 * 60 * 1000, // Default 10 minutes - schemas rarely change
   })
 }
 

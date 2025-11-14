@@ -140,7 +140,6 @@ The library provides access to:
 - **Metastore operations** (6 methods): schemas, facets, properties
 - **Datastore import operations** (4 methods): import, delete, statistics
 - **Revision/moderation operations** (4 methods): revisions, workflow states
-- **CKAN compatibility** (5 methods): package_search, datastore_search, etc.
 
 ## License
 

@@ -8,6 +8,7 @@ import { useDkanClient } from './plugin'
 import type {
   DatastoreImport,
   DatastoreImportOptions,
+  DatastoreStatistics,
 } from '@dkan-client-tools/core'
 
 export interface UseDatastoreImportsOptions {
@@ -21,6 +22,12 @@ export interface UseDatastoreImportOptions {
   enabled?: MaybeRefOrGetter<boolean>
   staleTime?: number
   refetchInterval?: number | false
+}
+
+export interface UseDatastoreStatisticsOptions {
+  identifier: MaybeRefOrGetter<string>
+  enabled?: MaybeRefOrGetter<boolean>
+  staleTime?: number
 }
 
 
@@ -565,5 +572,207 @@ export function useDeleteDatastore() {
       // Invalidate datastore queries
       queryClient.invalidateQueries({ queryKey: ['datastore', 'query'] })
     },
+  })
+}
+
+/**
+ * Fetches statistics about a datastore's imported data with reactive parameters.
+ *
+ * This composable retrieves metadata about the structure and size of a datastore table, including
+ * the number of rows, number of columns, and column definitions. This information is useful for
+ * understanding the shape and volume of imported data without querying the data itself. Fully
+ * reactive with Vue's MaybeRefOrGetter pattern for dynamic identifier tracking.
+ *
+ * The statistics are generated after a successful datastore import and remain available as long
+ * as the datastore exists. They provide a quick way to check if data was imported successfully
+ * and to understand its structure before building queries.
+ *
+ * **What Statistics Are Returned**:
+ * - `numOfRows`: Total number of records in the datastore table
+ * - `numOfColumns`: Total number of columns/fields
+ * - `columns`: Dictionary of column names with their type definitions and constraints
+ *
+ * Use this composable when you need to:
+ * - Display datastore size and structure information
+ * - Verify that a datastore import completed successfully
+ * - Build dynamic UI elements based on available columns
+ * - Show data volume metrics to users
+ * - Check if a datastore has data before querying
+ * - Create column selectors for query builders
+ *
+ * @param options - Configuration options including the datastore identifier
+ *
+ * @returns TanStack Vue Query result object containing reactive statistics
+ *
+ * @example
+ * Basic usage - display datastore size with reactive identifier:
+ * ```vue
+ * <script setup lang="ts">
+ * import { useDatastoreStatistics } from '@dkan-client-tools/vue'
+ *
+ * const props = defineProps<{ identifier: string }>()
+ *
+ * const { data: stats, isLoading, error } = useDatastoreStatistics({
+ *   identifier: () => props.identifier,
+ * })
+ * </script>
+ *
+ * <template>
+ *   <div v-if="isLoading">Loading statistics...</div>
+ *   <div v-else-if="error" class="error">
+ *     Error: {{ error.message }}
+ *   </div>
+ *   <div v-else-if="stats" class="datastore-info">
+ *     <h4>Datastore Statistics</h4>
+ *     <p>Rows: {{ stats.numOfRows.toLocaleString() }}</p>
+ *     <p>Columns: {{ stats.numOfColumns }}</p>
+ *     <p>Available columns: {{ Object.keys(stats.columns).join(', ') }}</p>
+ *   </div>
+ * </template>
+ * ```
+ *
+ * @example
+ * Building a column selector from statistics:
+ * ```vue
+ * <script setup lang="ts">
+ * import { ref, computed } from 'vue'
+ * import { useDatastoreStatistics } from '@dkan-client-tools/vue'
+ *
+ * const props = defineProps<{ identifier: string }>()
+ *
+ * const selectedColumns = ref<string[]>([])
+ * const { data: stats } = useDatastoreStatistics({
+ *   identifier: () => props.identifier,
+ * })
+ *
+ * const availableColumns = computed(() =>
+ *   stats.value ? Object.keys(stats.value.columns) : []
+ * )
+ *
+ * function toggleColumn(column: string) {
+ *   if (selectedColumns.value.includes(column)) {
+ *     selectedColumns.value = selectedColumns.value.filter((c) => c !== column)
+ *   } else {
+ *     selectedColumns.value = [...selectedColumns.value, column]
+ *   }
+ * }
+ * </script>
+ *
+ * <template>
+ *   <div class="column-selector">
+ *     <h4>Select Columns to Display</h4>
+ *     <div v-for="column in availableColumns" :key="column" class="column-option">
+ *       <label>
+ *         <input
+ *           type="checkbox"
+ *           :checked="selectedColumns.includes(column)"
+ *           @change="toggleColumn(column)"
+ *         />
+ *         {{ column }}
+ *       </label>
+ *     </div>
+ *     <p v-if="selectedColumns.length > 0">
+ *       Selected: {{ selectedColumns.join(', ') }}
+ *     </p>
+ *   </div>
+ * </template>
+ * ```
+ *
+ * @example
+ * Conditional rendering based on data availability:
+ * ```vue
+ * <script setup lang="ts">
+ * import { computed } from 'vue'
+ * import { useDatastoreStatistics } from '@dkan-client-tools/vue'
+ * import DataQueryInterface from './DataQueryInterface.vue'
+ * import ImportDataButton from './ImportDataButton.vue'
+ *
+ * const props = defineProps<{ identifier: string }>()
+ *
+ * const { data: stats, isLoading } = useDatastoreStatistics({
+ *   identifier: () => props.identifier,
+ * })
+ *
+ * const hasData = computed(() => stats.value && stats.value.numOfRows > 0)
+ * </script>
+ *
+ * <template>
+ *   <div class="datastore-viewer">
+ *     <div v-if="isLoading">Checking datastore...</div>
+ *     <div v-else-if="hasData">
+ *       <DataQueryInterface
+ *         :identifier="identifier"
+ *         :columns="Object.keys(stats.columns)"
+ *         :total-rows="stats.numOfRows"
+ *       />
+ *     </div>
+ *     <div v-else class="no-data">
+ *       <p>No data imported yet</p>
+ *       <ImportDataButton :identifier="identifier" />
+ *     </div>
+ *   </div>
+ * </template>
+ * ```
+ *
+ * @example
+ * Display column types and constraints with reactive ref:
+ * ```vue
+ * <script setup lang="ts">
+ * import { ref } from 'vue'
+ * import { useDatastoreStatistics } from '@dkan-client-tools/vue'
+ *
+ * const resourceId = ref('resource-123')
+ * const { data: stats } = useDatastoreStatistics({
+ *   identifier: resourceId, // Reactive ref automatically tracked
+ * })
+ *
+ * // Change resource ID - composable automatically refetches
+ * function switchResource(newId: string) {
+ *   resourceId.value = newId
+ * }
+ * </script>
+ *
+ * <template>
+ *   <div v-if="stats" class="schema-viewer">
+ *     <h3>Column Schema ({{ stats.numOfColumns }} columns)</h3>
+ *     <table>
+ *       <thead>
+ *         <tr>
+ *           <th>Column Name</th>
+ *           <th>Type</th>
+ *         </tr>
+ *       </thead>
+ *       <tbody>
+ *         <tr v-for="(def, name) in stats.columns" :key="name">
+ *           <td><code>{{ name }}</code></td>
+ *           <td>{{ def.type }}</td>
+ *         </tr>
+ *       </tbody>
+ *     </table>
+ *     <p class="row-count">
+ *       Total Records: {{ stats.numOfRows.toLocaleString() }}
+ *     </p>
+ *   </div>
+ *
+ *   <div class="resource-switcher">
+ *     <button @click="switchResource('resource-456')">
+ *       Switch to Resource 456
+ *     </button>
+ *   </div>
+ * </template>
+ * ```
+ *
+ * @see {@link useDatastoreImport} for monitoring import progress
+ * @see {@link useDatastore} for querying datastore data
+ * @see https://dkan.readthedocs.io/en/latest/apis/datastore-import.html
+ */
+export function useDatastoreStatistics(options: UseDatastoreStatisticsOptions) {
+  const client = useDkanClient()
+
+  return useQuery({
+    queryKey: computed(() => ['datastore', 'statistics', toValue(options.identifier)] as const),
+    queryFn: () => client.getDatastoreStatistics(toValue(options.identifier)),
+    enabled: () => toValue(options.enabled) !== false && !!toValue(options.identifier),
+    staleTime: options.staleTime ?? 5 * 60 * 1000, // Default 5 minutes
   })
 }

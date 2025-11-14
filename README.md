@@ -217,14 +217,6 @@ Both the React and Vue packages provide 40+ hooks/composables covering all DKAN 
 - `useCreateRevision` - Create a new revision (mutation)
 - `useChangeDatasetState` - Change dataset workflow state (mutation)
 
-### CKAN Compatibility Hooks
-
-- `useCkanPackageSearch` - Search packages (CKAN-compatible)
-- `useCkanDatastoreSearch` - Search datastore (CKAN-compatible)
-- `useCkanDatastoreSearchSql` - SQL search (CKAN-compatible)
-- `useCkanResourceShow` - Get resource info (CKAN-compatible)
-- `useCkanCurrentPackageListWithResources` - List packages (CKAN-compatible)
-
 See package READMEs for detailed documentation:
 - [React package README](./packages/dkan-client-tools-react/README.md)
 - [Vue package README](./packages/dkan-client-tools-vue/README.md)
@@ -238,7 +230,6 @@ The packages support all major DKAN REST APIs:
 - **Search API** - Search datasets with faceting and full-text search
 - **Harvest API** - Manage harvest plans and runs
 - **Properties API** - Dataset property values for faceted search
-- **CKAN-Compatible API** - Read-only CKAN compatibility layer
 
 See [DKAN_API_RESEARCH.md](./research/DKAN_API_RESEARCH.md) for comprehensive API documentation.
 
@@ -278,7 +269,6 @@ Built on the proven [TanStack Query](https://tanstack.com/query) architecture:
            │   - Search              │
            │   - Harvest             │
            │   - Properties          │
-           │   - CKAN Compatibility  │
            └─────────────────────────┘
 ```
 
@@ -501,7 +491,6 @@ This project provides comprehensive coverage of DKAN APIs with:
 - ✅ Full TypeScript support
 - ✅ Complete DCAT-US type definitions
 - ✅ All major DKAN APIs supported
-- ✅ CKAN compatibility layer
 - ✅ Example application
 
 Future development:

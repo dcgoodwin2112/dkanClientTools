@@ -8,7 +8,7 @@ This is the dkanClientTools repository - a monorepo of packages containing tools
 
 The repository also includes a local DKAN development environment for testing and development.
 
-**Current Status**: Active Development - Comprehensive DKAN API coverage with 40 React hooks, 37 Vue composables, and 300+ tests
+**Current Status**: Active Development - Comprehensive DKAN API coverage with 38 React hooks, 39 Vue composables, and 500+ tests
 
 ## Project Structure
 
@@ -111,7 +111,6 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 - **Datastore Import Hooks** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
 - **Metastore Hooks** (4): useSchemas, useSchema, useSchemaItems, useDatasetFacets
 - **Revision/Moderation Hooks** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
-- **CKAN Compatibility Hooks** (5): useCkanPackageSearch, useCkanDatastoreSearch, useCkanDatastoreSearchSql, useCkanResourceShow, useCkanCurrentPackageListWithResources
 
 **Key Files**:
 - `src/DkanClientProvider.tsx` - React Context Provider
@@ -126,11 +125,10 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 - `src/useMetastore.ts` - Metastore hooks
 - `src/useRevisions.ts` - Revision/moderation hooks
 - `src/useQueryDownload.ts` - Download hooks
-- `src/useCkan.ts` - CKAN compatibility hooks
-- `src/__tests__/` - Comprehensive test suite (218 tests)
+- `src/__tests__/` - Comprehensive test suite (181 tests)
 
 **Test Coverage**:
-- 218 comprehensive tests across 15 test files
+- 181 comprehensive tests across 15 test files
 - All hooks tested for loading states, error handling, data fetching, mutations, and callbacks
 - Uses Vitest + React Testing Library
 - Pattern: Use actual DkanClient instances with mocked methods (not mock objects)
@@ -154,17 +152,16 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - Vue 3 Composition API with `<script setup>` support
 - Full TypeScript support with reactive refs
 
-**Composable Categories** (37 total):
+**Composable Categories** (35 total):
 - **Dataset Query Composables** (3): useDataset, useDatasetSearch, useAllDatasets
 - **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
-- **Datastore Composables** (5): useDatastore, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
+- **Datastore Composables** (6): useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
 - **Data Dictionary Query Composables** (4): useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
 - **Data Dictionary Mutations** (3): useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
 - **Harvest Composables** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
 - **Datastore Import Composables** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
-- **Metastore Composables** (3): useSchemas, useSchemaItems, useDatasetFacets
+- **Metastore Composables** (4): useSchemas, useSchema, useSchemaItems, useDatasetFacets
 - **Revision/Moderation Composables** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
-- **CKAN Compatibility Composables** (5): useCkanPackageSearch, useCkanDatastoreSearch, useCkanDatastoreSearchSql, useCkanResourceShow, useCkanCurrentPackageListWithResources
 
 **Key Files**:
 - `src/plugin.ts` - Vue plugin and client injection
@@ -178,11 +175,10 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - `src/useMetastore.ts` - Metastore composables
 - `src/useRevisions.ts` - Revision/moderation composables
 - `src/useQueryDownload.ts` - Download composables
-- `src/useCkanApi.ts` - CKAN compatibility composables
-- `src/__tests__/` - Comprehensive test suite (91 tests)
+- `src/__tests__/` - Comprehensive test suite (100 tests)
 
 **Test Coverage**:
-- 91 comprehensive tests across 15 test files
+- 100 comprehensive tests across 13 test files
 - All composables tested for loading states, error handling, data fetching, mutations, and callbacks
 - Uses Vitest + Vue Test Utils
 - Pattern: Use actual DkanClient instances with mocked methods (not mock objects)
@@ -315,8 +311,7 @@ All React hooks and Vue composables have comprehensive tests covering:
 - `__tests__/useMetastore.test.tsx` - Metastore hooks (10 tests)
 - `__tests__/useQueryDownload.test.tsx` - Download hooks (8 tests)
 - `__tests__/useRevisions.test.tsx` - Revision/moderation hooks (10 tests)
-- `__tests__/useCkan.test.tsx` - CKAN compatibility hooks
-- Plus tests for mutations and other operations (218 tests total)
+- Plus tests for mutations and other operations (181 tests total)
 
 **Note**: Dataset Properties hooks (useDatasetProperties, usePropertyValues, useAllPropertiesWithValues) exist in the React package but call API methods that return 404 in DKAN 2.x.
 
@@ -334,8 +329,7 @@ All React hooks and Vue composables have comprehensive tests covering:
 - `__tests__/useMetastore.test.ts` - Metastore composables (4 tests)
 - `__tests__/useRevisions.test.ts` - Revision composables (4 tests)
 - `__tests__/useQueryDownload.test.ts` - Download composables (3 tests)
-- `__tests__/useCkanApi.test.ts` - CKAN compatibility composables (5 tests)
-- Total: 91 tests
+- Total: 100 tests
 
 **Note**: Dataset Properties composables (useDatasetProperties, usePropertyValues, useAllPropertiesWithValues) exist in the Vue package but call API methods that return 404 in DKAN 2.x.
 

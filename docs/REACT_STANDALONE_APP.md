@@ -409,13 +409,6 @@ The `@dkan-client-tools/react` package provides 40+ hooks for working with DKAN:
   - `useRevisions(datasetId, options?)` - List dataset revisions
   - `useRevision(datasetId, revisionId, options?)` - Get revision details
 
-- **CKAN Compatibility**
-  - `useCkanPackageSearch(query, options?)` - CKAN-compatible package search
-  - `useCkanDatastoreSearch(params, options?)` - CKAN-compatible datastore search
-  - `useCkanDatastoreSearchSql(sql, options?)` - CKAN SQL search
-  - `useCkanResourceShow(resourceId, options?)` - Show resource details
-  - `useCkanCurrentPackageListWithResources(options?)` - List packages with resources
-
 ### Mutation Hooks (Write Operations)
 
 - **Dataset Mutations**
