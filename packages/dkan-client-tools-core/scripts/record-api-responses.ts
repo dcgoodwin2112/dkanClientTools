@@ -417,8 +417,12 @@ class ApiResponseRecorder {
           const runs = await this.client.listHarvestRuns(this.testHarvestPlanId)
           if (Array.isArray(runs) && runs.length > 0) {
             // listHarvestRuns returns an array of run IDs (strings)
-            this.testHarvestRunId = runs[0]
-            console.log(`  Found harvest run: ${this.testHarvestRunId}`)
+            if (typeof runs[0] === 'string') {
+              this.testHarvestRunId = runs[0]
+              console.log(`  Found harvest run: ${this.testHarvestRunId}`)
+            } else {
+              console.warn('  Warning: First harvest run is not a string:', runs[0])
+            }
           }
         }
       } catch (err) {
