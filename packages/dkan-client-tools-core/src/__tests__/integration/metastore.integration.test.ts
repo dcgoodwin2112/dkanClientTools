@@ -35,7 +35,7 @@ describe('Metastore Operations Integration', () => {
       const fixture = fixtureLoader.getFixture('Metastore', 'listSchemas')
       const schemas = fixture!.response
 
-      schemas.forEach((schema: any) => {
+      schemas.forEach((schema: string) => {
         expect(typeof schema).toBe('string')
       })
     })
@@ -160,19 +160,19 @@ describe('Metastore Operations Integration', () => {
 
       // Validate each facet type
       if (facets.theme.length > 0) {
-        facets.theme.forEach((value: any) => {
+        facets.theme.forEach((value: unknown) => {
           expect(typeof value).toBe('string')
         })
       }
 
       if (facets.keyword.length > 0) {
-        facets.keyword.forEach((value: any) => {
+        facets.keyword.forEach((value: unknown) => {
           expect(typeof value).toBe('string')
         })
       }
 
       if (facets.publisher.length > 0) {
-        facets.publisher.forEach((value: any) => {
+        facets.publisher.forEach((value: unknown) => {
           expect(typeof value).toBe('string')
         })
       }

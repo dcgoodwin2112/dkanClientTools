@@ -74,7 +74,7 @@ describe('Dataset Operations Integration', () => {
       if (dataset.distribution && Array.isArray(dataset.distribution)) {
         expect(dataset.distribution.length).toBeGreaterThan(0)
 
-        dataset.distribution.forEach((dist: any) => {
+        dataset.distribution.forEach((dist: unknown) => {
           if (dist.identifier) {
             // Reference format
             expectReferenceStructure(dist)
@@ -130,7 +130,7 @@ describe('Dataset Operations Integration', () => {
 
       // Validate each result is a dataset
       if (response.results.length > 0) {
-        response.results.forEach((dataset: any) => {
+        response.results.forEach((dataset: unknown) => {
           expectDcatUsCompliance(dataset)
         })
       }

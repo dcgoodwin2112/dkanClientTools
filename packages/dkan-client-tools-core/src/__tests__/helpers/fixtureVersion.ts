@@ -9,7 +9,7 @@ import { fixtureLoader } from './FixtureLoader'
 
 export interface FixtureVersion {
   timestamp: string
-  age Days: number
+  ageDays: number
   totalMethods: number
   recorded: number
   skipped: number
