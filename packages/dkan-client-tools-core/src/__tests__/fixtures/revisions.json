@@ -3,41 +3,176 @@
     "method": "getRevisions",
     "category": "Revisions",
     "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions",
-    "timestamp": "2025-11-13T21:36:58.978Z",
+    "timestamp": "2025-11-14T05:49:24.906Z",
     "response": [
       {
-        "identifier": "8",
+        "identifier": "130",
         "published": true,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "129",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:41:03-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "123",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "122",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:39:39-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "116",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "115",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:32:29-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "109",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "108",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:31:48-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "102",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "101",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:20:53-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "95",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "94",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:18:08-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "88",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "87",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:01:50-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "81",
+        "published": false,
+        "message": "Test state change by API recorder",
+        "modified": "2025-11-12T16:14:59-05:00",
+        "state": "published"
+      },
+      {
+        "identifier": "80",
+        "published": false,
+        "message": "Test revision created by API recorder",
+        "modified": "2025-11-14T00:00:49-05:00",
+        "state": "draft"
+      },
+      {
+        "identifier": "8",
+        "published": false,
         "message": "Created on 2025-11-12T16:14:59-05:00",
         "modified": "2025-11-12T16:14:59-05:00",
         "state": "published"
       }
     ],
     "status": 200,
-    "responseTime": 95
+    "responseTime": 225
   },
   {
     "method": "getRevision",
     "category": "Revisions",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.978Z",
-    "skipped": true,
-    "skipReason": "requires revision ID"
+    "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions/130",
+    "timestamp": "2025-11-14T05:49:25.003Z",
+    "response": {
+      "identifier": "130",
+      "published": true,
+      "message": "Test state change by API recorder",
+      "modified": "2025-11-12T16:14:59-05:00",
+      "state": "published"
+    },
+    "status": 200,
+    "responseTime": 97
   },
   {
     "method": "createRevision",
     "category": "Revisions",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.978Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions",
+    "timestamp": "2025-11-14T05:49:25.119Z",
+    "request": {
+      "state": "draft",
+      "message": "Test revision created by API recorder"
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions/136",
+      "identifier": "136"
+    },
+    "status": 200,
+    "responseTime": 116
   },
   {
     "method": "changeDatasetState",
     "category": "Revisions",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.978Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions",
+    "timestamp": "2025-11-14T05:49:25.236Z",
+    "request": {
+      "state": "published",
+      "message": "Test state change by API recorder"
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/revisions/137",
+      "identifier": "137"
+    },
+    "status": 200,
+    "responseTime": 117
   }
 ]

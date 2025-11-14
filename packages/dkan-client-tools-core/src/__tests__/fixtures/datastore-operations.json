@@ -3,7 +3,7 @@
     "method": "queryDatastore",
     "category": "Datastore Operations",
     "endpoint": "/api/1/datastore/query/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/0",
-    "timestamp": "2025-11-13T21:36:57.666Z",
+    "timestamp": "2025-11-14T05:49:22.763Z",
     "request": {
       "limit": 10
     },
@@ -185,13 +185,207 @@
       }
     },
     "status": 200,
-    "responseTime": 144
+    "responseTime": 133
+  },
+  {
+    "method": "queryDatastoreMulti",
+    "category": "Datastore Operations",
+    "endpoint": "/api/1/datastore/query",
+    "timestamp": "2025-11-14T05:49:22.861Z",
+    "request": {
+      "resources": [
+        {
+          "id": "6ca7e14e-8f28-5337-84f9-1086c4a0b820",
+          "alias": "t1"
+        }
+      ],
+      "limit": 10
+    },
+    "response": {
+      "results": [
+        {
+          "objectid": "2049",
+          "roadway": "75000403",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "0.076",
+          "end_post": "0.364",
+          "shape_leng": "463.2487"
+        },
+        {
+          "objectid": "2050",
+          "roadway": "88070000",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "0.073",
+          "end_post": "5.21",
+          "shape_leng": "8267.4337"
+        },
+        {
+          "objectid": "2051",
+          "roadway": "89010000",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "11.266",
+          "end_post": "14.64",
+          "shape_leng": "5430.1665"
+        },
+        {
+          "objectid": "2052",
+          "roadway": "89010000",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "23.342",
+          "end_post": "24.476",
+          "shape_leng": "1825.1312"
+        },
+        {
+          "objectid": "2053",
+          "roadway": "57060000",
+          "road_side": "L",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "6.444",
+          "end_post": "6.507",
+          "shape_leng": "101.6744"
+        },
+        {
+          "objectid": "2054",
+          "roadway": "57050000",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "12.485",
+          "end_post": "12.6",
+          "shape_leng": "185.7312"
+        },
+        {
+          "objectid": "2055",
+          "roadway": "57050000",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "8.98",
+          "end_post": "9.385",
+          "shape_leng": "653.9896"
+        },
+        {
+          "objectid": "2056",
+          "roadway": "57050000",
+          "road_side": "L",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "15.441",
+          "end_post": "15.491",
+          "shape_leng": "80.7363"
+        },
+        {
+          "objectid": "2057",
+          "roadway": "86000006",
+          "road_side": "R",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "0",
+          "end_post": "3.079",
+          "shape_leng": "4964.3072"
+        },
+        {
+          "objectid": "2058",
+          "roadway": "86000051",
+          "road_side": "L",
+          "lncd": "1",
+          "descr": "DESIGNATED",
+          "begin_post": "0",
+          "end_post": "1.036",
+          "shape_leng": "1666.4849"
+        }
+      ],
+      "count": 2969,
+      "schema": {
+        "6ca7e14e-8f28-5337-84f9-1086c4a0b820": {
+          "fields": {
+            "objectid": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "﻿OBJECTID"
+            },
+            "roadway": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "ROADWAY"
+            },
+            "road_side": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "ROAD_SIDE"
+            },
+            "lncd": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "LNCD"
+            },
+            "descr": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "DESCR"
+            },
+            "begin_post": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "BEGIN_POST"
+            },
+            "end_post": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "END_POST"
+            },
+            "shape_leng": {
+              "type": "text",
+              "mysql_type": "text",
+              "description": "Shape_Leng"
+            }
+          }
+        }
+      },
+      "query": {
+        "resources": [
+          {
+            "id": "6ca7e14e-8f28-5337-84f9-1086c4a0b820",
+            "alias": "t1"
+          }
+        ],
+        "limit": 10,
+        "offset": 0,
+        "count": true,
+        "results": true,
+        "schema": true,
+        "keys": true,
+        "format": "json",
+        "rowIds": false,
+        "properties": [
+          "objectid",
+          "roadway",
+          "road_side",
+          "lncd",
+          "descr",
+          "begin_post",
+          "end_post",
+          "shape_leng"
+        ]
+      }
+    },
+    "status": 200,
+    "responseTime": 98
   },
   {
     "method": "getDatastoreSchema",
     "category": "Datastore Operations",
     "endpoint": "/api/1/datastore/query/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/0?schema=true",
-    "timestamp": "2025-11-13T21:36:57.805Z",
+    "timestamp": "2025-11-14T05:49:22.936Z",
     "response": {
       "results": [
         {
@@ -5270,76 +5464,83 @@
       }
     },
     "status": 200,
-    "responseTime": 139
+    "responseTime": 75
   },
   {
     "method": "querySql",
     "category": "Datastore Operations",
     "endpoint": "/api/1/datastore/sql",
-    "timestamp": "2025-11-13T21:36:57.893Z",
+    "timestamp": "2025-11-14T05:49:23.008Z",
     "request": {
-      "query": "[SELECT * FROM 6ca7e14e-8f28-5337-84f9-1086c4a0b820][LIMIT 5];"
+      "query": "[SELECT * FROM 6ca7e14e-8f28-5337-84f9-1086c4a0b820][LIMIT 5];",
+      "show_db_columns": true,
+      "method": "GET"
     },
     "response": [
       {
-        "﻿OBJECTID": "2049",
-        "ROADWAY": "75000403",
-        "ROAD_SIDE": "R",
-        "LNCD": "1",
-        "DESCR": "DESIGNATED",
-        "BEGIN_POST": "0.076",
-        "END_POST": "0.364",
-        "Shape_Leng": "463.2487"
+        "record_number": "1",
+        "objectid": "2049",
+        "roadway": "75000403",
+        "road_side": "R",
+        "lncd": "1",
+        "descr": "DESIGNATED",
+        "begin_post": "0.076",
+        "end_post": "0.364",
+        "shape_leng": "463.2487"
       },
       {
-        "﻿OBJECTID": "2050",
-        "ROADWAY": "88070000",
-        "ROAD_SIDE": "R",
-        "LNCD": "1",
-        "DESCR": "DESIGNATED",
-        "BEGIN_POST": "0.073",
-        "END_POST": "5.21",
-        "Shape_Leng": "8267.4337"
+        "record_number": "2",
+        "objectid": "2050",
+        "roadway": "88070000",
+        "road_side": "R",
+        "lncd": "1",
+        "descr": "DESIGNATED",
+        "begin_post": "0.073",
+        "end_post": "5.21",
+        "shape_leng": "8267.4337"
       },
       {
-        "﻿OBJECTID": "2051",
-        "ROADWAY": "89010000",
-        "ROAD_SIDE": "R",
-        "LNCD": "1",
-        "DESCR": "DESIGNATED",
-        "BEGIN_POST": "11.266",
-        "END_POST": "14.64",
-        "Shape_Leng": "5430.1665"
+        "record_number": "3",
+        "objectid": "2051",
+        "roadway": "89010000",
+        "road_side": "R",
+        "lncd": "1",
+        "descr": "DESIGNATED",
+        "begin_post": "11.266",
+        "end_post": "14.64",
+        "shape_leng": "5430.1665"
       },
       {
-        "﻿OBJECTID": "2052",
-        "ROADWAY": "89010000",
-        "ROAD_SIDE": "R",
-        "LNCD": "1",
-        "DESCR": "DESIGNATED",
-        "BEGIN_POST": "23.342",
-        "END_POST": "24.476",
-        "Shape_Leng": "1825.1312"
+        "record_number": "4",
+        "objectid": "2052",
+        "roadway": "89010000",
+        "road_side": "R",
+        "lncd": "1",
+        "descr": "DESIGNATED",
+        "begin_post": "23.342",
+        "end_post": "24.476",
+        "shape_leng": "1825.1312"
       },
       {
-        "﻿OBJECTID": "2053",
-        "ROADWAY": "57060000",
-        "ROAD_SIDE": "L",
-        "LNCD": "1",
-        "DESCR": "DESIGNATED",
-        "BEGIN_POST": "6.444",
-        "END_POST": "6.507",
-        "Shape_Leng": "101.6744"
+        "record_number": "5",
+        "objectid": "2053",
+        "roadway": "57060000",
+        "road_side": "L",
+        "lncd": "1",
+        "descr": "DESIGNATED",
+        "begin_post": "6.444",
+        "end_post": "6.507",
+        "shape_leng": "101.6744"
       }
     ],
     "status": 200,
-    "responseTime": 88
+    "responseTime": 72
   },
   {
     "method": "downloadQuery",
     "category": "Datastore Operations",
     "endpoint": "/api/1/datastore/query/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/0/download",
-    "timestamp": "2025-11-13T21:36:58.027Z",
+    "timestamp": "2025-11-14T05:49:23.146Z",
     "request": {
       "limit": 5,
       "format": "csv"
@@ -5349,13 +5550,13 @@
       "type": "text/csv;charset=utf-8"
     },
     "status": 200,
-    "responseTime": 134
+    "responseTime": 137
   },
   {
     "method": "downloadQueryByDistribution",
     "category": "Datastore Operations",
     "endpoint": "/api/1/datastore/query/6ca7e14e-8f28-5337-84f9-1086c4a0b820/download",
-    "timestamp": "2025-11-13T21:36:58.120Z",
+    "timestamp": "2025-11-14T05:49:23.242Z",
     "request": {
       "limit": 5
     },
@@ -5364,6 +5565,6 @@
       "type": "text/csv;charset=utf-8"
     },
     "status": 200,
-    "responseTime": 93
+    "responseTime": 96
   }
 ]

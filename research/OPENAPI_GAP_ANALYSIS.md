@@ -597,10 +597,10 @@ No discrepancies found. All endpoints requiring authentication in OpenAPI correc
 7. **Add Multi-Resource Query Endpoints**
    ```typescript
    async queryDatastoreMulti(options: DatastoreQueryOptions): Promise<DkanDatastoreQueryResponse>
-   async downloadQueryMulti(options: QueryDownloadOptions): Promise<Blob>
    ```
    - **Effort**: 2 hours
    - **Impact**: Advanced join queries
+   - **Note**: `downloadQueryMulti` removed - endpoint does not exist in DKAN 2.x
 
 8. **Add GET Query Variants**
    - Support GET for single-resource queries

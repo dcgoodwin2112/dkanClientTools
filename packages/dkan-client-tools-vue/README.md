@@ -133,13 +133,6 @@ const { data: searchResults, isLoading } = useDatasetSearch({
 - `useCreateRevision()` - Create a revision
 - `useChangeDatasetState()` - Change workflow state
 
-### CKAN Compatibility Composables (5)
-- `useCkanPackageSearch()` - CKAN package search
-- `useCkanDatastoreSearch()` - CKAN datastore search
-- `useCkanDatastoreSearchSql()` - CKAN SQL query
-- `useCkanResourceShow()` - CKAN resource metadata
-- `useCkanCurrentPackageListWithResources()` - CKAN package list
-
 ## Vue-Specific Features
 
 ### Reactive Parameters

@@ -16,8 +16,8 @@ These fixtures were generated using the API Response Recorder script (`scripts/r
 - **datastore-imports.json** - Datastore import operations (4 methods)
 - **metastore.json** - Metastore schema operations (6 methods)
 - **revisions.json** - Revision/moderation operations (4 methods)
-- **ckan.json** - CKAN compatibility operations (5 methods)
-- **openapi.json** - OpenAPI documentation operations (2 methods)
+- **utility.json** - Utility operations (2 methods)
+- **openapi.json** - OpenAPI documentation operations (1 method)
 
 ## Successfully Recorded APIs (12/45)
 
@@ -55,14 +55,13 @@ Mutation operations skipped in read-only mode:
 - triggerDatastoreImport, deleteDatastore
 - createRevision, changeDatasetState
 
-### Missing Test Data (9)
+### Missing Test Data (6)
 Operations skipped due to missing test data:
 - getDataDictionary (no data dictionary found)
 - getDataDictionaryFromUrl (requires URL)
 - getHarvestRun (no completed run found)
 - getRevision (requires specific revision ID)
 - downloadQueryByDistribution (distribution not found)
-- ckanDatastoreSearch, ckanDatastoreSearchSql, ckanResourceShow (no distribution)
 
 ## API Errors (12/45)
 
@@ -77,10 +76,6 @@ Operations skipped due to missing test data:
 ### Dataset Properties (3)
 - getDatasetProperties, getPropertyValues, getAllPropertiesWithValues
 - **Reason**: Properties API endpoint returns 404 (API not present in DKAN 2.21.2)
-
-### CKAN API (2)
-- ckanPackageSearch, ckanCurrentPackageListWithResources
-- **Reason**: CKAN compatibility API returns 404 (API not present in DKAN 2.21.2)
 
 ## Recording Details
 
@@ -98,14 +93,45 @@ To update these fixtures with fresh data:
 ```bash
 # From packages/dkan-client-tools-core directory
 
-# Without authentication (public endpoints only)
+# Read-only mode (no mutations, public endpoints only)
 DKAN_URL=http://dkan.ddev.site npm run record:api:readonly
 
-# With authentication (includes harvest plans, revisions)
+# Read-only with authentication (includes harvest plans, revisions)
 DKAN_URL=http://dkan.ddev.site \
 DKAN_USER=admin \
 DKAN_PASS=admin \
 npm run record:api:readonly
+
+# Full mode with mutations (includes create/update/delete operations)
+# WARNING: Creates and deletes test resources
+DKAN_URL=http://dkan.ddev.site \
+DKAN_USER=admin \
+DKAN_PASS=admin \
+npm run record:api
+```
+
+### Cleanup & Safety
+
+The recording script includes automatic cleanup:
+- **Pre-cleanup**: Removes orphaned test resources from previous failed runs
+- **Post-cleanup**: Verifies all created test resources were deleted
+- **Unique IDs**: Uses UUIDs to avoid ID collisions
+- **Error recovery**: Cleanup runs even if the script crashes
+
+Test resources use predictable prefixes:
+- Datasets: `test-recorder-{uuid}`
+- Data dictionaries: `test-dict-{uuid}`
+
+### Manual Cleanup
+
+If test resources are orphaned, clean them manually:
+
+```bash
+# Clean up orphaned test resources (no recording)
+CLEANUP_ONLY=true \
+DKAN_USER=admin \
+DKAN_PASS=admin \
+npm run record:api
 ```
 
 ## Using Fixtures in Tests

@@ -3,7 +3,7 @@
     "method": "listDatastoreImports",
     "category": "Datastore Imports",
     "endpoint": "/api/1/datastore/imports",
-    "timestamp": "2025-11-13T21:36:58.649Z",
+    "timestamp": "2025-11-14T05:49:24.113Z",
     "response": {
       "0310f6c2d28bbee5de1211e5b5bb0b1c_1762982100": {
         "fileName": "district_centerpoints.csv",
@@ -107,22 +107,82 @@
       }
     },
     "status": 200,
-    "responseTime": 159
+    "responseTime": 140
+  },
+  {
+    "method": "getDatastoreStatistics",
+    "category": "Datastore Imports",
+    "endpoint": "/api/1/datastore/imports/6ca7e14e-8f28-5337-84f9-1086c4a0b820",
+    "timestamp": "2025-11-14T05:49:24.189Z",
+    "response": {
+      "numOfColumns": 9,
+      "columns": {
+        "record_number": {
+          "type": "serial",
+          "unsigned": true,
+          "not null": true,
+          "mysql_type": "int"
+        },
+        "objectid": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "﻿OBJECTID"
+        },
+        "roadway": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "ROADWAY"
+        },
+        "road_side": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "ROAD_SIDE"
+        },
+        "lncd": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "LNCD"
+        },
+        "descr": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "DESCR"
+        },
+        "begin_post": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "BEGIN_POST"
+        },
+        "end_post": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "END_POST"
+        },
+        "shape_leng": {
+          "type": "text",
+          "mysql_type": "text",
+          "description": "Shape_Leng"
+        }
+      },
+      "numOfRows": 2969
+    },
+    "status": 200,
+    "responseTime": 76
   },
   {
     "method": "triggerDatastoreImport",
     "category": "Datastore Imports",
     "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.649Z",
+    "timestamp": "2025-11-14T05:49:24.190Z",
     "skipped": true,
-    "skipReason": "read-only mode"
+    "skipReason": "skipped - async operation with resource usage"
   },
   {
     "method": "deleteDatastore",
     "category": "Datastore Imports",
     "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.649Z",
+    "timestamp": "2025-11-14T05:49:24.190Z",
     "skipped": true,
-    "skipReason": "read-only mode"
+    "skipReason": "skipped - destructive operation on real data"
   }
 ]

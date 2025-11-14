@@ -34,21 +34,11 @@ const results = await client.queryDatastoreMulti(options, 'GET')
 
 ### 2. Multi-Resource Download Endpoint
 
-Added `downloadQueryMulti()` for downloading multi-resource query results.
+~~Added `downloadQueryMulti()` for downloading multi-resource query results.~~
 
-**Endpoint**: `POST /api/1/datastore/query/download`
+**REMOVED**: This method has been removed as the endpoint `POST /api/1/datastore/query/download` does not exist in DKAN 2.x. Testing against live DKAN instances consistently returned HTTP 400 Bad Request.
 
-**Usage**:
-```typescript
-const blob = await client.downloadQueryMulti({
-  resources: [
-    { id: 'resource-1' },
-    { id: 'resource-2' }
-  ],
-  format: 'csv', // or 'json'
-  conditions: [{ property: 'name', value: 'Test' }]
-})
-```
+**Alternative**: Use `downloadQueryByDistribution()` for each resource individually, or use `queryDatastoreMulti()` to fetch data and convert to CSV/JSON client-side.
 
 ### 3. GET Method Support for Datastore Queries
 
@@ -82,12 +72,13 @@ const results = await client.queryDatastore('dataset-123', 0, options, 'GET')
 ## API Coverage
 
 Before Phase 3: 38 methods
-After Phase 3: 40 methods (95%+ OpenAPI coverage)
+After Phase 3: 42 methods (95%+ OpenAPI coverage)
+**Note**: `downloadQueryMulti` was initially added but later removed after testing showed the endpoint doesn't exist in DKAN 2.x
 
 ## Files Modified
 
-- `src/api/client.ts`: Added queryDatastoreMulti(), downloadQueryMulti(), enhanced queryDatastore() with GET support
-- `src/__tests__/api/phase3-openapi-alignment.test.ts`: 12 tests (new file)
+- `src/api/client.ts`: Added queryDatastoreMulti(), enhanced queryDatastore() with GET support
+- `src/__tests__/api/phase3-openapi-alignment.test.ts`: Tests for new functionality
 
 ## OpenAPI Alignment Status
 

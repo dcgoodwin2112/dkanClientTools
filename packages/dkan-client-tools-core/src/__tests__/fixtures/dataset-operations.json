@@ -2,8 +2,11 @@
   {
     "method": "getDataset",
     "category": "Dataset Operations",
-    "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55",
-    "timestamp": "2025-11-13T21:36:57.359Z",
+    "endpoint": "/api/1/metastore/schemas/dataset/items/cedcd327-4e5d-43f9-8eb1-c11850fa7c55?show-reference-ids",
+    "timestamp": "2025-11-14T05:49:21.997Z",
+    "request": {
+      "showReferenceIds": true
+    },
     "response": {
       "@type": "dcat:Dataset",
       "accessLevel": "public",
@@ -14,11 +17,27 @@
       "description": "Data on bike lanes in Florida. Florida's bike lanes provide a safe and designated space for riders to pedal along the coastlines, through bustling urban areas, and amidst tranquil suburban neighborhoods. Whether navigating the bustling streets of Miami, cruising alongside the white sandy beaches of the Gulf Coast, or meandering through the picturesque Everglades, cyclists in Florida enjoy a network of bike lanes that cater to both recreational riders and daily commuters. With a combination of dedicated paths, shared roadways, and expansive trails, Florida's bike lanes contribute to a healthier and more sustainable lifestyle, encouraging residents and visitors alike to embrace the joy of two-wheeled travel under the warm Florida sun.",
       "distribution": [
         {
-          "@type": "dcat:Distribution",
-          "downloadURL": "https://dkan.ddev.site/sites/default/files/distribution/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/Bike_Lane.csv",
-          "mediaType": "text/csv",
-          "format": "csv",
-          "title": "Florida Bike Lanes"
+          "identifier": "6ca7e14e-8f28-5337-84f9-1086c4a0b820",
+          "data": {
+            "@type": "dcat:Distribution",
+            "downloadURL": "https://dkan.ddev.site/sites/default/files/distribution/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/Bike_Lane.csv",
+            "mediaType": "text/csv",
+            "format": "csv",
+            "title": "Florida Bike Lanes",
+            "%Ref:downloadURL": [
+              {
+                "identifier": "3a187a87dc6cd47c48b6b4c4785224b7__1762982100__source",
+                "data": {
+                  "filePath": "https://h-o.st/sites/default/files/distribution/cedcd327-4e5d-43f9-8eb1-c11850fa7c55/Bike_Lane.csv",
+                  "identifier": "3a187a87dc6cd47c48b6b4c4785224b7",
+                  "mimeType": "text/csv",
+                  "perspective": "source",
+                  "version": "1762982100",
+                  "checksum": null
+                }
+              }
+            ]
+          }
         }
       ],
       "identifier": "cedcd327-4e5d-43f9-8eb1-c11850fa7c55",
@@ -26,32 +45,59 @@
       "license": "http://opendatacommons.org/licenses/by/1.0/",
       "modified": "2016-06-22",
       "publisher": {
-        "@type": "org:Organization",
-        "name": "State Economic Council"
+        "identifier": "c43b40ae-b279-58ed-91c8-065966b36fe8",
+        "data": {
+          "@type": "org:Organization",
+          "name": "State Economic Council"
+        }
       },
       "spatial": "Florida",
       "theme": [
-        "Transportation",
-        "City Planning"
+        {
+          "identifier": "35648bca-83ec-5580-a193-86d716e1e284",
+          "data": "Transportation"
+        },
+        {
+          "identifier": "3c23032d-47c6-58fc-be0a-ef3fbaa54865",
+          "data": "City Planning"
+        }
       ],
       "title": "Florida Bike Lanes ",
       "keyword": [
-        "bike-lanes",
-        "streets",
-        "infrastructure"
-      ]
+        {
+          "identifier": "d36530dd-6bea-516e-8b32-7b3bbbcd1bd9",
+          "data": "bike-lanes"
+        },
+        {
+          "identifier": "1981b385-a6a9-561c-a83a-15395c19c97d",
+          "data": "streets"
+        },
+        {
+          "identifier": "4d280d80-a41a-514f-8ae0-6859bb222055",
+          "data": "infrastructure"
+        }
+      ],
+      "%modified": "2025-11-12T16:14:59-0500"
     },
     "status": 200,
-    "responseTime": 91
+    "responseTime": 74
   },
   {
     "method": "searchDatasets",
     "category": "Dataset Operations",
     "endpoint": "/api/1/search",
-    "timestamp": "2025-11-13T21:36:57.448Z",
+    "timestamp": "2025-11-14T05:49:22.088Z",
     "request": {
       "keyword": "data",
-      "page-size": 10
+      "page-size": 10,
+      "sort": [
+        "modified",
+        "title"
+      ],
+      "sort-order": [
+        "desc",
+        "asc"
+      ]
     },
     "response": {
       "total": 0,
@@ -201,17 +247,22 @@
           "type": "keyword",
           "name": "transparency",
           "total": 0
+        },
+        {
+          "type": "keyword",
+          "name": "updated",
+          "total": 0
         }
       ]
     },
     "status": 200,
-    "responseTime": 88
+    "responseTime": 89
   },
   {
     "method": "listAllDatasets",
     "category": "Dataset Operations",
     "endpoint": "/api/1/metastore/schemas/dataset/items",
-    "timestamp": "2025-11-13T21:36:57.522Z",
+    "timestamp": "2025-11-14T05:49:22.162Z",
     "response": [
       {
         "@type": "dcat:Dataset",
@@ -602,98 +653,98 @@
         ],
         "spatial": "POLYGON ((60.8642578125 29.878755346038, 61.787109375 30.977609093349, 61.7431640625 31.391157522825, 60.7763671875 31.653381399664, 60.8642578125 32.361403315275, 60.556640625 33.137551192346, 60.908203125 33.578014746144, 60.5126953125 33.614619292334, 60.5126953125 34.307143856288, 60.8642578125 34.343436068483, 61.3037109375 35.603718740697, 62.666015625 35.353216101238, 64.5556640625 36.421282443649, 64.86328125 37.195330582801, 65.654296875 37.195330582801, 65.654296875 37.474858084971, 67.9833984375 37.055177106661, 68.7744140625 37.265309955619, 69.345703125 37.125286284967, 69.697265625 37.683820326694, 70.3125 37.683820326694, 70.3125 38.065392351332, 71.0595703125 38.582526159353, 71.279296875 37.78808138412, 71.7626953125 37.926867601481, 71.4990234375 37.405073750177, 71.630859375 36.738884124394, 73.3447265625 37.474858084971, 73.7841796875 37.474858084971, 73.7841796875 37.265309955619, 74.7509765625 37.335224359306, 74.9267578125 37.160316546737, 74.1357421875 36.809284702059, 72.9931640625 36.949891786813, 71.54296875 36.315125147481, 71.2353515625 36.066862132579, 71.5869140625 35.460669951495, 71.54296875 34.813803317113, 71.103515625 34.560859367084, 71.1474609375 34.08906131585, 70.3125 33.979808728725, 69.873046875 33.979808728725, 70.2685546875 33.321348526699, 69.345703125 32.916485347314, 69.2578125 32.324275588877, 69.1259765625 31.802892586707, 68.7744140625 31.578535426473, 68.0712890625 31.802892586707, 67.67578125 31.615965936476, 67.8515625 31.353636941501, 67.4560546875 31.278550858947, 67.0166015625 31.278550858947, 66.4892578125 30.939924331023, 66.2255859375 30.334953881989, 66.357421875 29.91685223307, 65.0390625 29.535229562948, 64.248046875 29.611670115197, 64.2041015625 29.420460341013, 63.4130859375 29.458731185355, 62.6220703125 29.420460341013))",
         "title": "Afghanistan Election Districts"
-      },
-      {
-        "title": "Test Dataset - API Recorder",
-        "description": "Created by API response recorder for testing",
-        "identifier": "test-recorder-1762984607700",
-        "accessLevel": "public",
-        "modified": "2025-11-12",
-        "keyword": [
-          "test",
-          "recorder"
-        ],
-        "publisher": {
-          "name": "Test Publisher"
-        },
-        "contactPoint": {
-          "@type": "vcard:Contact",
-          "fn": "Test Contact",
-          "hasEmail": "test@example.com"
-        }
-      },
-      {
-        "title": "Test Dataset - API Recorder",
-        "description": "Created by API response recorder for testing",
-        "identifier": "test-recorder-1762985015948",
-        "accessLevel": "public",
-        "modified": "2025-11-12",
-        "keyword": [
-          "test",
-          "recorder"
-        ],
-        "publisher": {
-          "name": "Test Publisher"
-        },
-        "contactPoint": {
-          "@type": "vcard:Contact",
-          "fn": "Test Contact",
-          "hasEmail": "test@example.com"
-        }
-      },
-      {
-        "title": "Test Dataset - API Recorder",
-        "description": "Created by API response recorder for testing",
-        "identifier": "test-recorder-1763002640351",
-        "accessLevel": "public",
-        "modified": "2025-11-13",
-        "keyword": [
-          "test",
-          "recorder"
-        ],
-        "publisher": {
-          "name": "Test Publisher"
-        },
-        "contactPoint": {
-          "@type": "vcard:Contact",
-          "fn": "Test Contact",
-          "hasEmail": "test@example.com"
-        }
       }
     ],
     "status": 200,
-    "responseTime": 73
+    "responseTime": 74
   },
   {
     "method": "createDataset",
     "category": "Dataset Operations",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:57.522Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/dataset/items",
+    "timestamp": "2025-11-14T05:49:22.263Z",
+    "request": {
+      "title": "Test Dataset - API Recorder",
+      "description": "Created by API response recorder for testing",
+      "identifier": "test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+      "accessLevel": "public",
+      "modified": "2025-11-14",
+      "keyword": [
+        "test",
+        "recorder"
+      ],
+      "publisher": {
+        "name": "Test Publisher"
+      },
+      "contactPoint": {
+        "@type": "vcard:Contact",
+        "fn": "Test Contact",
+        "hasEmail": "test@example.com"
+      }
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/dataset/items/test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+      "identifier": "test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7"
+    },
+    "status": 200,
+    "responseTime": 99
   },
   {
     "method": "updateDataset",
     "category": "Dataset Operations",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:57.522Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/dataset/items/test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+    "timestamp": "2025-11-14T05:49:22.398Z",
+    "request": {
+      "title": "Updated Test Dataset - API Recorder",
+      "description": "Updated description for testing full replacement",
+      "identifier": "test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+      "accessLevel": "public",
+      "modified": "2025-11-14",
+      "keyword": [
+        "test",
+        "recorder",
+        "updated"
+      ],
+      "publisher": {
+        "name": "Test Publisher"
+      },
+      "contactPoint": {
+        "@type": "vcard:Contact",
+        "fn": "Test Contact",
+        "hasEmail": "test@example.com"
+      }
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/dataset/items/test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+      "identifier": "test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7"
+    },
+    "status": 200,
+    "responseTime": 135
   },
   {
     "method": "patchDataset",
     "category": "Dataset Operations",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:57.522Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/dataset/items/test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+    "timestamp": "2025-11-14T05:49:22.525Z",
+    "request": {
+      "description": "Patched description for testing partial update"
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/dataset/items/test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+      "identifier": "test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7"
+    },
+    "status": 200,
+    "responseTime": 126
   },
   {
     "method": "deleteDataset",
     "category": "Dataset Operations",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:57.522Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/dataset/items/test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7",
+    "timestamp": "2025-11-14T05:49:22.629Z",
+    "response": {
+      "message": "Dataset test-recorder-12fb3d20-731d-4b25-9ae6-fae23b32ffb7 has been deleted."
+    },
+    "status": 200,
+    "responseTime": 104
   }
 ]

@@ -1,0 +1,23 @@
+[
+  {
+    "method": "getBaseUrl",
+    "category": "Utility",
+    "endpoint": "N/A",
+    "timestamp": "2025-11-14T05:49:25.237Z",
+    "response": "http://dkan.ddev.site",
+    "status": 200
+  },
+  {
+    "method": "getDefaultOptions",
+    "category": "Utility",
+    "endpoint": "N/A",
+    "timestamp": "2025-11-14T05:49:25.237Z",
+    "response": {
+      "retry": 1,
+      "retryDelay": 1000,
+      "staleTime": 0,
+      "cacheTime": 300000
+    },
+    "status": 200
+  }
+]

@@ -15,7 +15,7 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (43 methods across 10 categories):
+ * **API Coverage** (42 methods across 9 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
@@ -24,8 +24,8 @@
  * 2. **Datastore Query** (4 methods)
  *    - queryDatastore, queryDatastoreMulti, getDatastoreSchema, querySql
  *
- * 3. **Datastore Download** (3 methods)
- *    - downloadQuery, downloadQueryByDistribution, downloadQueryMulti
+ * 3. **Datastore Download** (2 methods)
+ *    - downloadQuery, downloadQueryByDistribution
  *
  * 4. **Data Dictionary** (6 methods)
  *    - getDataDictionary, listDataDictionaries, getDataDictionaryFromUrl
@@ -45,10 +45,7 @@
  * 8. **Revisions & Moderation** (4 methods)
  *    - getRevisions, getRevision, createRevision, changeDatasetState
  *
- * 9. **CKAN Compatibility** (2 methods)
- *    - listDatasets, getDatasetCkan
- *
- * 10. **Utility** (3 methods)
+ * 9. **Utility** (3 methods)
  *     - getBaseUrl, getDefaultOptions, getOpenApiDocsUrl
  *
  * **Authentication**:
@@ -467,54 +464,6 @@ export class DkanApiClient {
   }
 
   /**
-   * Download results from multi-resource query
-   *
-   * Phase 3 - OpenAPI alignment
-   *
-   * @param options - Query options with resources array, includes format
-   * @param options.resources - Array of resources to query
-   * @param options.format - Download format: 'csv' (default) or 'json'
-   * @param options.conditions - Filter conditions
-   * @param options.limit - Maximum number of records
-   * @param options.offset - Pagination offset
-   * @param options.sort - Sort configuration
-   * @returns Blob containing the file data for download
-   * @throws {DkanApiError} If resource not found or request fails
-   */
-  async downloadQueryMulti(
-    options: QueryDownloadOptions = {}
-  ): Promise<Blob> {
-    const format = options.format || 'csv'
-    const { format: _, ...queryOptions } = options
-
-    const url = `${this.baseUrl}/api/1/datastore/query/download?format=${format}`
-    const authHeader = this.getAuthHeader()
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-
-    if (authHeader) {
-      headers['Authorization'] = authHeader
-    }
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(queryOptions),
-    })
-
-    if (!response.ok) {
-      throw new DkanApiError(
-        `HTTP ${response.status}: ${response.statusText}`,
-        response.status
-      )
-    }
-
-    return await response.blob()
-  }
-
-  /**
    * Get datastore schema with data dictionary (if available)
    *
    * Returns the table schema including column definitions and data dictionary
@@ -753,39 +702,6 @@ export class DkanApiClient {
   }
 
   /**
-   * Get all datasets (using CKAN-compatible API)
-   *
-   * Returns array of dataset identifiers only, not full metadata.
-   * This is a lightweight alternative to listAllDatasets().
-   * Uses CKAN-compatible /api/3/action/package_list endpoint.
-   *
-   * @returns Array of dataset identifiers (UUIDs or custom IDs)
-   * @throws {DkanApiError} If request fails
-   */
-  async listDatasets(): Promise<string[]> {
-    const response = await this.request<string[]>('/api/3/action/package_list')
-    return response.data
-  }
-
-  /**
-   * Get dataset details (using CKAN-compatible API)
-   *
-   * Retrieves a single dataset using CKAN-compatible endpoint.
-   * Returns the same data as getDataset() but via /api/3/action/package_show.
-   * Useful for CKAN compatibility or when integrating with CKAN-based tools.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
-   * @returns Complete dataset metadata
-   * @throws {DkanApiError} If dataset not found or request fails
-   */
-  async getDatasetCkan(identifier: string): Promise<DkanDataset> {
-    const response = await this.request<{ result: DkanDataset }>(
-      `/api/3/action/package_show?id=${identifier}`
-    )
-    return response.data.result
-  }
-
-  /**
    * Get the base URL
    *
    * Returns the configured DKAN base URL without trailing slash.
@@ -887,12 +803,13 @@ export class DkanApiClient {
    * including status, counts, error messages, and timestamps.
    *
    * @param runId - Harvest run identifier
+   * @param planId - Harvest plan identifier (required by DKAN API)
    * @returns Harvest run details with execution status and statistics
    * @throws {DkanApiError} If harvest run not found or request fails
    */
-  async getHarvestRun(runId: string): Promise<HarvestRun> {
+  async getHarvestRun(runId: string, planId: string): Promise<HarvestRun> {
     const response = await this.request<HarvestRun>(
-      `/api/1/harvest/runs/${runId}`
+      `/api/1/harvest/runs/${runId}?plan=${planId}`
     )
     return response.data
   }

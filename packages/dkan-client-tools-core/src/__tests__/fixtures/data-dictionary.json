@@ -3,7 +3,7 @@
     "method": "listDataDictionaries",
     "category": "Data Dictionary",
     "endpoint": "/api/1/metastore/schemas/data-dictionary/items",
-    "timestamp": "2025-11-13T21:36:58.191Z",
+    "timestamp": "2025-11-14T05:49:23.327Z",
     "response": [
       {
         "identifier": "6ca7e14e-8f28-5337-84f9-1086c4a0b820-dict",
@@ -538,13 +538,13 @@
       }
     ],
     "status": 200,
-    "responseTime": 71
+    "responseTime": 85
   },
   {
     "method": "getDataDictionary",
     "category": "Data Dictionary",
     "endpoint": "/api/1/metastore/schemas/data-dictionary/items/6ca7e14e-8f28-5337-84f9-1086c4a0b820-dict",
-    "timestamp": "2025-11-13T21:36:58.266Z",
+    "timestamp": "2025-11-14T05:49:23.399Z",
     "response": {
       "identifier": "6ca7e14e-8f28-5337-84f9-1086c4a0b820-dict",
       "data": {
@@ -594,38 +594,85 @@
       }
     },
     "status": 200,
-    "responseTime": 75
+    "responseTime": 72
   },
   {
     "method": "getDataDictionaryFromUrl",
     "category": "Data Dictionary",
     "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.267Z",
+    "timestamp": "2025-11-14T05:49:23.399Z",
     "skipped": true,
-    "skipReason": "requires URL"
+    "skipReason": "no describedBy URL found"
   },
   {
     "method": "createDataDictionary",
     "category": "Data Dictionary",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.267Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/data-dictionary/items",
+    "timestamp": "2025-11-14T05:49:23.482Z",
+    "request": {
+      "identifier": "test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea",
+      "version": "1.0",
+      "data": {
+        "title": "Test Data Dictionary",
+        "fields": [
+          {
+            "name": "test_field",
+            "title": "Test Field",
+            "type": "string",
+            "description": "A test field for API recording"
+          }
+        ]
+      }
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/data-dictionary/items/test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea",
+      "identifier": "test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea"
+    },
+    "status": 200,
+    "responseTime": 83
   },
   {
     "method": "updateDataDictionary",
     "category": "Data Dictionary",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.267Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/data-dictionary/items/test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea",
+    "timestamp": "2025-11-14T05:49:23.588Z",
+    "request": {
+      "identifier": "test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea",
+      "version": "1.0",
+      "data": {
+        "title": "Updated Test Data Dictionary",
+        "fields": [
+          {
+            "name": "test_field",
+            "title": "Test Field",
+            "type": "string",
+            "description": "A test field for API recording"
+          },
+          {
+            "name": "added_field",
+            "title": "Added Field",
+            "type": "number",
+            "description": "Field added during update"
+          }
+        ]
+      }
+    },
+    "response": {
+      "endpoint": "/api/1/metastore/schemas/data-dictionary/items/test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea",
+      "identifier": "test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea"
+    },
+    "status": 200,
+    "responseTime": 105
   },
   {
     "method": "deleteDataDictionary",
     "category": "Data Dictionary",
-    "endpoint": "",
-    "timestamp": "2025-11-13T21:36:58.267Z",
-    "skipped": true,
-    "skipReason": "read-only mode"
+    "endpoint": "/api/1/metastore/schemas/data-dictionary/items/test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea",
+    "timestamp": "2025-11-14T05:49:23.676Z",
+    "response": {
+      "message": "Dataset test-dict-27a96e79-e134-4802-b3e0-2f524cddc6ea has been deleted."
+    },
+    "status": 200,
+    "responseTime": 88
   }
 ]

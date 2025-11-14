@@ -227,7 +227,7 @@ describe('useHarvest', () => {
       vi.spyOn(mockClient, 'getHarvestRun').mockResolvedValue(mockRun)
 
       function TestComponent() {
-        const { data: run, isLoading } = useHarvestRun({ runId: 'run-1' })
+        const { data: run, isLoading } = useHarvestRun({ runId: 'run-1', planId: 'plan-1' })
 
         if (isLoading) return <div>Loading...</div>
         if (!run) return null
@@ -255,7 +255,7 @@ describe('useHarvest', () => {
         expect(screen.getByText('Errors: 1')).toBeInTheDocument()
       })
 
-      expect(mockClient.getHarvestRun).toHaveBeenCalledWith('run-1')
+      expect(mockClient.getHarvestRun).toHaveBeenCalledWith('run-1', 'plan-1')
     })
   })
 

@@ -331,18 +331,6 @@ downloadQuery.mutate(
 
 **`useDownloadQueryByDistribution`** - Download by distribution ID (mutation)
 
-### CKAN Compatibility Hooks
-
-**`useCkanPackageSearch`** - Search packages (CKAN-compatible)
-
-**`useCkanDatastoreSearch`** - Search datastore (CKAN-compatible)
-
-**`useCkanDatastoreSearchSql`** - SQL search (CKAN-compatible)
-
-**`useCkanResourceShow`** - Get resource info (CKAN-compatible)
-
-**`useCkanCurrentPackageListWithResources`** - List packages (CKAN-compatible)
-
 ## Hook Options
 
 All query hooks support these common options:

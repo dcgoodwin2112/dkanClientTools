@@ -31,6 +31,7 @@ export interface UseHarvestRunsOptions {
 
 export interface UseHarvestRunOptions {
   runId: string
+  planId: string
   enabled?: boolean
   staleTime?: number
   refetchInterval?: number
@@ -40,7 +41,7 @@ export interface UseHarvestRunOptions {
  * Fetches a list of all harvest plan identifiers configured in the DKAN instance.
  *
  * Harvest plans define how data should be imported from external sources (like
- * data.json catalogs, CKAN instances, or custom API endpoints). Each plan specifies
+ * data.json catalogs or custom API endpoints). Each plan specifies
  * the extraction method, transformation rules, and loading configuration.
  *
  * This hook returns an array of plan identifiers that can be used with other harvest
@@ -168,7 +169,7 @@ export function useHarvestPlans(options: UseHarvestPlansOptions = {}) {
  *
  * Harvest plans contain the complete ETL (Extract, Transform, Load) configuration
  * for importing data from external sources. This includes the source URL, extraction
- * method (e.g., data.json, CKAN API), transformation rules, and loading configuration.
+ * method (e.g., data.json), transformation rules, and loading configuration.
  *
  * Use this hook when you need to:
  * - Display harvest plan configuration details
@@ -243,7 +244,6 @@ export function useHarvestPlans(options: UseHarvestPlansOptions = {}) {
  *           })}
  *         >
  *           <option value="\\Drupal\\harvest\\ETL\\Extract\\DataJson">data.json</option>
- *           <option value="\\Drupal\\harvest\\ETL\\Extract\\Ckan">CKAN</option>
  *         </select>
  *       </div>
  *       <button type="submit">Save Changes</button>
@@ -460,9 +460,10 @@ export function useHarvestRuns(options: UseHarvestRunsOptions) {
  * @example
  * Basic usage - display run status:
  * ```tsx
- * function HarvestRunStatus({ runId }: { runId: string }) {
+ * function HarvestRunStatus({ runId, planId }: { runId: string; planId: string }) {
  *   const { data: run, isLoading } = useHarvestRun({
  *     runId,
+ *     planId,
  *     refetchInterval: 3000, // Poll while running
  *   })
  *
@@ -496,8 +497,8 @@ export function useHarvestRuns(options: UseHarvestRunsOptions) {
  * @example
  * Detailed error reporting:
  * ```tsx
- * function HarvestRunDetails({ runId }: { runId: string }) {
- *   const { data: run, isLoading } = useHarvestRun({ runId })
+ * function HarvestRunDetails({ runId, planId }: { runId: string; planId: string }) {
+ *   const { data: run, isLoading } = useHarvestRun({ runId, planId })
  *
  *   if (isLoading) return <div>Loading run details...</div>
  *   if (!run) return null
@@ -614,9 +615,9 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
   const client = useDkanClient()
 
   return useQuery({
-    queryKey: ['harvest', 'run', options.runId] as const,
-    queryFn: () => client.getHarvestRun(options.runId),
-    enabled: (options.enabled ?? true) && !!options.runId,
+    queryKey: ['harvest', 'run', options.runId, options.planId] as const,
+    queryFn: () => client.getHarvestRun(options.runId, options.planId),
+    enabled: (options.enabled ?? true) && !!options.runId && !!options.planId,
     staleTime: options.staleTime ?? 0,
     refetchInterval: options.refetchInterval,
   })
@@ -627,11 +628,11 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
  *
  * Harvest plans define the complete ETL (Extract, Transform, Load) configuration
  * for importing data from external sources. This mutation creates a new plan that
- * can then be executed to synchronize data from sources like data.json catalogs,
- * CKAN instances, or other supported APIs.
+ * can then be executed to synchronize data from sources like data.json catalogs
+ * or other supported APIs.
  *
  * The plan configuration includes:
- * - **Extract**: Source type and URI (e.g., data.json URL, CKAN API endpoint)
+ * - **Extract**: Source type and URI (e.g., data.json URL)
  * - **Transform**: Data transformation rules (optional)
  * - **Load**: How datasets should be loaded into DKAN
  *
@@ -704,7 +705,6 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
  *   const handleCreate = () => {
  *     const extractTypes = {
  *       DataJson: '\\Drupal\\harvest\\ETL\\Extract\\DataJson',
- *       Ckan: '\\Drupal\\harvest\\ETL\\Extract\\Ckan',
  *     }
  *
  *     registerPlan.mutate(
@@ -750,7 +750,6 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
  *           onChange={(e) => setPlanConfig({ ...planConfig, extractType: e.target.value })}
  *         >
  *           <option value="DataJson">data.json Catalog</option>
- *           <option value="Ckan">CKAN API</option>
  *         </select>
  *       </div>
  *

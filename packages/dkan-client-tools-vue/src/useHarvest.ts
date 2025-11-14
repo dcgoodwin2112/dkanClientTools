@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { type MaybeRefOrGetter, toValue } from 'vue'
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useDkanClient } from './plugin'
 import type {
   HarvestPlan,
@@ -32,6 +32,7 @@ export interface UseHarvestRunsOptions {
 
 export interface UseHarvestRunOptions {
   runId: MaybeRefOrGetter<string>
+  planId: MaybeRefOrGetter<string>
   enabled?: MaybeRefOrGetter<boolean>
   staleTime?: number
   refetchInterval?: number | false
@@ -47,12 +48,12 @@ export interface UseHarvestRunOptions {
  *
  * **What is a Harvest Plan?**
  * A harvest plan automates the process of importing datasets from external catalogs:
- * - **Extract**: Fetch data from an external source (data.json, CKAN, Socrata, etc.)
+ * - **Extract**: Fetch data from an external source (data.json, Socrata, etc.)
  * - **Transform**: Convert the external format to DCAT-US schema
  * - **Load**: Import datasets into DKAN's metastore
  *
- * Common harvest sources include data.json files from other open data portals, CKAN
- * instances, Socrata platforms, and custom data feeds.
+ * Common harvest sources include data.json files from other open data portals, Socrata
+ * platforms, and custom data feeds.
  *
  * **Returns**: An array of harvest plan identifier strings that can be used with other
  * harvest composables to fetch plan details or manage harvest runs.
@@ -202,7 +203,7 @@ export function useHarvestPlans(options: UseHarvestPlansOptions = {}) {
  *
  * **Common Extract Types**:
  * - `\\Drupal\\harvest\\ETL\\Extract\\DataJson` - Federal data.json standard
- * - Custom extractors for CKAN, Socrata, ArcGIS, etc.
+ * - Custom extractors for Socrata, ArcGIS, etc.
  *
  * **Reactive Plan ID**: The planId parameter accepts refs or computed values. When it changes,
  * the query automatically re-executes to fetch the new plan details.
@@ -629,11 +630,12 @@ export function useHarvestRuns(options: UseHarvestRunsOptions) {
  * import { computed } from 'vue'
  * import { useHarvestRun } from '@dkan-client-tools/vue'
  *
- * const props = defineProps<{ runId: string }>()
+ * const props = defineProps<{ runId: string; planId: string }>()
  *
  * // Smart polling - only poll while running
  * const { data: run, isFetching } = useHarvestRun({
  *   runId: props.runId,
+ *   planId: props.planId,
  *   refetchInterval: computed(() => {
  *     return run.value?.status === 'RUNNING' ? 2000 : false
  *   }),
@@ -766,9 +768,9 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
   const client = useDkanClient()
 
   return useQuery({
-    queryKey: ['harvest', 'run', options.runId] as const,
-    queryFn: () => client.getHarvestRun(toValue(options.runId)),
-    enabled: () => (toValue(options.enabled) ?? true) && !!toValue(options.runId),
+    queryKey: computed(() => ['harvest', 'run', toValue(options.runId), toValue(options.planId)] as const),
+    queryFn: () => client.getHarvestRun(toValue(options.runId), toValue(options.planId)),
+    enabled: () => (toValue(options.enabled) ?? true) && !!toValue(options.runId) && !!toValue(options.planId),
     staleTime: options.staleTime ?? 0,
     refetchInterval: options.refetchInterval,
   })
@@ -792,7 +794,7 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
  *
  * **Common Extractor Types**:
  * - `\\Drupal\\harvest\\ETL\\Extract\\DataJson` - Federal data.json standard
- * - Custom extractors for CKAN, Socrata, ArcGIS, CSV feeds, etc.
+ * - Custom extractors for Socrata, ArcGIS, CSV feeds, etc.
  *
  * **Cache Management**: Automatically invalidates the harvest plans list cache so
  * `useHarvestPlans()` queries will refetch and show the new plan.

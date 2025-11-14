@@ -101,10 +101,10 @@ describe('DkanApiClient - Harvest API', () => {
       json: async () => ({ identifier: 'run1', status: 'done' }),
     })
 
-    const run = await client.getHarvestRun('run1')
+    const run = await client.getHarvestRun('run1', 'plan1')
 
     expect(mockFetch).toHaveBeenCalledWith(
-      'https://example.com/api/1/harvest/runs/run1',
+      'https://example.com/api/1/harvest/runs/run1?plan=plan1',
       expect.any(Object)
     )
     expect(run.identifier).toBe('run1')

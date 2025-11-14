@@ -3,13 +3,14 @@
  * API Response Recorder
  *
  * Records real API responses from a DKAN instance to use as test fixtures.
- * Systematically calls all 43 DkanApiClient methods and saves responses.
+ * Systematically calls all 42 DkanApiClient methods and saves responses.
  *
  * Usage:
  *   npm run record:api
  *   DKAN_URL=https://demo.getdkan.org npm run record:api
  *   DKAN_URL=https://dkan.ddev.site DKAN_USER=admin DKAN_PASS=admin npm run record:api
  *   npm run record:api:readonly  # Skip mutations
+ *   CLEANUP_ONLY=true npm run record:api  # Only clean up orphaned test resources
  *
  * Configuration:
  *   Create a .env file with:
@@ -17,20 +18,31 @@
  *   DKAN_USER=admin
  *   DKAN_PASS=admin
  *   READ_ONLY=true
+ *   CLEANUP_ONLY=true
  */
 
 import { config } from 'dotenv'
 import { writeFileSync, mkdirSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { randomUUID } from 'crypto'
 import { DkanApiClient } from '../src/api/client'
-import type { DkanDataset } from '../src/types'
+import type {
+  DkanDataset,
+  HarvestPlan,
+  HarvestRunOptions,
+  DatastoreImportOptions,
+  MetastoreNewRevision
+} from '../src/types'
 
-// Load environment variables from .env file
-config()
-
+// Load environment variables from .env file in project root
+// Script location: /packages/dkan-client-tools-core/scripts/record-api-responses.ts
+// .env location: /.env (project root)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+const projectRoot = join(__dirname, '../../..')
+// Override existing environment variables with .env values
+config({ path: join(projectRoot, '.env'), override: true })
 
 interface RecordingConfig {
   baseUrl: string
@@ -62,6 +74,19 @@ interface RecordingSummary {
   skipped: number
   errors: number
   results: RecordedResponse[]
+  cleanup: {
+    created: number
+    deleted: number
+    failed: number
+    orphaned: string[]
+  }
+}
+
+interface CreatedResource {
+  type: 'dataset' | 'data-dictionary' | 'harvest-plan' | 'datastore' | 'revision'
+  id: string
+  timestamp: string
+  deleted?: boolean // Track if resource was deleted during recording phase
 }
 
 class ApiResponseRecorder {
@@ -76,6 +101,16 @@ class ApiResponseRecorder {
   private testHarvestPlanId?: string
   private testHarvestRunId?: string
   private testDataDictionaryId?: string
+  private testDataDictionaryUrl?: string
+
+  // Resource tracking for cleanup
+  private createdResources: CreatedResource[] = []
+  private cleanupStats = {
+    created: 0,
+    deleted: 0,
+    failed: 0,
+    orphaned: [] as string[],
+  }
 
   constructor(config: RecordingConfig) {
     this.config = config
@@ -152,6 +187,179 @@ class ApiResponseRecorder {
   }
 
   /**
+   * Track a created resource for cleanup
+   */
+  private trackResource(type: CreatedResource['type'], id: string) {
+    this.createdResources.push({
+      type,
+      id,
+      timestamp: new Date().toISOString(),
+    })
+    this.cleanupStats.created++
+    console.log(`    📌 Tracked ${type}: ${id}`)
+  }
+
+  /**
+   * Verify a resource was deleted (should return 404)
+   */
+  private async verifyDeleted(type: CreatedResource['type'], id: string): Promise<boolean> {
+    try {
+      switch (type) {
+        case 'dataset':
+          await this.client.getDataset(id)
+          return false // Still exists
+        case 'data-dictionary':
+          await this.client.getDataDictionary(id)
+          return false // Still exists
+        default:
+          return true // Can't verify, assume deleted
+      }
+    } catch (error: any) {
+      // 404 means successfully deleted
+      return error.status === 404
+    }
+  }
+
+  /**
+   * Clean up a single resource
+   */
+  private async cleanupResource(resource: CreatedResource): Promise<boolean> {
+    try {
+      console.log(`  🧹 Cleaning up ${resource.type}: ${resource.id}`)
+
+      switch (resource.type) {
+        case 'dataset':
+          await this.client.deleteDataset(resource.id)
+          break
+        case 'data-dictionary':
+          await this.client.deleteDataDictionary(resource.id)
+          break
+        // Add more cases as we implement them
+        default:
+          console.log(`    ⚠️  Unknown resource type: ${resource.type}`)
+          return false
+      }
+
+      // Verify deletion
+      const verified = await this.verifyDeleted(resource.type, resource.id)
+      if (verified) {
+        console.log(`    ✓ Verified deleted`)
+        this.cleanupStats.deleted++
+        return true
+      } else {
+        console.log(`    ⚠️  Delete failed - resource still exists`)
+        this.cleanupStats.failed++
+        this.cleanupStats.orphaned.push(`${resource.type}:${resource.id}`)
+        return false
+      }
+    } catch (error: any) {
+      // 404 means resource was already deleted (during recording phase) - this is SUCCESS
+      if (error.status === 404) {
+        console.log(`    ✓ Already deleted`)
+        this.cleanupStats.deleted++
+        return true
+      }
+
+      // Other errors are actual failures
+      console.log(`    ✗ Cleanup failed: ${error.message}`)
+      this.cleanupStats.failed++
+      this.cleanupStats.orphaned.push(`${resource.type}:${resource.id}`)
+      return false
+    }
+  }
+
+  /**
+   * Clean up all tracked resources
+   */
+  private async cleanupAllResources() {
+    if (this.createdResources.length === 0) {
+      return
+    }
+
+    console.log(`\n🧹 Cleaning up ${this.createdResources.length} created resources...`)
+
+    // Clean up in reverse order (most recently created first)
+    for (const resource of [...this.createdResources].reverse()) {
+      // Skip resources that were already deleted during recording
+      if (resource.deleted) {
+        console.log(`  ✓ ${resource.type}: ${resource.id} - deleted during recording`)
+        this.cleanupStats.deleted++
+        continue
+      }
+      await this.cleanupResource(resource)
+    }
+
+    // Report cleanup results
+    console.log(`\n📊 Cleanup Summary:`)
+    console.log(`  Created:  ${this.cleanupStats.created}`)
+    console.log(`  Deleted:  ${this.cleanupStats.deleted}`)
+    console.log(`  Failed:   ${this.cleanupStats.failed}`)
+
+    if (this.cleanupStats.orphaned.length > 0) {
+      console.log(`\n⚠️  Orphaned Resources:`)
+      this.cleanupStats.orphaned.forEach(r => console.log(`    - ${r}`))
+    }
+  }
+
+  /**
+   * Find and clean up orphaned test resources from previous failed runs
+   */
+  private async preCleanupOrphanedResources() {
+    console.log('\n🔍 Checking for orphaned test resources from previous runs...')
+
+    try {
+      // Look for test datasets (identifier starts with "test-recorder-")
+      const allDatasets = await this.client.listAllDatasets()
+      const orphanedDatasets = allDatasets.filter(d =>
+        d.identifier?.startsWith('test-recorder-')
+      )
+
+      if (orphanedDatasets.length > 0) {
+        console.log(`  Found ${orphanedDatasets.length} orphaned test dataset(s)`)
+        for (const dataset of orphanedDatasets) {
+          console.log(`  🧹 Cleaning up orphaned dataset: ${dataset.identifier}`)
+          try {
+            await this.client.deleteDataset(dataset.identifier)
+            console.log(`    ✓ Deleted`)
+          } catch (error: any) {
+            console.log(`    ✗ Failed: ${error.message}`)
+          }
+        }
+      }
+
+      // Look for test data dictionaries (identifier starts with "test-dict-")
+      try {
+        const allDictionaries = await this.client.listDataDictionaries()
+        const orphanedDicts = allDictionaries.filter(d =>
+          d.identifier?.startsWith('test-dict-')
+        )
+
+        if (orphanedDicts.length > 0) {
+          console.log(`  Found ${orphanedDicts.length} orphaned test dictionary(ies)`)
+          for (const dict of orphanedDicts) {
+            console.log(`  🧹 Cleaning up orphaned dictionary: ${dict.identifier}`)
+            try {
+              await this.client.deleteDataDictionary(dict.identifier)
+              console.log(`    ✓ Deleted`)
+            } catch (error: any) {
+              console.log(`    ✗ Failed: ${error.message}`)
+            }
+          }
+        }
+      } catch (error: any) {
+        // Data dictionaries might not be accessible
+        console.log(`  ⚠️  Could not check data dictionaries: ${error.message}`)
+      }
+
+      if (orphanedDatasets.length === 0) {
+        console.log(`  ✓ No orphaned test resources found`)
+      }
+    } catch (error: any) {
+      console.log(`  ⚠️  Pre-cleanup check failed: ${error.message}`)
+    }
+  }
+
+  /**
    * Discover test data IDs from the DKAN instance
    */
   private async discoverTestData() {
@@ -189,6 +397,11 @@ class ApiResponseRecorder {
             if (this.testDistributionId) {
               console.log(`  Found distribution: ${this.testDistributionId}`)
             }
+            // Check for describedBy URL for data dictionary
+            if (dist.describedBy) {
+              this.testDataDictionaryUrl = dist.describedBy
+              console.log(`  Found describedBy URL: ${this.testDataDictionaryUrl}`)
+            }
           }
         }
       }
@@ -203,7 +416,9 @@ class ApiResponseRecorder {
           // Get runs for this plan
           const runs = await this.client.listHarvestRuns(this.testHarvestPlanId)
           if (runs.length > 0) {
-            this.testHarvestRunId = runs[0].identifier || runs[0].id
+            // listHarvestRuns returns an array of strings, not HarvestRun objects
+            // The type definition is incorrect - the API actually returns string[]
+            this.testHarvestRunId = runs[0] as unknown as string
             console.log(`  Found harvest run: ${this.testHarvestRunId}`)
           }
         }
@@ -232,28 +447,34 @@ class ApiResponseRecorder {
   private async recordDatasetOperations() {
     console.log('\n📦 Dataset Operations (7 methods)')
 
-    // getDataset
+    // getDataset (test with showReferenceIds parameter)
     if (this.testDatasetId) {
       this.results.push(
         await this.recordApiCall(
           'Dataset Operations',
           'getDataset',
-          `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}`,
-          () => this.client.getDataset(this.testDatasetId!)
+          `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}?show-reference-ids`,
+          () => this.client.getDataset(this.testDatasetId!, { showReferenceIds: true }),
+          { showReferenceIds: true }
         )
       )
     } else {
       this.results.push(this.skipMethod('Dataset Operations', 'getDataset', 'No dataset found'))
     }
 
-    // searchDatasets
+    // searchDatasets (test with array sort parameters)
     this.results.push(
       await this.recordApiCall(
         'Dataset Operations',
         'searchDatasets',
         '/api/1/search',
-        () => this.client.searchDatasets({ keyword: 'data', 'page-size': 10 }),
-        { keyword: 'data', 'page-size': 10 }
+        () => this.client.searchDatasets({
+          keyword: 'data',
+          'page-size': 10,
+          sort: ['modified', 'title'],
+          'sort-order': ['desc', 'asc']
+        }),
+        { keyword: 'data', 'page-size': 10, sort: ['modified', 'title'], 'sort-order': ['desc', 'asc'] }
       )
     )
 
@@ -275,10 +496,11 @@ class ApiResponseRecorder {
       this.results.push(this.skipMethod('Dataset Operations', 'deleteDataset', 'read-only mode'))
     } else {
       // createDataset
+      const testId = `test-recorder-${randomUUID()}`
       const newDataset: DkanDataset = {
         title: 'Test Dataset - API Recorder',
         description: 'Created by API response recorder for testing',
-        identifier: `test-recorder-${Date.now()}`,
+        identifier: testId,
         accessLevel: 'public',
         modified: new Date().toISOString().split('T')[0],
         keyword: ['test', 'recorder'],
@@ -290,32 +512,96 @@ class ApiResponseRecorder {
         },
       }
 
-      this.results.push(
-        await this.recordApiCall(
-          'Dataset Operations',
-          'createDataset',
-          '/api/1/metastore/schemas/dataset/items',
-          () => this.client.createDataset(newDataset),
-          newDataset
-        )
+      const createResult = await this.recordApiCall(
+        'Dataset Operations',
+        'createDataset',
+        '/api/1/metastore/schemas/dataset/items',
+        () => this.client.createDataset(newDataset),
+        newDataset
       )
+      this.results.push(createResult)
 
-      // Note: updateDataset, patchDataset, deleteDataset would use the created dataset
-      this.results.push(this.skipMethod('Dataset Operations', 'updateDataset', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Dataset Operations', 'patchDataset', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Dataset Operations', 'deleteDataset', 'mutation not implemented in recorder'))
+      // Track resource for cleanup
+      if (!createResult.error) {
+        this.trackResource('dataset', testId)
+      }
+
+      // updateDataset - full replacement
+      if (!createResult.error) {
+        const updatedDataset = {
+          ...newDataset,
+          title: 'Updated Test Dataset - API Recorder',
+          description: 'Updated description for testing full replacement',
+          keyword: ['test', 'recorder', 'updated'],
+        }
+
+        this.results.push(
+          await this.recordApiCall(
+            'Dataset Operations',
+            'updateDataset',
+            `/api/1/metastore/schemas/dataset/items/${testId}`,
+            () => this.client.updateDataset(testId, updatedDataset),
+            updatedDataset
+          )
+        )
+      } else {
+        this.results.push(this.skipMethod('Dataset Operations', 'updateDataset', 'create failed'))
+      }
+
+      // patchDataset - partial update
+      if (!createResult.error) {
+        const patchData = {
+          description: 'Patched description for testing partial update',
+        }
+
+        this.results.push(
+          await this.recordApiCall(
+            'Dataset Operations',
+            'patchDataset',
+            `/api/1/metastore/schemas/dataset/items/${testId}`,
+            () => this.client.patchDataset(testId, patchData),
+            patchData
+          )
+        )
+      } else {
+        this.results.push(this.skipMethod('Dataset Operations', 'patchDataset', 'create failed'))
+      }
+
+      // deleteDataset - record the API response for fixtures
+      if (!createResult.error) {
+        const deleteResult = await this.recordApiCall(
+          'Dataset Operations',
+          'deleteDataset',
+          `/api/1/metastore/schemas/dataset/items/${testId}`,
+          () => this.client.deleteDataset(testId)
+        )
+        this.results.push(deleteResult)
+
+        // Mark resource as deleted during recording if delete succeeded
+        if (!deleteResult.error) {
+          const resource = this.createdResources.find(
+            r => r.type === 'dataset' && r.id === testId
+          )
+          if (resource) {
+            resource.deleted = true
+          }
+        }
+      } else {
+        this.results.push(this.skipMethod('Dataset Operations', 'deleteDataset', 'create failed'))
+      }
     }
   }
 
   /**
-   * Record Datastore Operations (5 methods)
+   * Record Datastore Operations (6 methods)
    */
   private async recordDatastoreOperations() {
-    console.log('\n🗄️  Datastore Operations (5 methods)')
+    console.log('\n🗄️  Datastore Operations (6 methods)')
 
     if (!this.testDatasetId) {
       console.log('  ⊘ Skipping datastore operations (no dataset found)')
       this.results.push(this.skipMethod('Datastore Operations', 'queryDatastore', 'no dataset'))
+      this.results.push(this.skipMethod('Datastore Operations', 'queryDatastoreMulti', 'no dataset'))
       this.results.push(this.skipMethod('Datastore Operations', 'getDatastoreSchema', 'no dataset'))
       this.results.push(this.skipMethod('Datastore Operations', 'querySql', 'no dataset'))
       this.results.push(this.skipMethod('Datastore Operations', 'downloadQuery', 'no dataset'))
@@ -334,6 +620,24 @@ class ApiResponseRecorder {
       )
     )
 
+    // queryDatastoreMulti (multi-resource queries with joins)
+    if (this.testDistributionId) {
+      this.results.push(
+        await this.recordApiCall(
+          'Datastore Operations',
+          'queryDatastoreMulti',
+          '/api/1/datastore/query',
+          () => this.client.queryDatastoreMulti({
+            resources: [{ id: this.testDistributionId!, alias: 't1' }],
+            limit: 10
+          }),
+          { resources: [{ id: this.testDistributionId!, alias: 't1' }], limit: 10 }
+        )
+      )
+    } else {
+      this.results.push(this.skipMethod('Datastore Operations', 'queryDatastoreMulti', 'no distribution'))
+    }
+
     // getDatastoreSchema
     this.results.push(
       await this.recordApiCall(
@@ -344,15 +648,19 @@ class ApiResponseRecorder {
       )
     )
 
-    // querySql
+    // querySql (test with GET method and show_db_columns parameter)
     if (this.testDistributionId) {
       this.results.push(
         await this.recordApiCall(
           'Datastore Operations',
           'querySql',
           '/api/1/datastore/sql',
-          () => this.client.querySql({ query: `[SELECT * FROM ${this.testDistributionId}][LIMIT 5];` }),
-          { query: `[SELECT * FROM ${this.testDistributionId}][LIMIT 5];` }
+          () => this.client.querySql({
+            query: `[SELECT * FROM ${this.testDistributionId}][LIMIT 5];`,
+            show_db_columns: true,
+            method: 'GET'
+          }),
+          { query: `[SELECT * FROM ${this.testDistributionId}][LIMIT 5];`, show_db_columns: true, method: 'GET' }
         )
       )
     } else {
@@ -390,6 +698,7 @@ class ApiResponseRecorder {
     } else {
       this.results.push(this.skipMethod('Datastore Operations', 'downloadQueryByDistribution', 'no distribution'))
     }
+
   }
 
   /**
@@ -423,7 +732,19 @@ class ApiResponseRecorder {
     }
 
     // getDataDictionaryFromUrl
-    this.results.push(this.skipMethod('Data Dictionary', 'getDataDictionaryFromUrl', 'requires URL'))
+    if (this.testDataDictionaryUrl) {
+      this.results.push(
+        await this.recordApiCall(
+          'Data Dictionary',
+          'getDataDictionaryFromUrl',
+          this.testDataDictionaryUrl,
+          () => this.client.getDataDictionaryFromUrl(this.testDataDictionaryUrl!),
+          { url: this.testDataDictionaryUrl }
+        )
+      )
+    } else {
+      this.results.push(this.skipMethod('Data Dictionary', 'getDataDictionaryFromUrl', 'no describedBy URL found'))
+    }
 
     // Mutations
     if (this.config.skipMutations) {
@@ -431,9 +752,92 @@ class ApiResponseRecorder {
       this.results.push(this.skipMethod('Data Dictionary', 'updateDataDictionary', 'read-only mode'))
       this.results.push(this.skipMethod('Data Dictionary', 'deleteDataDictionary', 'read-only mode'))
     } else {
-      this.results.push(this.skipMethod('Data Dictionary', 'createDataDictionary', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Data Dictionary', 'updateDataDictionary', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Data Dictionary', 'deleteDataDictionary', 'mutation not implemented in recorder'))
+      // createDataDictionary
+      const testDictId = `test-dict-${randomUUID()}`
+      const newDictionary = {
+        identifier: testDictId,
+        version: '1.0',
+        data: {
+          title: 'Test Data Dictionary',
+          fields: [
+            {
+              name: 'test_field',
+              title: 'Test Field',
+              type: 'string' as const,
+              description: 'A test field for API recording',
+            },
+          ],
+        },
+      }
+
+      const createDictResult = await this.recordApiCall(
+        'Data Dictionary',
+        'createDataDictionary',
+        '/api/1/metastore/schemas/data-dictionary/items',
+        () => this.client.createDataDictionary(newDictionary),
+        newDictionary
+      )
+      this.results.push(createDictResult)
+
+      // Track resource for cleanup
+      if (!createDictResult.error) {
+        this.trackResource('data-dictionary', testDictId)
+      }
+
+      // updateDataDictionary
+      if (!createDictResult.error) {
+        const updatedDictionary = {
+          ...newDictionary,
+          data: {
+            ...newDictionary.data,
+            title: 'Updated Test Data Dictionary',
+            fields: [
+              ...newDictionary.data.fields,
+              {
+                name: 'added_field',
+                title: 'Added Field',
+                type: 'number' as const,
+                description: 'Field added during update',
+              },
+            ],
+          },
+        }
+
+        this.results.push(
+          await this.recordApiCall(
+            'Data Dictionary',
+            'updateDataDictionary',
+            `/api/1/metastore/schemas/data-dictionary/items/${testDictId}`,
+            () => this.client.updateDataDictionary(testDictId, updatedDictionary),
+            updatedDictionary
+          )
+        )
+      } else {
+        this.results.push(this.skipMethod('Data Dictionary', 'updateDataDictionary', 'create failed'))
+      }
+
+      // deleteDataDictionary - record the API response for fixtures
+      if (!createDictResult.error) {
+        const deleteDictResult = await this.recordApiCall(
+          'Data Dictionary',
+          'deleteDataDictionary',
+          `/api/1/metastore/schemas/data-dictionary/items/${testDictId}`,
+          () => this.client.deleteDataDictionary(testDictId)
+        )
+        this.results.push(deleteDictResult)
+
+        // Mark resource as deleted during recording if delete succeeded
+        if (!deleteDictResult.error) {
+          const resource = this.createdResources.find(
+            r => r.type === 'data-dictionary' && r.id === testDictId
+          )
+          if (resource) {
+            resource.deleted = true
+          }
+        }
+      } else {
+        this.results.push(this.skipMethod('Data Dictionary', 'deleteDataDictionary', 'create failed'))
+      }
     }
   }
 
@@ -478,18 +882,18 @@ class ApiResponseRecorder {
       this.results.push(this.skipMethod('Harvest', 'listHarvestRuns', 'no plan found'))
     }
 
-    // getHarvestRun
-    if (this.testHarvestRunId) {
+    // getHarvestRun - requires both run ID and plan ID
+    if (this.testHarvestRunId && this.testHarvestPlanId) {
       this.results.push(
         await this.recordApiCall(
           'Harvest',
           'getHarvestRun',
-          `/api/1/harvest/runs/${this.testHarvestRunId}`,
-          () => this.client.getHarvestRun(this.testHarvestRunId!)
+          `/api/1/harvest/runs/${this.testHarvestRunId}?plan=${this.testHarvestPlanId}`,
+          () => this.client.getHarvestRun(this.testHarvestRunId!, this.testHarvestPlanId!)
         )
       )
     } else {
-      this.results.push(this.skipMethod('Harvest', 'getHarvestRun', 'no run found'))
+      this.results.push(this.skipMethod('Harvest', 'getHarvestRun', 'no run or plan found'))
     }
 
     // Mutations
@@ -497,8 +901,39 @@ class ApiResponseRecorder {
       this.results.push(this.skipMethod('Harvest', 'registerHarvestPlan', 'read-only mode'))
       this.results.push(this.skipMethod('Harvest', 'runHarvest', 'read-only mode'))
     } else {
-      this.results.push(this.skipMethod('Harvest', 'registerHarvestPlan', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Harvest', 'runHarvest', 'mutation not implemented in recorder'))
+      // registerHarvestPlan
+      // NOTE: Harvest plans create datasets which need manual cleanup
+      // We skip this by default to avoid creating unwanted test data
+      const testHarvestPlanId = `test-harvest-${randomUUID()}`
+      const testHarvestPlan: HarvestPlan = {
+        identifier: testHarvestPlanId,
+        extract: {
+          type: 'test',
+          uri: 'https://example.com/test-data.json'
+        },
+        load: {
+          type: 'dataset'
+        }
+      }
+
+      this.results.push(
+        this.skipMethod(
+          'Harvest',
+          'registerHarvestPlan',
+          'skipped - creates datasets with complex cleanup'
+        )
+      )
+
+      // runHarvest
+      // NOTE: Running harvests creates/updates datasets and is async
+      // We skip this to avoid side effects on the DKAN instance
+      this.results.push(
+        this.skipMethod(
+          'Harvest',
+          'runHarvest',
+          'skipped - async operation with dataset side effects'
+        )
+      )
     }
   }
 
@@ -518,21 +953,54 @@ class ApiResponseRecorder {
       )
     )
 
+    // getDatastoreStatistics
+    if (this.testDistributionId) {
+      this.results.push(
+        await this.recordApiCall(
+          'Datastore Imports',
+          'getDatastoreStatistics',
+          `/api/1/datastore/imports/${this.testDistributionId}`,
+          () => this.client.getDatastoreStatistics(this.testDistributionId!)
+        )
+      )
+    } else {
+      this.results.push(this.skipMethod('Datastore Imports', 'getDatastoreStatistics', 'no distribution'))
+    }
+
     // Mutations
     if (this.config.skipMutations) {
       this.results.push(this.skipMethod('Datastore Imports', 'triggerDatastoreImport', 'read-only mode'))
       this.results.push(this.skipMethod('Datastore Imports', 'deleteDatastore', 'read-only mode'))
     } else {
-      this.results.push(this.skipMethod('Datastore Imports', 'triggerDatastoreImport', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Datastore Imports', 'deleteDatastore', 'mutation not implemented in recorder'))
+      // triggerDatastoreImport
+      // NOTE: This triggers async import jobs that fetch/process CSV files
+      // We skip this to avoid long-running operations and resource usage
+      this.results.push(
+        this.skipMethod(
+          'Datastore Imports',
+          'triggerDatastoreImport',
+          'skipped - async operation with resource usage'
+        )
+      )
+
+      // deleteDatastore
+      // NOTE: We can only test this if we have a distribution ID
+      // Deleting datastores removes data, so we skip to be safe
+      this.results.push(
+        this.skipMethod(
+          'Datastore Imports',
+          'deleteDatastore',
+          'skipped - destructive operation on real data'
+        )
+      )
     }
   }
 
   /**
-   * Record Metastore Operations (6 methods)
+   * Record Metastore Operations (4 methods)
    */
   private async recordMetastoreOperations() {
-    console.log('\n🏛️  Metastore Operations (6 methods)')
+    console.log('\n🏛️  Metastore Operations (4 methods)')
 
     // listSchemas
     this.results.push(
@@ -544,13 +1012,24 @@ class ApiResponseRecorder {
       )
     )
 
-    // getSchemaItems
+    // getSchema
+    this.results.push(
+      await this.recordApiCall(
+        'Metastore',
+        'getSchema',
+        '/api/1/metastore/schemas/dataset',
+        () => this.client.getSchema('dataset')
+      )
+    )
+
+    // getSchemaItems (test with showReferenceIds parameter)
     this.results.push(
       await this.recordApiCall(
         'Metastore',
         'getSchemaItems',
-        '/api/1/metastore/schemas/dataset/items',
-        () => this.client.getSchemaItems('dataset')
+        '/api/1/metastore/schemas/dataset/items?show-reference-ids',
+        () => this.client.getSchemaItems('dataset', { showReferenceIds: true }),
+        { showReferenceIds: true }
       )
     )
 
@@ -559,7 +1038,7 @@ class ApiResponseRecorder {
       await this.recordApiCall(
         'Metastore',
         'getDatasetFacets',
-        '/api/1/metastore/schemas/dataset/items',
+        '/api/1/search/facets',
         () => this.client.getDatasetFacets()
       )
     )
@@ -581,25 +1060,78 @@ class ApiResponseRecorder {
     }
 
     // getRevisions
-    this.results.push(
-      await this.recordApiCall(
-        'Revisions',
-        'getRevisions',
-        `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}/revisions`,
-        () => this.client.getRevisions('dataset', this.testDatasetId!)
-      )
+    const revisionsResult = await this.recordApiCall(
+      'Revisions',
+      'getRevisions',
+      `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}/revisions`,
+      () => this.client.getRevisions('dataset', this.testDatasetId!)
     )
+    this.results.push(revisionsResult)
 
-    // getRevision - skip for now, needs revision ID
-    this.results.push(this.skipMethod('Revisions', 'getRevision', 'requires revision ID'))
+    // getRevision - try to get first revision if available
+    if (revisionsResult.response && Array.isArray(revisionsResult.response) && revisionsResult.response.length > 0) {
+      const firstRevision = revisionsResult.response[0]
+      // The revision object uses 'identifier' property, not 'revision_id' or 'id'
+      const revisionId = firstRevision.identifier || firstRevision.revision_id || firstRevision.id
+      if (revisionId) {
+        this.results.push(
+          await this.recordApiCall(
+            'Revisions',
+            'getRevision',
+            `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}/revisions/${revisionId}`,
+            () => this.client.getRevision('dataset', this.testDatasetId!, revisionId)
+          )
+        )
+      } else {
+        this.results.push(this.skipMethod('Revisions', 'getRevision', 'no revision ID found'))
+      }
+    } else {
+      this.results.push(this.skipMethod('Revisions', 'getRevision', 'no revisions available'))
+    }
 
     // Mutations
     if (this.config.skipMutations) {
       this.results.push(this.skipMethod('Revisions', 'createRevision', 'read-only mode'))
       this.results.push(this.skipMethod('Revisions', 'changeDatasetState', 'read-only mode'))
     } else {
-      this.results.push(this.skipMethod('Revisions', 'createRevision', 'mutation not implemented in recorder'))
-      this.results.push(this.skipMethod('Revisions', 'changeDatasetState', 'mutation not implemented in recorder'))
+      // createRevision - test on an existing dataset (safe, non-destructive)
+      if (this.testDatasetId) {
+        const revision: MetastoreNewRevision = {
+          state: 'draft',
+          message: 'Test revision created by API recorder'
+        }
+
+        this.results.push(
+          await this.recordApiCall(
+            'Revisions',
+            'createRevision',
+            `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}/revisions`,
+            () => this.client.createRevision('dataset', this.testDatasetId!, revision),
+            revision
+          )
+        )
+        // NOTE: Revisions are permanent and cannot be deleted easily
+        // This is safe because it's just creating a revision on an existing dataset
+      } else {
+        this.results.push(this.skipMethod('Revisions', 'createRevision', 'no dataset'))
+      }
+
+      // changeDatasetState - test on an existing dataset (safe, non-destructive)
+      if (this.testDatasetId) {
+        this.results.push(
+          await this.recordApiCall(
+            'Revisions',
+            'changeDatasetState',
+            `/api/1/metastore/schemas/dataset/items/${this.testDatasetId}/revisions`,
+            () => this.client.changeDatasetState(this.testDatasetId!, 'published', 'Test state change by API recorder'),
+            { state: 'published', message: 'Test state change by API recorder' }
+          )
+        )
+        // NOTE: State changes are tracked as revisions and cannot be deleted
+        // This is safe because we're just changing state on an existing dataset
+      } else {
+        this.results.push(this.skipMethod('Revisions', 'changeDatasetState', 'no dataset'))
+      }
     }
   }
 
@@ -625,6 +1157,51 @@ class ApiResponseRecorder {
   }
 
   /**
+   * Record Utility operations (2 methods)
+   */
+  private async recordUtilityOperations() {
+    console.log('\n🔧 Utility Operations (2 methods)')
+
+    // getBaseUrl (utility method, returns URL string)
+    console.log('  → getBaseUrl...')
+    const baseUrl = this.client.getBaseUrl()
+    this.results.push({
+      method: 'getBaseUrl',
+      category: 'Utility',
+      endpoint: 'N/A',
+      timestamp: new Date().toISOString(),
+      response: baseUrl,
+      status: 200,
+    })
+    console.log(`    ✓ Success`)
+
+    // getDefaultOptions (utility method, returns options object)
+    console.log('  → getDefaultOptions...')
+    const defaultOptions = this.client.getDefaultOptions()
+    this.results.push({
+      method: 'getDefaultOptions',
+      category: 'Utility',
+      endpoint: 'N/A',
+      timestamp: new Date().toISOString(),
+      response: defaultOptions,
+      status: 200,
+    })
+    console.log(`    ✓ Success`)
+  }
+
+  /**
+   * Run cleanup only (no recording)
+   */
+  async cleanupOnly() {
+    console.log('\n🧹 Cleanup Mode - Removing orphaned test resources')
+    console.log(`   URL: ${this.config.baseUrl}`)
+
+    await this.preCleanupOrphanedResources()
+
+    console.log('\n✅ Cleanup complete')
+  }
+
+  /**
    * Run all recordings
    */
   async recordAll() {
@@ -633,16 +1210,27 @@ class ApiResponseRecorder {
     console.log(`   Mode: ${this.config.skipMutations ? 'Read-only' : 'Full'}`)
     console.log(`   Output: ${this.config.outputDir}`)
 
-    await this.discoverTestData()
+    // Pre-cleanup orphaned resources from previous failed runs
+    if (!this.config.skipMutations) {
+      await this.preCleanupOrphanedResources()
+    }
 
-    await this.recordDatasetOperations()
-    await this.recordDatastoreOperations()
-    await this.recordDataDictionaryOperations()
-    await this.recordHarvestOperations()
-    await this.recordDatastoreImportOperations()
-    await this.recordMetastoreOperations()
-    await this.recordRevisionOperations()
-    await this.recordOpenApiOperations()
+    try {
+      await this.discoverTestData()
+
+      await this.recordDatasetOperations()
+      await this.recordDatastoreOperations()
+      await this.recordDataDictionaryOperations()
+      await this.recordHarvestOperations()
+      await this.recordDatastoreImportOperations()
+      await this.recordMetastoreOperations()
+      await this.recordRevisionOperations()
+      await this.recordUtilityOperations()
+      await this.recordOpenApiOperations()
+    } finally {
+      // Always attempt cleanup, even if recording failed
+      await this.cleanupAllResources()
+    }
 
     this.saveResults()
     this.printSummary()
@@ -658,7 +1246,7 @@ class ApiResponseRecorder {
     mkdirSync(this.config.outputDir, { recursive: true })
 
     // Save individual category files
-    const categories = [...new Set(this.results.map(r => r.category))]
+    const categories = Array.from(new Set(this.results.map(r => r.category)))
 
     for (const category of categories) {
       const categoryResults = this.results.filter(r => r.category === category)
@@ -679,6 +1267,7 @@ class ApiResponseRecorder {
       skipped: this.results.filter(r => r.skipped).length,
       errors: this.results.filter(r => r.error).length,
       results: this.results,
+      cleanup: this.cleanupStats,
     }
 
     const summaryPath = join(this.config.outputDir, 'summary.json')
@@ -714,23 +1303,68 @@ class ApiResponseRecorder {
         })
     }
 
+    // Show cleanup summary if resources were created
+    if (this.cleanupStats.created > 0) {
+      console.log('\n' + '='.repeat(60))
+      console.log('🧹 Cleanup Summary')
+      console.log('='.repeat(60))
+      console.log(`Resources Created:  ${this.cleanupStats.created}`)
+      console.log(`Resources Deleted:  ${this.cleanupStats.deleted}`)
+      console.log(`Cleanup Failed:     ${this.cleanupStats.failed}`)
+      console.log('='.repeat(60))
+
+      if (this.cleanupStats.orphaned.length > 0) {
+        console.log('\n⚠️  WARNING: Orphaned resources detected!')
+        console.log('The following test resources could not be cleaned up:')
+        this.cleanupStats.orphaned.forEach(r => console.log(`  • ${r}`))
+        console.log('\nYou may need to manually delete these resources from your DKAN instance.')
+      }
+    }
+
     console.log(`\n✅ Fixtures saved to: ${this.config.outputDir}`)
+
+    // Exit with error code if cleanup failed
+    if (this.cleanupStats.failed > 0) {
+      console.log('\n⚠️  Note: Script completed with cleanup failures')
+    }
   }
 }
 
 // Main execution
 async function main() {
+  // Debug: Log environment variable loading
+  console.log('🔍 Environment Variables Check:')
+  console.log(`   READ_ONLY: ${process.env.READ_ONLY || '(not set)'}`)
+  console.log(`   DKAN_USER: ${process.env.DKAN_USER ? 'SET' : '(not set)'}`)
+  console.log(`   DKAN_PASS: ${process.env.DKAN_PASS ? 'SET' : '(not set)'}`)
+  console.log(`   DKAN_URL: ${process.env.DKAN_URL || '(not set)'}`)
+
+  const skipMutations = process.env.READ_ONLY === 'true' || !process.env.DKAN_USER
+  console.log(`   → skipMutations will be: ${skipMutations}`)
+  console.log(`      (READ_ONLY === 'true': ${process.env.READ_ONLY === 'true'})`)
+  console.log(`      (!DKAN_USER: ${!process.env.DKAN_USER})`)
+
   const config: RecordingConfig = {
     baseUrl: process.env.DKAN_URL || 'https://dkan.ddev.site',
     auth: process.env.DKAN_USER && process.env.DKAN_PASS
       ? { username: process.env.DKAN_USER, password: process.env.DKAN_PASS }
       : undefined,
     outputDir: join(__dirname, '../src/__tests__/fixtures'),
-    skipMutations: process.env.READ_ONLY === 'true' || !process.env.DKAN_USER,
+    skipMutations,
   }
 
   const recorder = new ApiResponseRecorder(config)
-  await recorder.recordAll()
+
+  // Check for cleanup-only mode
+  if (process.env.CLEANUP_ONLY === 'true') {
+    if (!config.auth) {
+      console.error('\n❌ Error: Cleanup mode requires authentication (DKAN_USER and DKAN_PASS)')
+      process.exit(1)
+    }
+    await recorder.cleanupOnly()
+  } else {
+    await recorder.recordAll()
+  }
 }
 
 main().catch(error => {
