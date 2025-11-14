@@ -10,7 +10,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { DkanApiClient, DkanApiError } from '../../api/client'
+import { DkanApiClient } from '../../api/client'
+import { DkanApiError } from '../../types'
 
 const mockFetch = vi.fn()
 global.fetch = mockFetch as any
