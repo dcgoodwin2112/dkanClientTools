@@ -251,8 +251,11 @@ describe('DkanApiClient - Edge Cases', () => {
 
       const result = await client.getDataset('incomplete')
 
+      // Verify incomplete data is returned as-is without throwing
       expect(result).toBeDefined()
-      // Should not throw, just return incomplete data
+      expect(result.identifier).toBeUndefined()
+      expect(result.title).toBeUndefined()
+      expect(result.description).toBeUndefined()
     })
 
     it('should handle JSON with unexpected structure', async () => {
