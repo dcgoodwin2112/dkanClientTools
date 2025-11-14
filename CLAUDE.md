@@ -372,9 +372,11 @@ The packages integrate with DKAN's REST APIs. See `research/DKAN_API_RESEARCH.md
 
 ### Authentication
 
-- HTTP Basic Authentication (username/password)
-- Bearer tokens (if configured)
-- Anonymous read access (no auth required for GET requests)
+- **HTTP Basic Authentication** (username/password) - Works with DKAN 2.x out-of-the-box
+- **Bearer tokens** - Requires additional Drupal modules (NOT supported by default in DKAN 2.x)
+- **Anonymous read access** - No auth required for GET requests to public endpoints
+
+**Note**: For standard DKAN 2.x installations, use HTTP Basic Authentication. Token authentication requires installing additional modules like Simple OAuth.
 
 ## Architecture Patterns
 
