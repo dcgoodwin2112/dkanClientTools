@@ -120,8 +120,6 @@ export interface DatasetQueryOptions {
   /**
    * Field(s) to sort by. Supports both single field and multi-field sorting.
    *
-   * Phase 1 - OpenAPI alignment: Added array support for multi-field sorting
-   *
    * @example
    * ```typescript
    * // Single field
@@ -136,8 +134,6 @@ export interface DatasetQueryOptions {
   /**
    * Sort order(s). Supports both single order and multiple orders for multi-field sorting.
    * When using multiple sort fields, provide corresponding sort orders.
-   *
-   * Phase 1 - OpenAPI alignment: Added array support for multi-field sorting
    *
    * @example
    * ```typescript
@@ -164,11 +160,11 @@ export interface DatastoreQueryOptions {
   joins?: DatastoreJoin[]
   expression?: DatastoreExpression
 
-  // Multi-resource query support (Phase 1 - OpenAPI alignment)
+  // Multi-resource query support
   resources?: Array<{ id: string; alias?: string }>
   groupings?: Array<{ property: string; resource?: string }>
 
-  // Response control flags (Phase 1 - OpenAPI alignment)
+  // Response control flags
   count?: boolean          // Include count in response (default: true)
   results?: boolean        // Include results in response (default: true)
   schema?: boolean         // Include schema in response (default: true)
@@ -287,8 +283,6 @@ export interface DataDictionaryListResponse {
 
 /**
  * API Error types
- *
- * Phase 2 - OpenAPI alignment: Added timestamp and data properties
  */
 export class DkanApiError extends Error {
   constructor(
