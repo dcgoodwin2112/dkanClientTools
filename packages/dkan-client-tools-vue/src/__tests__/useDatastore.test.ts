@@ -8,7 +8,7 @@ import { defineComponent, h, ref } from 'vue'
 import { QueryClient } from '@tanstack/vue-query'
 import { DkanClient } from '@dkan-client-tools/core'
 import { DkanClientPlugin } from '../plugin'
-import { useDatastore } from '../useDatastore'
+import { useDatastore, useQueryDatastoreMulti } from '../useDatastore'
 
 describe('useDatastore', () => {
   let mockClient: DkanClient
@@ -360,5 +360,111 @@ describe('useDatastore', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toBe('No data found')
     })
+  })
+})
+
+describe('useQueryDatastoreMulti', () => {
+  let mockClient: DkanClient
+
+  beforeEach(() => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: 0 },
+      },
+    })
+
+    mockClient = new DkanClient({
+      baseUrl: 'https://test.example.com',
+      defaultOptions: { retry: 0 },
+      queryClient,
+    })
+  })
+
+  it('should query multiple datastores successfully', async () => {
+    const mockResponse = {
+      results: [
+        { id: 1, name: 'Row 1', resource_id: 'resource-1' },
+        { id: 2, name: 'Row 2', resource_id: 'resource-2' },
+      ],
+      count: 2,
+    }
+    vi.spyOn(mockClient, 'queryDatastoreMulti').mockResolvedValue(mockResponse)
+    const queryOptions = {
+      resources: [
+        { id: 'resource-1', alias: 't1' },
+        { id: 'resource-2', alias: 't2' },
+      ],
+    }
+    const wrapper = mount(defineComponent({
+      setup() {
+        const { data, isLoading } = useQueryDatastoreMulti({ queryOptions: ref(queryOptions) })
+        return () => h('div', isLoading.value ? 'Loading' : `Count: ${data.value?.count || 0}`)
+      },
+    }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+    await vi.waitFor(() => expect(wrapper.text()).toBe('Count: 2'))
+  })
+
+  it('should handle loading state', () => {
+    vi.spyOn(mockClient, 'queryDatastoreMulti').mockImplementation(() => new Promise(() => {}))
+    const wrapper = mount(defineComponent({
+      setup() {
+        const { data, isLoading } = useQueryDatastoreMulti({ queryOptions: ref({ resources: [] }) })
+        return () => h('div', `Loading: ${isLoading.value} | Data: ${data.value ? 'yes' : 'no'}`)
+      },
+    }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+    expect(wrapper.text()).toBe('Loading: true | Data: no')
+  })
+
+  it('should handle error state', async () => {
+    vi.spyOn(mockClient, 'queryDatastoreMulti').mockRejectedValue(new Error('Multi-query failed'))
+    const wrapper = mount(defineComponent({
+      setup() {
+        const { error, isLoading } = useQueryDatastoreMulti({ queryOptions: ref({ resources: [] }) })
+        return () => h('div', isLoading.value ? 'Loading' : (error.value ? `Error: ${error.value.message}` : 'Success'))
+      },
+    }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+    await vi.waitFor(() => expect(wrapper.text()).toBe('Error: Multi-query failed'))
+  })
+
+  it('should handle enabled option', () => {
+    const querySpy = vi.spyOn(mockClient, 'queryDatastoreMulti').mockResolvedValue({ results: [], count: 0 })
+    const wrapper = mount(defineComponent({
+      setup() {
+        const { data } = useQueryDatastoreMulti({ queryOptions: ref({ resources: [] }), enabled: ref(false) })
+        return () => h('div', `Data: ${data.value ? 'yes' : 'no'}`)
+      },
+    }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+    expect(wrapper.text()).toBe('Data: no')
+    expect(querySpy).not.toHaveBeenCalled()
+  })
+
+  it('should use POST method by default', async () => {
+    const querySpy = vi.spyOn(mockClient, 'queryDatastoreMulti').mockResolvedValue({ results: [], count: 0 })
+    const queryOptions = { resources: [{ id: 'resource-1', alias: 't1' }] }
+    mount(defineComponent({
+      setup() {
+        useQueryDatastoreMulti({ queryOptions: ref(queryOptions) })
+        return () => h('div', 'Test')
+      },
+    }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+    await vi.waitFor(() => expect(querySpy).toHaveBeenCalledWith(queryOptions, undefined))
+  })
+
+  it('should support GET method option', async () => {
+    const querySpy = vi.spyOn(mockClient, 'queryDatastoreMulti').mockResolvedValue({ results: [], count: 0 })
+    const queryOptions = { resources: [{ id: 'resource-1', alias: 't1' }] }
+    mount(defineComponent({
+      setup() {
+        useQueryDatastoreMulti({ queryOptions: ref(queryOptions), method: ref('GET') })
+        return () => h('div', 'Test')
+      },
+    }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+    await vi.waitFor(() => expect(querySpy).toHaveBeenCalledWith(queryOptions, 'GET'))
   })
 })

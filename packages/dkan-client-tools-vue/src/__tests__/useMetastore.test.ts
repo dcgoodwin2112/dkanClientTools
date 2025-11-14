@@ -8,7 +8,7 @@ import { defineComponent, h, ref } from 'vue'
 import { QueryClient } from '@tanstack/vue-query' // Import from vue-query, not query-core!
 import { DkanClient } from '@dkan-client-tools/core'
 import { DkanClientPlugin } from '../plugin'
-import { useAllDatasets, useSchemas, useSchemaItems, useDatasetFacets } from '../useMetastore'
+import { useAllDatasets, useSchemas, useSchema, useSchemaItems, useDatasetFacets } from '../useMetastore'
 
 describe('useMetastore', () => {
   let mockClient: DkanClient
@@ -61,6 +61,105 @@ describe('useMetastore', () => {
       }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
 
       await vi.waitFor(() => expect(wrapper.text()).toBe('Count: 2'))
+    })
+  })
+
+  describe('useSchema', () => {
+    it('should fetch schema successfully', async () => {
+      const mockSchema = {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        title: 'Dataset',
+        description: 'DCAT-US Dataset Schema',
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Dataset title' },
+          description: { type: 'string', description: 'Dataset description' },
+          identifier: { type: 'string', description: 'Unique identifier' },
+          accessLevel: { type: 'string', enum: ['public', 'restricted', 'non-public'] },
+        },
+        required: ['title', 'description', 'identifier', 'accessLevel'],
+      }
+      vi.spyOn(mockClient, 'getSchema').mockResolvedValue(mockSchema)
+      const wrapper = mount(defineComponent({
+        setup() {
+          const { data: schema, isLoading } = useSchema({ schemaId: ref('dataset') })
+          return () => h('div', isLoading.value ? 'Loading' : `Title: ${schema.value?.title} | Properties: ${Object.keys(schema.value?.properties || {}).length} | Required: ${schema.value?.required?.length || 0}`)
+        },
+      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+      await vi.waitFor(() => expect(wrapper.text()).toBe('Title: Dataset | Properties: 4 | Required: 4'))
+    })
+
+    it('should handle loading state', () => {
+      vi.spyOn(mockClient, 'getSchema').mockImplementation(() => new Promise(() => {}))
+      const wrapper = mount(defineComponent({
+        setup() {
+          const { data, isLoading } = useSchema({ schemaId: ref('dataset') })
+          return () => h('div', `Loading: ${isLoading.value} | Data: ${data.value ? 'yes' : 'no'}`)
+        },
+      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+      expect(wrapper.text()).toBe('Loading: true | Data: no')
+    })
+
+    it('should handle error state', async () => {
+      vi.spyOn(mockClient, 'getSchema').mockRejectedValue(new Error('Schema not found'))
+      const wrapper = mount(defineComponent({
+        setup() {
+          const { error, isLoading } = useSchema({ schemaId: ref('nonexistent') })
+          return () => h('div', isLoading.value ? 'Loading' : (error.value ? `Error: ${error.value.message}` : 'Success'))
+        },
+      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+      await vi.waitFor(() => expect(wrapper.text()).toBe('Error: Schema not found'))
+    })
+
+    it('should handle enabled option', () => {
+      const schemaSpy = vi.spyOn(mockClient, 'getSchema').mockResolvedValue({ type: 'object', properties: {} })
+      const wrapper = mount(defineComponent({
+        setup() {
+          const { data } = useSchema({ schemaId: ref('dataset'), enabled: ref(false) })
+          return () => h('div', `Data: ${data.value ? 'yes' : 'no'}`)
+        },
+      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+      expect(wrapper.text()).toBe('Data: no')
+      expect(schemaSpy).not.toHaveBeenCalled()
+    })
+
+    it('should not fetch when schemaId is empty', () => {
+      const schemaSpy = vi.spyOn(mockClient, 'getSchema').mockResolvedValue({ type: 'object', properties: {} })
+      const wrapper = mount(defineComponent({
+        setup() {
+          const { data } = useSchema({ schemaId: ref('') })
+          return () => h('div', `Data: ${data.value ? 'yes' : 'no'}`)
+        },
+      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+      expect(wrapper.text()).toBe('Data: no')
+      expect(schemaSpy).not.toHaveBeenCalled()
+    })
+
+    it('should display schema properties', async () => {
+      const mockSchema = {
+        title: 'Data Dictionary',
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          fields: { type: 'array' },
+          indexes: { type: 'object' },
+        },
+        required: ['title', 'fields'],
+      }
+      vi.spyOn(mockClient, 'getSchema').mockResolvedValue(mockSchema)
+      const wrapper = mount(defineComponent({
+        setup() {
+          const { data: schema } = useSchema({ schemaId: ref('data-dictionary') })
+          return () => h('div', schema.value ? `Schema: ${schema.value.title} | Props: ${Object.keys(schema.value.properties || {}).join(', ')}` : 'Loading')
+        },
+      }), { global: { plugins: [[DkanClientPlugin, { client: mockClient }]] } })
+
+      await vi.waitFor(() => expect(wrapper.text()).toBe('Schema: Data Dictionary | Props: title, fields, indexes'))
     })
   })
 

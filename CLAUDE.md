@@ -8,7 +8,7 @@ This is the dkanClientTools repository - a monorepo of packages containing tools
 
 The repository also includes a local DKAN development environment for testing and development.
 
-**Current Status**: Active Development - Comprehensive DKAN API coverage with 40 React hooks, 37 Vue composables, and 300+ tests
+**Current Status**: Active Development - Comprehensive DKAN API coverage with 40 React hooks, 35 Vue composables, and 300+ tests
 
 ## Project Structure
 
@@ -154,17 +154,16 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - Vue 3 Composition API with `<script setup>` support
 - Full TypeScript support with reactive refs
 
-**Composable Categories** (37 total):
+**Composable Categories** (35 total):
 - **Dataset Query Composables** (3): useDataset, useDatasetSearch, useAllDatasets
 - **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
-- **Datastore Composables** (5): useDatastore, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
+- **Datastore Composables** (6): useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
 - **Data Dictionary Query Composables** (4): useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
 - **Data Dictionary Mutations** (3): useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
 - **Harvest Composables** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
 - **Datastore Import Composables** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
-- **Metastore Composables** (3): useSchemas, useSchemaItems, useDatasetFacets
+- **Metastore Composables** (4): useSchemas, useSchema, useSchemaItems, useDatasetFacets
 - **Revision/Moderation Composables** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
-- **CKAN Compatibility Composables** (5): useCkanPackageSearch, useCkanDatastoreSearch, useCkanDatastoreSearchSql, useCkanResourceShow, useCkanCurrentPackageListWithResources
 
 **Key Files**:
 - `src/plugin.ts` - Vue plugin and client injection
@@ -178,7 +177,6 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - `src/useMetastore.ts` - Metastore composables
 - `src/useRevisions.ts` - Revision/moderation composables
 - `src/useQueryDownload.ts` - Download composables
-- `src/useCkanApi.ts` - CKAN compatibility composables
 - `src/__tests__/` - Comprehensive test suite (91 tests)
 
 **Test Coverage**:

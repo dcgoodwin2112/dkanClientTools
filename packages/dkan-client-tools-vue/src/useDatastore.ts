@@ -3,7 +3,7 @@
  */
 
 import { useQuery } from '@tanstack/vue-query'
-import { type MaybeRefOrGetter, toValue } from 'vue'
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import type { DatastoreQueryOptions } from '@dkan-client-tools/core'
 import { useDkanClient } from './plugin'
 
@@ -11,6 +11,14 @@ export interface UseDatastoreOptions {
   datasetId: MaybeRefOrGetter<string>
   index?: MaybeRefOrGetter<number>
   queryOptions?: MaybeRefOrGetter<DatastoreQueryOptions | undefined>
+  enabled?: MaybeRefOrGetter<boolean>
+  staleTime?: number
+  gcTime?: number
+}
+
+export interface UseQueryDatastoreMultiOptions {
+  queryOptions: MaybeRefOrGetter<DatastoreQueryOptions>
+  method?: MaybeRefOrGetter<'GET' | 'POST'>
   enabled?: MaybeRefOrGetter<boolean>
   staleTime?: number
   gcTime?: number
@@ -385,5 +393,109 @@ export function useDatastore(options: UseDatastoreOptions) {
     enabled: () => toValue(options.enabled) ?? true,
     staleTime: options.staleTime,
     gcTime: options.gcTime,
+  })
+}
+
+/**
+ * Queries multiple datastore resources simultaneously with advanced features like JOINs.
+ *
+ * This composable provides advanced datastore querying capabilities for working with multiple resources
+ * at once. Unlike {@link useDatastore} which queries a single dataset distribution, this composable
+ * allows you to query multiple datastore resources in a single request, JOIN resources together using
+ * SQL-like conditions, and perform cross-resource filtering and aggregation. Fully reactive with
+ * Vue's MaybeRefOrGetter pattern.
+ *
+ * **Advanced Features**:
+ * - Query multiple datastore resources in a single request
+ * - JOIN resources together using SQL-like conditions
+ * - Use resource aliases (t1, t2, etc.) for clearer queries
+ * - Perform cross-resource filtering and aggregation
+ * - Group results across multiple resources
+ * - Choose GET or POST method for optimal performance
+ *
+ * **Technical Notes**:
+ * - Uses the generic `/api/1/datastore/query` endpoint (not dataset/index-specific)
+ * - Supports both GET and POST methods (POST recommended for complex queries)
+ * - All resource IDs must refer to imported datastores
+ *
+ * Use this composable when you need to:
+ * - Combine data from multiple related datasets
+ * - Perform complex analytical queries
+ * - Build reports that span multiple data sources
+ * - Create data visualizations from joined datasets
+ *
+ * @param options - Configuration including query options and HTTP method
+ *
+ * @returns TanStack Vue Query result object with combined query results
+ *
+ * @example
+ * Basic multi-resource query with JOIN:
+ * ```vue
+ * <script setup lang="ts">
+ * import { ref } from 'vue'
+ * import { useQueryDatastoreMulti } from '@dkan-client-tools/vue'
+ *
+ * const queryOptions = ref({
+ *   resources: [
+ *     { id: 'employees-dist-id', alias: 'emp' },
+ *     { id: 'departments-dist-id', alias: 'dept' }
+ *   ],
+ *   joins: [{
+ *     resource: 'dept',
+ *     condition: {
+ *       property: 'emp.department_id',
+ *       value: 'dept.id',
+ *       operator: '='
+ *     }
+ *   }],
+ *   properties: ['emp.name', 'emp.salary', 'dept.department_name'],
+ *   sorts: [{ property: 'emp.salary', order: 'desc' }],
+ *   limit: 50
+ * })
+ *
+ * const { data, isLoading } = useQueryDatastoreMulti({
+ *   queryOptions,
+ * })
+ * </script>
+ *
+ * <template>
+ *   <div v-if="isLoading">Loading joined data...</div>
+ *   <table v-else-if="data">
+ *     <thead>
+ *       <tr>
+ *         <th>Employee</th>
+ *         <th>Department</th>
+ *         <th>Salary</th>
+ *       </tr>
+ *     </thead>
+ *     <tbody>
+ *       <tr v-for="(row, i) in data.results" :key="i">
+ *         <td>{{ row['emp.name'] }}</td>
+ *         <td>{{ row['dept.department_name'] }}</td>
+ *         <td>${{ row['emp.salary'] }}</td>
+ *       </tr>
+ *     </tbody>
+ *   </table>
+ * </template>
+ * ```
+ *
+ * @see {@link useDatastore} for simpler single-resource queries
+ * @see {@link useSqlQuery} for raw SQL queries
+ * @see https://dkan.readthedocs.io/en/latest/apis/datastore.html
+ */
+export function useQueryDatastoreMulti(options: UseQueryDatastoreMultiOptions) {
+  const client = useDkanClient()
+
+  return useQuery({
+    queryKey: computed(() => [
+      'datastore',
+      'multi',
+      toValue(options.queryOptions),
+      toValue(options.method) || 'POST',
+    ] as const),
+    queryFn: () => client.queryDatastoreMulti(toValue(options.queryOptions), toValue(options.method)),
+    enabled: () => toValue(options.enabled) ?? true,
+    staleTime: options.staleTime ?? 5 * 60 * 1000, // Default 5 minutes
+    gcTime: options.gcTime ?? 5 * 60 * 1000,
   })
 }

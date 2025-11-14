@@ -24,8 +24,8 @@ export type { UseDatasetOptions } from './useDataset'
 export { useDatasetSearch } from './useDatasetSearch'
 export type { UseDatasetSearchOptions } from './useDatasetSearch'
 
-export { useDatastore } from './useDatastore'
-export type { UseDatastoreOptions } from './useDatastore'
+export { useDatastore, useQueryDatastoreMulti } from './useDatastore'
+export type { UseDatastoreOptions, UseQueryDatastoreMultiOptions } from './useDatastore'
 
 export {
   useDataDictionary,
@@ -41,12 +41,14 @@ export type {
 export {
   useAllDatasets,
   useSchemas,
+  useSchema,
   useSchemaItems,
   useDatasetFacets,
 } from './useMetastore'
 export type {
   UseAllDatasetsOptions,
   UseSchemasOptions,
+  UseSchemaOptions,
   UseSchemaItemsOptions,
   UseFacetsOptions,
 } from './useMetastore'
@@ -83,12 +85,14 @@ export type {
 export {
   useDatastoreImports,
   useDatastoreImport,
+  useDatastoreStatistics,
   useTriggerDatastoreImport,
   useDeleteDatastore,
 } from './useDatastoreImports'
 export type {
   UseDatastoreImportsOptions,
   UseDatastoreImportOptions,
+  UseDatastoreStatisticsOptions,
 } from './useDatastoreImports'
 
 // Revision/Moderation composables

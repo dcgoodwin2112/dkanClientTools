@@ -370,13 +370,6 @@ The `@dkan-client-tools/vue` package provides 40+ composables for working with D
   - `useRevisions(datasetId)` - List dataset revisions
   - `useRevision(datasetId, revisionId)` - Get revision details
 
-- **CKAN Compatibility**
-  - `useCkanPackageSearch(query)` - CKAN-compatible package search
-  - `useCkanDatastoreSearch(params)` - CKAN-compatible datastore search
-  - `useCkanDatastoreSearchSql(sql)` - CKAN SQL search
-  - `useCkanResourceShow(resourceId)` - Show resource details
-  - `useCkanCurrentPackageListWithResources()` - List packages with resources
-
 ### Mutation Composables (Write Operations)
 
 - **Dataset Mutations**
