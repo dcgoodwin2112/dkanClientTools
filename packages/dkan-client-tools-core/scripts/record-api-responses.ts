@@ -25,7 +25,7 @@ import { config } from 'dotenv'
 import { writeFileSync, mkdirSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'node:crypto'
 import { DkanApiClient } from '../src/api/client'
 import type {
   DkanDataset,

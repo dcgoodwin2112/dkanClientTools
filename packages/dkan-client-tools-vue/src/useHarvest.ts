@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
+import { type MaybeRefOrGetter, toValue } from 'vue'
 import { useDkanClient } from './plugin'
 import type {
   HarvestPlan,
