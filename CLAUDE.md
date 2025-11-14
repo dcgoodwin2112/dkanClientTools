@@ -8,7 +8,7 @@ This is the dkanClientTools repository - a monorepo of packages containing tools
 
 The repository also includes a local DKAN development environment for testing and development.
 
-**Current Status**: Active Development - Comprehensive DKAN API coverage with 38 React hooks, 39 Vue composables, and 500+ tests
+**Current Status**: Active Development - Comprehensive DKAN API coverage with full React hooks and Vue composables
 
 ## Project Structure
 
@@ -54,7 +54,7 @@ Framework-agnostic core library for DKAN client tools. Provides the DkanClient w
 
 **Architecture** (TanStack Query-based):
 - `DkanClient` - Wraps TanStack Query's QueryClient with DKAN configuration
-- `DkanApiClient` - HTTP client for all DKAN REST APIs (38 methods)
+- `DkanApiClient` - HTTP client for all DKAN REST APIs
 - TypeScript types for DCAT-US schema and API responses
 - Support for token-based and basic authentication
 
@@ -69,15 +69,15 @@ Framework-agnostic core library for DKAN client tools. Provides the DkanClient w
   - `metastore.ts` - Metastore revision types
 - `src/index.ts` - Main exports
 
-**API Coverage** (38 methods across 7 categories):
-- Dataset operations (7 methods): CRUD, search, list
-- Datastore operations (5 methods): query, download, SQL
-- Data dictionary operations (6 methods): CRUD, schema
-- Harvest operations (6 methods): plans, runs
-- Metastore operations (3 methods): schemas, facets, schema definition
-- Datastore import operations (4 methods): import, delete, statistics
-- Revision/moderation operations (4 methods): revisions, workflow states
-- Utility operations (3 methods): baseUrl getter, defaults getter, OpenAPI docs
+**API Coverage**:
+- Dataset operations: CRUD, search, list
+- Datastore operations: query, download, SQL
+- Data dictionary operations: CRUD, schema
+- Harvest operations: plans, runs
+- Metastore operations: schemas, facets, schema definition
+- Datastore import operations: import, delete, statistics
+- Revision/moderation operations: revisions, workflow states
+- Utility operations: baseUrl getter, defaults getter, OpenAPI docs
 
 **Note**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the API endpoints return 404.
 
@@ -94,23 +94,23 @@ Framework-agnostic core library for DKAN client tools. Provides the DkanClient w
 React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and TanStack React Query.
 
 **Key Features**:
-- 37 idiomatic React hooks covering all DKAN APIs
+- Comprehensive React hooks covering all DKAN APIs
 - Automatic refetching and background updates
 - Efficient caching and deduplication via TanStack Query
 - First-class mutation support for create/update/delete operations
 - React 18+ support
 - Full TypeScript support
 
-**Hook Categories** (40 total):
-- **Dataset Query Hooks** (3): useDataset, useDatasetSearch, useAllDatasets
-- **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
-- **Datastore Hooks** (6): useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
-- **Data Dictionary Query Hooks** (4): useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
-- **Data Dictionary Mutations** (3): useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
-- **Harvest Hooks** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
-- **Datastore Import Hooks** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
-- **Metastore Hooks** (4): useSchemas, useSchema, useSchemaItems, useDatasetFacets
-- **Revision/Moderation Hooks** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
+**Hook Categories**:
+- **Dataset Query Hooks**: useDataset, useDatasetSearch, useAllDatasets
+- **Dataset Mutations**: useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
+- **Datastore Hooks**: useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
+- **Data Dictionary Query Hooks**: useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
+- **Data Dictionary Mutations**: useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
+- **Harvest Hooks**: useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
+- **Datastore Import Hooks**: useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
+- **Metastore Hooks**: useSchemas, useSchema, useSchemaItems, useDatasetFacets
+- **Revision/Moderation Hooks**: useRevisions, useRevision, useCreateRevision, useChangeDatasetState
 
 **Key Files**:
 - `src/DkanClientProvider.tsx` - React Context Provider
@@ -125,10 +125,10 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 - `src/useMetastore.ts` - Metastore hooks
 - `src/useRevisions.ts` - Revision/moderation hooks
 - `src/useQueryDownload.ts` - Download hooks
-- `src/__tests__/` - Comprehensive test suite (181 tests)
+- `src/__tests__/` - Comprehensive test suite
 
 **Test Coverage**:
-- 181 comprehensive tests across 15 test files
+- Comprehensive test suite covering all hooks
 - All hooks tested for loading states, error handling, data fetching, mutations, and callbacks
 - Uses Vitest + React Testing Library
 - Pattern: Use actual DkanClient instances with mocked methods (not mock objects)
@@ -145,23 +145,23 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core` and TanStack Vue Query.
 
 **Key Features**:
-- 37 idiomatic Vue composables covering all DKAN APIs
+- Comprehensive Vue composables covering all DKAN APIs
 - Automatic refetching and background updates
 - Efficient caching and deduplication via TanStack Query
 - First-class mutation support for create/update/delete operations
 - Vue 3 Composition API with `<script setup>` support
 - Full TypeScript support with reactive refs
 
-**Composable Categories** (35 total):
-- **Dataset Query Composables** (3): useDataset, useDatasetSearch, useAllDatasets
-- **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
-- **Datastore Composables** (6): useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
-- **Data Dictionary Query Composables** (4): useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
-- **Data Dictionary Mutations** (3): useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
-- **Harvest Composables** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
-- **Datastore Import Composables** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
-- **Metastore Composables** (4): useSchemas, useSchema, useSchemaItems, useDatasetFacets
-- **Revision/Moderation Composables** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
+**Composable Categories**:
+- **Dataset Query Composables**: useDataset, useDatasetSearch, useAllDatasets
+- **Dataset Mutations**: useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
+- **Datastore Composables**: useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
+- **Data Dictionary Query Composables**: useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
+- **Data Dictionary Mutations**: useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
+- **Harvest Composables**: useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
+- **Datastore Import Composables**: useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
+- **Metastore Composables**: useSchemas, useSchema, useSchemaItems, useDatasetFacets
+- **Revision/Moderation Composables**: useRevisions, useRevision, useCreateRevision, useChangeDatasetState
 
 **Key Files**:
 - `src/plugin.ts` - Vue plugin and client injection
@@ -175,10 +175,10 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - `src/useMetastore.ts` - Metastore composables
 - `src/useRevisions.ts` - Revision/moderation composables
 - `src/useQueryDownload.ts` - Download composables
-- `src/__tests__/` - Comprehensive test suite (100 tests)
+- `src/__tests__/` - Comprehensive test suite
 
 **Test Coverage**:
-- 100 comprehensive tests across 13 test files
+- Comprehensive test suite covering all composables
 - All composables tested for loading states, error handling, data fetching, mutations, and callbacks
 - Uses Vitest + Vue Test Utils
 - Pattern: Use actual DkanClient instances with mocked methods (not mock objects)
@@ -247,7 +247,7 @@ npm run dev
 ### Testing
 
 ```bash
-# Run tests for all packages (300+ tests)
+# Run tests for all packages
 npm test
 
 # Run tests in watch mode
@@ -304,32 +304,31 @@ All React hooks and Vue composables have comprehensive tests covering:
 - `__tests__/useDataset.test.tsx` - Dataset query hooks
 - `__tests__/useDatasetSearch.test.tsx` - Search hooks
 - `__tests__/useDatastore.test.tsx` - Datastore query hooks
-- `__tests__/useSqlQuery.test.tsx` - SQL query hooks (12 tests)
+- `__tests__/useSqlQuery.test.tsx` - SQL query hooks
 - `__tests__/useDataDictionary.test.tsx` - Data dictionary hooks
-- `__tests__/useDatastoreImports.test.tsx` - Datastore import hooks (25 tests)
-- `__tests__/useHarvest.test.tsx` - Harvest operation hooks (11 tests)
-- `__tests__/useMetastore.test.tsx` - Metastore hooks (10 tests)
-- `__tests__/useQueryDownload.test.tsx` - Download hooks (8 tests)
-- `__tests__/useRevisions.test.tsx` - Revision/moderation hooks (10 tests)
-- Plus tests for mutations and other operations (181 tests total)
+- `__tests__/useDatastoreImports.test.tsx` - Datastore import hooks
+- `__tests__/useHarvest.test.tsx` - Harvest operation hooks
+- `__tests__/useMetastore.test.tsx` - Metastore hooks
+- `__tests__/useQueryDownload.test.tsx` - Download hooks
+- `__tests__/useRevisions.test.tsx` - Revision/moderation hooks
+- Plus tests for mutations and other operations
 
 **Note**: Dataset Properties hooks (useDatasetProperties, usePropertyValues, useAllPropertiesWithValues) exist in the React package but call API methods that return 404 in DKAN 2.x.
 
 **Test File Organization (Vue)**:
 - `__tests__/plugin.test.ts` - Plugin injection tests
-- `__tests__/useDataset.test.ts` - Dataset query composables (9 tests)
-- `__tests__/useDatasetSearch.test.ts` - Search composables (9 tests)
-- `__tests__/useDatasetMutations.test.ts` - Dataset mutations (11 tests)
-- `__tests__/useDatastore.test.ts` - Datastore query composables (10 tests)
-- `__tests__/useSqlQuery.test.ts` - SQL query composables (12 tests)
-- `__tests__/useDataDictionary.test.ts` - Data dictionary composables (6 tests)
-- `__tests__/useDataDictionaryMutations.test.ts` - Dictionary mutations (4 tests)
-- `__tests__/useHarvest.test.ts` - Harvest composables (4 tests)
-- `__tests__/useDatastoreImports.test.ts` - Import composables (5 tests)
-- `__tests__/useMetastore.test.ts` - Metastore composables (4 tests)
-- `__tests__/useRevisions.test.ts` - Revision composables (4 tests)
-- `__tests__/useQueryDownload.test.ts` - Download composables (3 tests)
-- Total: 100 tests
+- `__tests__/useDataset.test.ts` - Dataset query composables
+- `__tests__/useDatasetSearch.test.ts` - Search composables
+- `__tests__/useDatasetMutations.test.ts` - Dataset mutations
+- `__tests__/useDatastore.test.ts` - Datastore query composables
+- `__tests__/useSqlQuery.test.ts` - SQL query composables
+- `__tests__/useDataDictionary.test.ts` - Data dictionary composables
+- `__tests__/useDataDictionaryMutations.test.ts` - Dictionary mutations
+- `__tests__/useHarvest.test.ts` - Harvest composables
+- `__tests__/useDatastoreImports.test.ts` - Import composables
+- `__tests__/useMetastore.test.ts` - Metastore composables
+- `__tests__/useRevisions.test.ts` - Revision composables
+- `__tests__/useQueryDownload.test.ts` - Download composables
 
 **Note**: Dataset Properties composables (useDatasetProperties, usePropertyValues, useAllPropertiesWithValues) exist in the Vue package but call API methods that return 404 in DKAN 2.x.
 
@@ -564,7 +563,7 @@ npm run build --workspaces
 - **Type definitions** are generated automatically by tsup
 - **Source maps** are included for debugging
 - **Tree-shaking** is supported via proper exports configuration
-- **All 37 hooks/composables** have comprehensive test coverage (300+ tests total)
+- **All hooks/composables** have comprehensive test coverage
 - **TanStack Query** handles all caching, deduplication, and background refetching
 - **Vue composables** use MaybeRefOrGetter types for maximum flexibility with reactive parameters
 
@@ -634,7 +633,7 @@ Comprehensive user documentation is available in the `/docs` directory.
 - **[React Standalone App Guide](docs/REACT_STANDALONE_APP.md)** - Complete guide for building React apps with DKAN Client Tools
   - Setting up Vite + React + TypeScript project
   - DkanClientProvider configuration
-  - Using all 37 React hooks
+  - Using React hooks for all DKAN APIs
   - Authentication, CORS, and proxy setup
   - Testing with Vitest
   - Performance optimization techniques
@@ -643,7 +642,7 @@ Comprehensive user documentation is available in the `/docs` directory.
 - **[Vue Standalone App Guide](docs/VUE_STANDALONE_APP.md)** - Complete guide for building Vue 3 apps with DKAN Client Tools
   - Setting up Vite + Vue + TypeScript project
   - DkanClientPlugin configuration
-  - Using all 37 Vue composables
+  - Using Vue composables for all DKAN APIs
   - Reactive parameters with MaybeRefOrGetter
   - Authentication, CORS, and proxy setup
   - Testing with Vitest
@@ -670,11 +669,11 @@ The `/dkan` directory contains a fully configured Drupal 11 site with DKAN insta
 
 ### Installed Components
 
-- **Drupal**: 11.2.7
-- **DKAN**: 2.21.2
-- **Drush**: 13.6.2
+- **Drupal**: 11.x
+- **DKAN**: 2.x
+- **Drush**: Latest
 - **PHP**: 8.3
-- **Database**: MariaDB 10.11
+- **Database**: MariaDB
 - **Web Server**: nginx-fpm
 
 ### DKAN Modules Enabled
@@ -698,7 +697,7 @@ Supporting modules:
 
 ### Sample Data
 
-- **49 datasets** imported via sample content harvest
+- Sample datasets imported via sample content harvest
 - Sample harvest plan: `sample_content`
 
 ### Directory Structure

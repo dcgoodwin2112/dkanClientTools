@@ -64,7 +64,7 @@ Working examples are available in the repository:
 
 All packages provide:
 
-- **40+ hooks/composables** covering all DKAN REST APIs
+- **Comprehensive hooks/composables** covering all DKAN REST APIs
 - **Full TypeScript support** with DCAT-US schema types
 - **Smart caching** via TanStack Query
 - **Automatic refetching** and background updates

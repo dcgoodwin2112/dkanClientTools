@@ -4,7 +4,7 @@ This guide walks through creating a standalone Vue 3 application that uses the `
 
 ## Overview
 
-The `@dkan-client-tools/vue` package provides 40+ Vue composables for working with DKAN APIs, built on top of TanStack Vue Query for robust data fetching, caching, and state management.
+The `@dkan-client-tools/vue` package provides comprehensive Vue composables for working with DKAN APIs, built on top of TanStack Vue Query for robust data fetching, caching, and state management.
 
 ## Prerequisites
 
@@ -323,77 +323,9 @@ app.use(DkanClientPlugin, {
 
 ## Available Composables
 
-The `@dkan-client-tools/vue` package provides 40+ composables for working with DKAN:
+The package provides comprehensive composables for all DKAN APIs, including datasets, datastore, data dictionaries, harvest operations, metastore, revisions, and more. Each composable returns reactive refs and follows TanStack Query patterns.
 
-### Query Composables (Read Operations)
-
-- **Dataset Operations**
-  - `useDataset(identifier)` - Fetch a single dataset by ID
-  - `useDatasetSearch(options)` - Search datasets with filters
-  - `useAllDatasets()` - Fetch all datasets
-
-- **Datastore Operations**
-  - `useDatastore(params)` - Query datastore data
-  - `useSqlQuery(params)` - Execute SQL queries
-  - `useExecuteSqlQuery(params)` - Execute SQL with different format
-  - `useDownloadQuery(params)` - Download query results
-  - `useDownloadQueryByDistribution(params)` - Download by distribution ID
-
-- **Data Dictionary Operations**
-  - `useDataDictionary(params)` - Fetch data dictionary
-  - `useDataDictionaryList(datasetId)` - List data dictionaries
-  - `useDataDictionaryFromUrl(url)` - Fetch from external URL
-  - `useDatastoreSchema(params)` - Get datastore schema
-
-- **Harvest Operations**
-  - `useHarvestPlans()` - List harvest plans
-  - `useHarvestPlan(planId)` - Get harvest plan details
-  - `useHarvestRuns(planId)` - List harvest runs for a plan
-  - `useHarvestRun(runId)` - Get harvest run details
-
-- **Datastore Import Operations**
-  - `useDatastoreImports()` - List datastore imports
-  - `useDatastoreImport(datasetId, index)` - Get import details
-  - `useDatastoreStatistics(datasetId, index)` - Get import statistics
-
-- **Metastore Operations**
-  - `useSchemas()` - List metastore schemas
-  - `useSchemaItems(schemaId)` - Get items for a schema
-  - `useDatasetFacets()` - Get dataset facets for filtering
-
-- **Dataset Properties**
-  - `useDatasetProperties()` - List all properties
-  - `usePropertyValues(propertyId)` - Get values for a property
-  - `useAllPropertiesWithValues()` - Get all properties with their values
-
-- **Revision/Moderation**
-  - `useRevisions(datasetId)` - List dataset revisions
-  - `useRevision(datasetId, revisionId)` - Get revision details
-
-### Mutation Composables (Write Operations)
-
-- **Dataset Mutations**
-  - `useCreateDataset()` - Create a new dataset
-  - `useUpdateDataset()` - Update an existing dataset
-  - `usePatchDataset()` - Partially update a dataset
-  - `useDeleteDataset()` - Delete a dataset
-
-- **Data Dictionary Mutations**
-  - `useCreateDataDictionary()` - Create a data dictionary
-  - `useUpdateDataDictionary()` - Update a data dictionary
-  - `useDeleteDataDictionary()` - Delete a data dictionary
-
-- **Harvest Mutations**
-  - `useRegisterHarvestPlan()` - Register a new harvest plan
-  - `useRunHarvest()` - Trigger a harvest run
-
-- **Datastore Import Mutations**
-  - `useTriggerDatastoreImport()` - Trigger datastore import
-  - `useDeleteDatastore()` - Delete datastore data
-
-- **Revision/Moderation Mutations**
-  - `useCreateRevision()` - Create a new revision
-  - `useChangeDatasetState()` - Change dataset workflow state
+For the complete composable reference, see the [package README](../packages/dkan-client-tools-vue/README.md).
 
 ## TypeScript Support
 
@@ -561,102 +493,37 @@ my-dkan-app/
 
 ## Testing
 
-### Unit Testing with Vitest
-
-Install Vitest:
-
-```bash
-npm install -D vitest @vue/test-utils
-```
-
-Example test:
+Use Vitest with Vue Test Utils. Install the DkanClientPlugin in test setup:
 
 ```typescript
 import { mount } from '@vue/test-utils'
-import { describe, it, expect, vi } from 'vitest'
-import DatasetList from './DatasetList.vue'
 import { DkanClientPlugin } from '@dkan-client-tools/vue'
 
-describe('DatasetList', () => {
-  it('renders dataset titles', async () => {
-    const wrapper = mount(DatasetList, {
-      global: {
-        plugins: [
-          [DkanClientPlugin, {
-            clientOptions: { baseUrl: 'https://demo.getdkan.org' }
-          }]
-        ]
-      }
-    })
-
-    // Wait for data to load and assert
-    // ...
-  })
+mount(Component, {
+  global: {
+    plugins: [[DkanClientPlugin, {
+      clientOptions: { baseUrl: 'https://test.example.com' }
+    }]]
+  }
 })
 ```
 
 ## Performance Optimization
 
-### 1. Lazy Loading Components
-
-```typescript
-const DatasetDetail = defineAsyncComponent(() =>
-  import('./components/DatasetDetail.vue')
-)
-```
-
-### 2. Virtual Scrolling for Large Lists
-
-Use libraries like `vue-virtual-scroller` for large dataset lists.
-
-### 3. Query Optimization
-
-```typescript
-// Prefetch data for better UX
-const queryClient = useQueryClient()
-queryClient.prefetchQuery({
-  queryKey: ['dataset', datasetId],
-  queryFn: () => dkanClient.getDataset(datasetId),
-})
-```
+- **Lazy Loading**: Use `defineAsyncComponent()` for code splitting
+- **Virtual Scrolling**: Use `vue-virtual-scroller` for large dataset lists
+- **Query Prefetching**: Prefetch data using TanStack Query's `prefetchQuery`
+- **Stale Time**: Configure appropriate `staleTime` to reduce network requests
 
 ## Troubleshooting
 
-### CORS Errors
-
-If you see CORS errors, use the Vite proxy configuration shown above or configure CORS on your DKAN server.
-
-### TypeScript Errors
-
-Ensure your `tsconfig.json` includes:
-
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "bundler",
-    "types": ["vite/client"]
-  }
-}
-```
-
-### Hydration Mismatch (SSR)
-
-If using SSR (e.g., Nuxt), ensure queries are prefetched on the server side.
+- **CORS Errors**: Use Vite proxy configuration or configure CORS on your DKAN server
+- **TypeScript Errors**: Ensure `tsconfig.json` has `moduleResolution: "bundler"` and `types: ["vite/client"]`
+- **SSR Hydration**: Prefetch queries server-side when using SSR (Nuxt)
 
 ## Next Steps
 
-- Explore the [Vue package README](../packages/dkan-client-tools-vue/README.md)
-- Review [DKAN API documentation](../research/DKAN_API_RESEARCH.md)
-- Check out [TanStack Query Vue documentation](https://tanstack.com/query/latest/docs/vue/overview)
-- See the [examples/vue-demo-app](../examples/vue-demo-app/) for a complete working example
-- Learn about [Drupal integration](./DRUPAL_USAGE.md)
-
-## Example Repository
-
-See the included `examples/vue-demo-app` directory for a complete, working example that demonstrates:
-- DkanClientPlugin setup
-- Dataset search with live filtering
-- Pagination
-- Loading and error states
-- TypeScript integration
-- Vite proxy configuration for local DKAN
+- See [examples/vue-demo-app](../examples/vue-demo-app/) for a complete working example
+- Explore the [Vue package README](../packages/dkan-client-tools-vue/README.md) for full API reference
+- Review [DKAN API documentation](../research/DKAN_API_RESEARCH.md) for backend details
+- Learn about [Drupal integration](./DRUPAL_USAGE.md) for DKAN themes/modules

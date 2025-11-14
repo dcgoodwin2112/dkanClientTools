@@ -14,15 +14,12 @@ All packages (`@dkan-client-tools/core`, `@dkan-client-tools/react`, and `@dkan-
 ## Build Sizes
 
 ### @dkan-client-tools/core
-- IIFE: 73 KB (30.8 KB minified)
-- Includes bundled TanStack Query Core for standalone usage
+- Lightweight bundle includes TanStack Query Core for standalone usage
 
 ### @dkan-client-tools/react
-- IIFE: 2.21 MB (938 KB minified)
 - Requires React, ReactDOM, and TanStack React Query to be loaded separately
 
 ### @dkan-client-tools/vue
-- IIFE: 2.21 MB (938 KB minified)
 - Requires Vue and TanStack Vue Query to be loaded separately
 
 ## Installation Methods
@@ -433,7 +430,7 @@ When using IIFE builds, these globals are available:
 - `useDatasetSearch` - Hook to search datasets
 - `useDatastore` - Hook to query datastore
 - `useSqlQuery` - Hook for SQL queries
-- All 40+ React hooks for DKAN APIs
+- Comprehensive React hooks for all DKAN APIs
 
 ### window.DkanClientToolsVue (Vue Package)
 - `DkanClientPlugin` - Vue plugin for app.use()
@@ -442,7 +439,7 @@ When using IIFE builds, these globals are available:
 - `useDatasetSearch` - Composable to search datasets
 - `useDatastore` - Composable to query datastore
 - `useSqlQuery` - Composable for SQL queries
-- All 40+ Vue composables for DKAN APIs
+- Comprehensive Vue composables for all DKAN APIs
 
 ## Example Drupal Module Structure
 
@@ -489,7 +486,7 @@ For older browser support, add a transpilation step in your build process.
 
 | Feature | Core (Vanilla JS) | React | Vue |
 |---------|-------------------|-------|-----|
-| Bundle Size (min) | 30.8 KB | 938 KB | 938 KB |
+| Bundle Size | Lightweight | Larger (includes framework) | Larger (includes framework) |
 | External Dependencies | None | React, ReactDOM, TanStack React Query | Vue 3, TanStack Vue Query |
 | Learning Curve | Low | Medium | Medium |
 | Drupal Integration | Excellent | Good (via core/react) | Good (custom library) |
