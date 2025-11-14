@@ -15,30 +15,35 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (38 methods across 6 categories):
+ * **API Coverage** (41 methods across 8 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
  *    - createDataset, updateDataset, patchDataset, deleteDataset
  *
- * 2. **Datastore Operations** (5 methods)
- *    - queryDatastore, getDatastoreSchema
- *    - querySql, downloadQuery, downloadQueryByDistribution
+ * 2. **Datastore Query** (5 methods)
+ *    - queryDatastore, queryDatastoreMulti, getDatastoreSchema
+ *    - querySql, executeSqlQuery
  *
- * 3. **Data Dictionary** (6 methods)
+ * 3. **Datastore Download** (3 methods)
+ *    - downloadQuery, downloadQueryByDistribution, downloadQueryMulti
+ *
+ * 4. **Data Dictionary** (6 methods)
  *    - getDataDictionary, listDataDictionaries, getDataDictionaryFromUrl
  *    - createDataDictionary, updateDataDictionary, deleteDataDictionary
  *
- * 4. **Harvest Operations** (6 methods)
+ * 5. **Harvest Operations** (6 methods)
  *    - listHarvestPlans, getHarvestPlan, registerHarvestPlan
  *    - listHarvestRuns, getHarvestRun, runHarvest
  *
- * 5. **Datastore Imports** (4 methods)
+ * 6. **Datastore Imports** (4 methods)
  *    - listDatastoreImports, getDatastoreStatistics
  *    - triggerDatastoreImport, deleteDatastore
  *
- * 6. **Metastore & Revisions** (7 methods) - Phase 2 enhanced
+ * 7. **Metastore** (4 methods)
  *    - listSchemas, getSchema, getSchemaItems, getDatasetFacets
+ *
+ * 8. **Revisions & Moderation** (4 methods)
  *    - getRevisions, getRevision, createRevision, changeDatasetState
  *
  * **Authentication**:
@@ -761,7 +766,40 @@ export class DkanApiClient {
   // ==================== DATASET CRUD ====================
 
   /**
-   * Create a new dataset
+   * Create a new dataset in the DKAN metastore
+   *
+   * Requires authentication with dataset create permissions.
+   * The dataset must include all required DCAT-US properties.
+   *
+   * @param dataset - Complete dataset metadata following DCAT-US schema
+   * @returns Write response containing the dataset identifier and endpoint
+   * @throws {DkanApiError} If authentication fails or dataset validation fails
+   *
+   * @example
+   * ```typescript
+   * const newDataset = {
+   *   title: 'Water Quality Measurements',
+   *   description: 'Monthly water quality data from monitoring stations',
+   *   identifier: 'water-quality-2025',
+   *   accessLevel: 'public',
+   *   modified: '2025-01-15',
+   *   keyword: ['water', 'environment', 'quality'],
+   *   publisher: {
+   *     name: 'Environmental Protection Agency'
+   *   },
+   *   contactPoint: {
+   *     '@type': 'vcard:Contact',
+   *     fn: 'Data Team',
+   *     hasEmail: 'mailto:data@epa.gov'
+   *   }
+   * };
+   *
+   * const response = await client.createDataset(newDataset);
+   * console.log(`Created: ${response.identifier}`);
+   * ```
+   *
+   * @see updateDataset for replacing existing datasets
+   * @see patchDataset for partial updates
    */
   async createDataset(dataset: DkanDataset): Promise<MetastoreWriteResponse> {
     const response = await this.request<MetastoreWriteResponse>(
@@ -775,7 +813,32 @@ export class DkanApiClient {
   }
 
   /**
-   * Update an existing dataset (full replacement)
+   * Update an existing dataset with full replacement
+   *
+   * Replaces the entire dataset with new metadata. All properties must be provided.
+   * For partial updates, use patchDataset() instead.
+   *
+   * Requires authentication with dataset update permissions.
+   *
+   * @param identifier - Dataset identifier (UUID or custom ID)
+   * @param dataset - Complete replacement dataset metadata
+   * @returns Write response containing the updated identifier
+   * @throws {DkanApiError} If dataset not found, authentication fails, or validation fails
+   *
+   * @example
+   * ```typescript
+   * // Get existing dataset
+   * const existing = await client.getDataset('water-quality-2025');
+   *
+   * // Modify and update
+   * existing.description = 'Updated description with more details';
+   * existing.modified = new Date().toISOString();
+   *
+   * const response = await client.updateDataset('water-quality-2025', existing);
+   * ```
+   *
+   * @see patchDataset for partial updates
+   * @see createDataset for creating new datasets
    */
   async updateDataset(
     identifier: string,
@@ -792,7 +855,36 @@ export class DkanApiClient {
   }
 
   /**
-   * Partially update a dataset
+   * Partially update a dataset (PATCH)
+   *
+   * Updates only the specified properties, leaving others unchanged.
+   * More efficient than updateDataset() when modifying a few fields.
+   *
+   * Requires authentication with dataset update permissions.
+   *
+   * @param identifier - Dataset identifier
+   * @param partialDataset - Partial dataset with only fields to update
+   * @returns Write response containing the updated identifier
+   * @throws {DkanApiError} If dataset not found or authentication fails
+   *
+   * @example
+   * ```typescript
+   * // Update only the description and modified date
+   * await client.patchDataset('water-quality-2025', {
+   *   description: 'Updated description',
+   *   modified: new Date().toISOString()
+   * });
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Add keywords to existing dataset
+   * await client.patchDataset('water-quality-2025', {
+   *   keyword: ['water', 'environment', 'quality', 'monitoring']
+   * });
+   * ```
+   *
+   * @see updateDataset for full replacement
    */
   async patchDataset(
     identifier: string,
@@ -809,7 +901,22 @@ export class DkanApiClient {
   }
 
   /**
-   * Delete a dataset
+   * Delete a dataset from the metastore
+   *
+   * Permanently removes the dataset and all associated metadata.
+   * This operation cannot be undone.
+   *
+   * Requires authentication with dataset delete permissions.
+   *
+   * @param identifier - Dataset identifier
+   * @returns Confirmation message
+   * @throws {DkanApiError} If dataset not found or authentication fails
+   *
+   * @example
+   * ```typescript
+   * await client.deleteDataset('water-quality-2025');
+   * console.log('Dataset deleted successfully');
+   * ```
    */
   async deleteDataset(identifier: string): Promise<{ message: string }> {
     const response = await this.request<{ message: string }>(
@@ -1057,10 +1164,10 @@ export class DkanApiClient {
    *
    * ## Getting the Distribution Identifier
    *
-   * Use the `?show-reference-ids` parameter to get distribution identifiers:
+   * Use the `showReferenceIds` option to get distribution identifiers:
    *
    * ```typescript
-   * const dataset = await client.getDataset('dataset-id', { 'show-reference-ids': true });
+   * const dataset = await client.getDataset('dataset-id', { showReferenceIds: true });
    * const distributionId = dataset.distribution[0].identifier;
    * ```
    *
@@ -1142,8 +1249,8 @@ export class DkanApiClient {
    *
    * @throws {DkanApiError} If query syntax is invalid or distribution not found
    *
-   * @see https://data.medicaid.gov/about/api - Official DKAN SQL endpoint documentation
-   * @see https://data.healthcare.gov/api - Additional DKAN API examples
+   * @see https://dkan.readthedocs.io/en/latest/user-guide/guide_api.html - DKAN API documentation
+   * @see https://github.com/GetDKAN/dkan - DKAN project on GitHub
    */
   async querySql(options: SqlQueryOptions): Promise<SqlQueryResult> {
     const method = options.method || 'GET'
