@@ -1070,9 +1070,8 @@ class ApiResponseRecorder {
     // getRevision - try to get first revision if available
     if (revisionsResult.response && Array.isArray(revisionsResult.response) && revisionsResult.response.length > 0) {
       const firstRevision = revisionsResult.response[0]
-      // DKAN 2.x uses 'identifier' property for revisions.
-      // Fallbacks to 'revision_id' and 'id' included for compatibility with older DKAN versions or custom implementations.
-      const revisionId = firstRevision.identifier || firstRevision.revision_id || firstRevision.id
+      // DKAN 2.x uses 'identifier' property for revisions
+      const revisionId = firstRevision.identifier
       if (revisionId) {
         this.results.push(
           await this.recordApiCall(
