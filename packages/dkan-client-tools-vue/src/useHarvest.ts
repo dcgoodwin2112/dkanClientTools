@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { type MaybeRefOrGetter, toValue } from 'vue'
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useDkanClient } from './plugin'
 import type {
   HarvestPlan,
@@ -768,7 +768,7 @@ export function useHarvestRun(options: UseHarvestRunOptions) {
   const client = useDkanClient()
 
   return useQuery({
-    queryKey: ['harvest', 'run', options.runId, options.planId] as const,
+    queryKey: computed(() => ['harvest', 'run', toValue(options.runId), toValue(options.planId)]),
     queryFn: () => client.getHarvestRun(toValue(options.runId), toValue(options.planId)),
     enabled: () => (toValue(options.enabled) ?? true) && !!toValue(options.runId) && !!toValue(options.planId),
     staleTime: options.staleTime ?? 0,

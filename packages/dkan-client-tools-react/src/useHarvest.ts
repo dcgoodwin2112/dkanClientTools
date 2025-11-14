@@ -562,9 +562,10 @@ export function useHarvestRuns(options: UseHarvestRunsOptions) {
  * @example
  * Progress indicator with auto-stop polling:
  * ```tsx
- * function HarvestProgress({ runId }: { runId: string }) {
+ * function HarvestProgress({ runId, planId }: { runId: string; planId: string }) {
  *   const { data: run, isFetching } = useHarvestRun({
  *     runId,
+ *     planId,
  *     // Stop polling when harvest completes
  *     refetchInterval: (data) => {
  *       if (!data) return false
