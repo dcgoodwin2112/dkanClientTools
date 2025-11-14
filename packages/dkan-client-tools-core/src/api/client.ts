@@ -15,15 +15,14 @@
  * - One-off data fetches outside component lifecycle
  * - Building custom framework adapters
  *
- * **API Coverage** (41 methods across 8 categories):
+ * **API Coverage** (43 methods across 10 categories):
  *
  * 1. **Dataset Operations** (7 methods)
  *    - getDataset, searchDatasets, listAllDatasets
  *    - createDataset, updateDataset, patchDataset, deleteDataset
  *
- * 2. **Datastore Query** (5 methods)
- *    - queryDatastore, queryDatastoreMulti, getDatastoreSchema
- *    - querySql, executeSqlQuery
+ * 2. **Datastore Query** (4 methods)
+ *    - queryDatastore, queryDatastoreMulti, getDatastoreSchema, querySql
  *
  * 3. **Datastore Download** (3 methods)
  *    - downloadQuery, downloadQueryByDistribution, downloadQueryMulti
@@ -45,6 +44,12 @@
  *
  * 8. **Revisions & Moderation** (4 methods)
  *    - getRevisions, getRevision, createRevision, changeDatasetState
+ *
+ * 9. **CKAN Compatibility** (2 methods)
+ *    - listDatasets, getDatasetCkan
+ *
+ * 10. **Utility** (3 methods)
+ *     - getBaseUrl, getDefaultOptions, getOpenApiDocsUrl
  *
  * **Authentication**:
  * - HTTP Basic Authentication (username + password)

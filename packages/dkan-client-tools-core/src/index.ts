@@ -6,7 +6,7 @@
  *
  * **Features**:
  * - Framework-agnostic - works with any JavaScript framework
- * - Full DKAN REST API support (43 methods across 9 categories)
+ * - Full DKAN REST API support (43 methods across 10 categories)
  * - Type-safe with complete DCAT-US schema types
  * - Built on TanStack Query for proven caching patterns
  * - Lightweight - only depends on @tanstack/query-core
