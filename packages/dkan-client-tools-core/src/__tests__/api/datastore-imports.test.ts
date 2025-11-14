@@ -68,7 +68,6 @@ describe('DkanApiClient - Datastore Imports', () => {
     expect(result.message).toContain('deleted')
   })
 
-  // Phase 1 - OpenAPI alignment tests
   it('should get datastore statistics', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

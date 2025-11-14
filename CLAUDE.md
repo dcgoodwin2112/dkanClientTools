@@ -8,7 +8,7 @@ This is the dkanClientTools repository - a monorepo of packages containing tools
 
 The repository also includes a local DKAN development environment for testing and development.
 
-**Current Status**: Active Development - Comprehensive DKAN API coverage with 40+ React hooks, 40+ Vue composables, and 300+ tests
+**Current Status**: Active Development - Comprehensive DKAN API coverage with 37 React hooks, 37 Vue composables, and 300+ tests
 
 ## Project Structure
 
@@ -54,7 +54,7 @@ Framework-agnostic core library for DKAN client tools. Provides the DkanClient w
 
 **Architecture** (TanStack Query-based):
 - `DkanClient` - Wraps TanStack Query's QueryClient with DKAN configuration
-- `DkanApiClient` - HTTP client for all DKAN REST APIs (43 methods)
+- `DkanApiClient` - HTTP client for all DKAN REST APIs (38 methods)
 - TypeScript types for DCAT-US schema and API responses
 - Support for token-based and basic authentication
 
@@ -69,15 +69,17 @@ Framework-agnostic core library for DKAN client tools. Provides the DkanClient w
   - `metastore.ts` - Metastore revision types
 - `src/index.ts` - Main exports
 
-**API Coverage** (43 methods across 8 categories):
+**API Coverage** (38 methods across 7 categories):
 - Dataset operations (7 methods): CRUD, search, list
 - Datastore operations (5 methods): query, download, SQL
 - Data dictionary operations (6 methods): CRUD, schema
 - Harvest operations (6 methods): plans, runs
-- Metastore operations (6 methods): schemas, facets, properties
+- Metastore operations (3 methods): schemas, facets, schema definition
 - Datastore import operations (4 methods): import, delete, statistics
 - Revision/moderation operations (4 methods): revisions, workflow states
-- CKAN compatibility (5 methods): package_search, datastore_search, etc.
+- Utility operations (3 methods): baseUrl getter, defaults getter, OpenAPI docs
+
+**Note**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the API endpoints return 404.
 
 **Build Configuration**:
 - TypeScript with strict mode
@@ -92,14 +94,14 @@ Framework-agnostic core library for DKAN client tools. Provides the DkanClient w
 React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and TanStack React Query.
 
 **Key Features**:
-- 40+ idiomatic React hooks covering all DKAN APIs
+- 37 idiomatic React hooks covering all DKAN APIs
 - Automatic refetching and background updates
 - Efficient caching and deduplication via TanStack Query
 - First-class mutation support for create/update/delete operations
 - React 18+ support
 - Full TypeScript support
 
-**Hook Categories** (40+ total):
+**Hook Categories** (37 total):
 - **Dataset Query Hooks** (3): useDataset, useDatasetSearch, useAllDatasets
 - **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
 - **Datastore Hooks** (5): useDatastore, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
@@ -108,7 +110,6 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 - **Harvest Hooks** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
 - **Datastore Import Hooks** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
 - **Metastore Hooks** (3): useSchemas, useSchemaItems, useDatasetFacets
-- **Dataset Properties Hooks** (3): useDatasetProperties, usePropertyValues, useAllPropertiesWithValues
 - **Revision/Moderation Hooks** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
 - **CKAN Compatibility Hooks** (5): useCkanPackageSearch, useCkanDatastoreSearch, useCkanDatastoreSearchSql, useCkanResourceShow, useCkanCurrentPackageListWithResources
 
@@ -123,7 +124,6 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 - `src/useHarvest.ts` - Harvest operation hooks
 - `src/useDatastoreImports.ts` - Datastore import hooks
 - `src/useMetastore.ts` - Metastore hooks
-- `src/useDatasetProperties.ts` - Dataset properties hooks
 - `src/useRevisions.ts` - Revision/moderation hooks
 - `src/useQueryDownload.ts` - Download hooks
 - `src/useCkan.ts` - CKAN compatibility hooks
@@ -147,14 +147,14 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core` and TanStack Vue Query.
 
 **Key Features**:
-- 40+ idiomatic Vue composables covering all DKAN APIs
+- 37 idiomatic Vue composables covering all DKAN APIs
 - Automatic refetching and background updates
 - Efficient caching and deduplication via TanStack Query
 - First-class mutation support for create/update/delete operations
 - Vue 3 Composition API with `<script setup>` support
 - Full TypeScript support with reactive refs
 
-**Composable Categories** (40+ total):
+**Composable Categories** (37 total):
 - **Dataset Query Composables** (3): useDataset, useDatasetSearch, useAllDatasets
 - **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
 - **Datastore Composables** (5): useDatastore, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
@@ -163,7 +163,6 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - **Harvest Composables** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
 - **Datastore Import Composables** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
 - **Metastore Composables** (3): useSchemas, useSchemaItems, useDatasetFacets
-- **Dataset Properties Composables** (3): useDatasetProperties, usePropertyValues, useAllPropertiesWithValues
 - **Revision/Moderation Composables** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
 - **CKAN Compatibility Composables** (5): useCkanPackageSearch, useCkanDatastoreSearch, useCkanDatastoreSearchSql, useCkanResourceShow, useCkanCurrentPackageListWithResources
 
@@ -177,7 +176,6 @@ Vue composables for DKAN client tools. Built on top of `@dkan-client-tools/core`
 - `src/useHarvest.ts` - Harvest operation composables
 - `src/useDatastoreImports.ts` - Datastore import composables
 - `src/useMetastore.ts` - Metastore composables
-- `src/useDatasetProperties.ts` - Dataset properties composables
 - `src/useRevisions.ts` - Revision/moderation composables
 - `src/useQueryDownload.ts` - Download composables
 - `src/useCkanApi.ts` - CKAN compatibility composables
@@ -312,7 +310,6 @@ All React hooks and Vue composables have comprehensive tests covering:
 - `__tests__/useDatastore.test.tsx` - Datastore query hooks
 - `__tests__/useSqlQuery.test.tsx` - SQL query hooks (12 tests)
 - `__tests__/useDataDictionary.test.tsx` - Data dictionary hooks
-- `__tests__/useDatasetProperties.test.tsx` - Dataset properties hooks (21 tests)
 - `__tests__/useDatastoreImports.test.tsx` - Datastore import hooks (25 tests)
 - `__tests__/useHarvest.test.tsx` - Harvest operation hooks (11 tests)
 - `__tests__/useMetastore.test.tsx` - Metastore hooks (10 tests)
@@ -320,6 +317,8 @@ All React hooks and Vue composables have comprehensive tests covering:
 - `__tests__/useRevisions.test.tsx` - Revision/moderation hooks (10 tests)
 - `__tests__/useCkan.test.tsx` - CKAN compatibility hooks
 - Plus tests for mutations and other operations (218 tests total)
+
+**Note**: Dataset Properties hooks (useDatasetProperties, usePropertyValues, useAllPropertiesWithValues) exist in the React package but call API methods that return 404 in DKAN 2.x.
 
 **Test File Organization (Vue)**:
 - `__tests__/plugin.test.ts` - Plugin injection tests
@@ -333,11 +332,12 @@ All React hooks and Vue composables have comprehensive tests covering:
 - `__tests__/useHarvest.test.ts` - Harvest composables (4 tests)
 - `__tests__/useDatastoreImports.test.ts` - Import composables (5 tests)
 - `__tests__/useMetastore.test.ts` - Metastore composables (4 tests)
-- `__tests__/useDatasetProperties.test.ts` - Properties composables (3 tests)
 - `__tests__/useRevisions.test.ts` - Revision composables (4 tests)
 - `__tests__/useQueryDownload.test.ts` - Download composables (3 tests)
 - `__tests__/useCkanApi.test.ts` - CKAN compatibility composables (5 tests)
 - Total: 91 tests
+
+**Note**: Dataset Properties composables (useDatasetProperties, usePropertyValues, useAllPropertiesWithValues) exist in the Vue package but call API methods that return 404 in DKAN 2.x.
 
 ### Monorepo Structure
 
@@ -568,7 +568,7 @@ npm run build --workspaces
 - **Type definitions** are generated automatically by tsup
 - **Source maps** are included for debugging
 - **Tree-shaking** is supported via proper exports configuration
-- **All 40+ hooks/composables** have comprehensive test coverage (300+ tests total)
+- **All 37 hooks/composables** have comprehensive test coverage (300+ tests total)
 - **TanStack Query** handles all caching, deduplication, and background refetching
 - **Vue composables** use MaybeRefOrGetter types for maximum flexibility with reactive parameters
 
@@ -638,7 +638,7 @@ Comprehensive user documentation is available in the `/docs` directory.
 - **[React Standalone App Guide](docs/REACT_STANDALONE_APP.md)** - Complete guide for building React apps with DKAN Client Tools
   - Setting up Vite + React + TypeScript project
   - DkanClientProvider configuration
-  - Using all 40+ React hooks
+  - Using all 37 React hooks
   - Authentication, CORS, and proxy setup
   - Testing with Vitest
   - Performance optimization techniques
@@ -647,7 +647,7 @@ Comprehensive user documentation is available in the `/docs` directory.
 - **[Vue Standalone App Guide](docs/VUE_STANDALONE_APP.md)** - Complete guide for building Vue 3 apps with DKAN Client Tools
   - Setting up Vite + Vue + TypeScript project
   - DkanClientPlugin configuration
-  - Using all 40+ Vue composables
+  - Using all 37 Vue composables
   - Reactive parameters with MaybeRefOrGetter
   - Authentication, CORS, and proxy setup
   - Testing with Vitest

@@ -16,6 +16,8 @@ Framework-agnostic core library for DKAN client tools. Provides API client and t
 npm install @dkan-client-tools/core
 ```
 
+**Node.js Compatibility**: Requires Node.js 18+ for native `btoa()` support used in Basic Authentication. For Node.js < 18, consider using a polyfill or switch to token-based authentication.
+
 ## Usage
 
 ### DkanClient (Recommended)
@@ -119,9 +121,9 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 - `listSchemas()` - List available schemas
 - `getSchemaItems(schemaId)` - Get items for a schema
 - `getDatasetFacets()` - Get dataset facets
-- `getDatasetProperties()` - Get available properties
-- `getPropertyValues(property)` - Get values for a property
-- `getAllPropertiesWithValues()` - Get all properties with values
+- `getSchema(schemaId)` - Get schema definition
+
+**Note**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the endpoints return 404.
 
 ### Datastore Import Operations
 
@@ -169,7 +171,7 @@ const client = new DkanClient({
 
 ## TypeScript Types
 
-All DKAT-US schema types are exported:
+All DCAT-US schema types are exported:
 
 ```typescript
 import type {

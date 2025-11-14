@@ -253,8 +253,6 @@ export class DkanApiClient {
   /**
    * Fetch a single dataset by identifier
    *
-   * Phase 1 - OpenAPI alignment: Added show-reference-ids support
-   *
    * @param identifier - Dataset identifier
    * @param options - Optional parameters
    * @param options.showReferenceIds - Include internal reference IDs (distribution identifiers)
@@ -311,7 +309,6 @@ export class DkanApiClient {
   /**
    * Search datasets with filters
    *
-   * Phase 1 - OpenAPI alignment: Added support for array sort parameters
    *
    * @param options - Search options for filtering and pagination
    * @param options.keyword - Filter by keyword/tag
@@ -367,7 +364,6 @@ export class DkanApiClient {
   /**
    * Query datastore for a specific dataset resource
    *
-   * Phase 3 - OpenAPI alignment: Added GET method support
    *
    * @param datasetId - Dataset identifier (UUID or custom ID)
    * @param index - Resource index in dataset.distribution array (default: 0)
@@ -411,8 +407,6 @@ export class DkanApiClient {
 
   /**
    * Query multiple datastore resources with joins
-   *
-   * Phase 3 - OpenAPI alignment
    *
    * @param options - Query options with resources array for multi-resource queries
    * @param options.resources - Array of resources to query (id, alias)
@@ -606,7 +600,6 @@ export class DkanApiClient {
   /**
    * Get a specific schema definition
    *
-   * Phase 2 - OpenAPI alignment
    *
    * Retrieves the JSON Schema definition for a specific metastore schema type.
    * The schema defines the structure, validation rules, and allowed properties
@@ -625,8 +618,6 @@ export class DkanApiClient {
 
   /**
    * Get items for a specific schema type
-   *
-   * Phase 1 - OpenAPI alignment: Added show-reference-ids support
    *
    * Retrieves all items of a specific schema type from the metastore.
    * For example, all datasets, all data dictionaries, or all distributions.
@@ -663,8 +654,6 @@ export class DkanApiClient {
 
   /**
    * Get facet values for datasets (themes, keywords, publishers)
-   *
-   * Phase 2 - OpenAPI alignment: Switched from client-side computation to API endpoint
    *
    * Retrieves all unique values for theme, keyword, and publisher facets
    * across all datasets. Useful for building filter UIs.
@@ -1072,8 +1061,6 @@ export class DkanApiClient {
 
   /**
    * Get datastore statistics (row/column counts)
-   *
-   * Phase 1 - OpenAPI alignment: Implements GET /api/1/datastore/imports/{identifier}
    *
    * @param identifier - Distribution or dataset identifier
    * @returns Statistics including numOfRows, numOfColumns, and columns metadata
