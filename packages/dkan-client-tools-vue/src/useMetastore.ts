@@ -5,7 +5,6 @@
 import { useQuery } from '@tanstack/vue-query'
 import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useDkanClient } from './plugin'
-import type { JsonSchema } from '@dkan-client-tools/core'
 
 export interface UseAllDatasetsOptions {
   /**

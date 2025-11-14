@@ -8,7 +8,7 @@ This is the dkanClientTools repository - a monorepo of packages containing tools
 
 The repository also includes a local DKAN development environment for testing and development.
 
-**Current Status**: Active Development - Comprehensive DKAN API coverage with 40 React hooks, 35 Vue composables, and 300+ tests
+**Current Status**: Active Development - Comprehensive DKAN API coverage with 40 React hooks, 40 Vue composables, and 500+ tests
 
 ## Project Structure
 
