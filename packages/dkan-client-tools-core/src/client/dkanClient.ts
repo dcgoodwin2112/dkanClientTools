@@ -4,7 +4,7 @@
  */
 
 import { QueryClient } from '@tanstack/query-core'
-import type { DkanClientConfig, DatasetKey } from '../types'
+import type { DkanClientConfig, DatasetKey, DatastoreQueryOptions } from '../types'
 import { DkanApiClient } from '../api/client'
 
 /**
@@ -417,6 +417,50 @@ export class DkanClient {
    */
   async getDatasetFacets() {
     return this.apiClient.getDatasetFacets()
+  }
+
+  /**
+   * Get a specific metastore schema definition.
+   *
+   * Retrieves the JSON Schema definition for a schema type.
+   *
+   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
+   * @returns JSON Schema definition
+   * @throws {DkanApiError} If schema not found or request fails
+   */
+  async getSchema(schemaId: string) {
+    return this.apiClient.getSchema(schemaId)
+  }
+
+  /**
+   * Get datastore statistics for a resource.
+   *
+   * Retrieves metadata about the datastore including row count,
+   * column count, and column definitions.
+   *
+   * @param identifier - Resource identifier
+   * @returns Datastore statistics
+   * @throws {DkanApiError} If datastore not found or request fails
+   */
+  async getDatastoreStatistics(identifier: string) {
+    return this.apiClient.getDatastoreStatistics(identifier)
+  }
+
+  /**
+   * Query multiple datastore resources with JOINs.
+   *
+   * Advanced datastore querying for multi-resource queries.
+   *
+   * @param options - Query options including resources, joins, conditions, etc.
+   * @param method - HTTP method ('GET' or 'POST')
+   * @returns Query results
+   * @throws {DkanApiError} If query fails
+   */
+  async queryDatastoreMulti(
+    options: DatastoreQueryOptions,
+    method: 'GET' | 'POST' = 'POST'
+  ) {
+    return this.apiClient.queryDatastoreMulti(options, method)
   }
 
   /**

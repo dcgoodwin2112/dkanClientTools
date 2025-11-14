@@ -4,6 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useDkanClient } from './DkanClientProvider'
+import type { JsonSchema } from '@dkan-client-tools/core'
 
 export interface UseAllDatasetsOptions {
   /**
@@ -18,6 +19,23 @@ export interface UseAllDatasetsOptions {
 }
 
 export interface UseSchemasOptions {
+  /**
+   * Enable/disable the query
+   */
+  enabled?: boolean
+
+  /**
+   * Time before data is considered stale (ms)
+   */
+  staleTime?: number
+}
+
+export interface UseSchemaOptions {
+  /**
+   * The schema ID to fetch
+   */
+  schemaId: string
+
   /**
    * Enable/disable the query
    */
@@ -355,6 +373,256 @@ export function useSchemas(options: UseSchemasOptions = {}) {
     queryFn: () => client.listSchemas(),
     enabled: options.enabled ?? true,
     staleTime: options.staleTime,
+  })
+}
+
+/**
+ * Fetches a specific metastore schema definition.
+ *
+ * This hook retrieves the JSON Schema definition for a specific schema type in the DKAN metastore.
+ * JSON Schemas define the structure, validation rules, and expected format for metadata objects
+ * stored in DKAN. Understanding schema definitions is useful for:
+ *
+ * - Building dynamic form generators that create/edit metadata based on schema rules
+ * - Validating user input before submitting to the metastore
+ * - Generating documentation about metadata structure
+ * - Creating custom metadata editors that understand field types and constraints
+ * - Building schema migration or transformation tools
+ *
+ * The most common schemas are:
+ * - **dataset**: DCAT-US schema for dataset metadata (distributions, publisher, theme, etc.)
+ * - **data-dictionary**: Frictionless Table Schema for describing data structure
+ * - **distribution**: Schema for dataset distributions (downloadURL, mediaType, etc.)
+ *
+ * Custom DKAN instances may have additional schemas for organization info, taxonomies,
+ * or other custom metadata types.
+ *
+ * Use this hook when you need to:
+ * - Build dynamic forms based on schema definitions
+ * - Validate metadata before submission
+ * - Generate schema documentation
+ * - Understand required vs optional fields
+ * - Display field constraints and data types to users
+ *
+ * @param options - Configuration options including the schema ID
+ *
+ * @returns TanStack Query result object containing:
+ *   - `data`: JSON Schema object with properties, validation rules, and metadata
+ *   - `isLoading`: True during initial fetch
+ *   - `isError`: True if fetch failed
+ *   - `error`: Error object if request failed
+ *   - `refetch`: Function to manually re-fetch schema
+ *
+ * @example
+ * Basic usage - display schema information:
+ * ```tsx
+ * function SchemaViewer({ schemaId }: { schemaId: string }) {
+ *   const { data: schema, isLoading, error } = useSchema({
+ *     schemaId,
+ *   })
+ *
+ *   if (isLoading) return <div>Loading schema...</div>
+ *   if (error) return <div>Error: {error.message}</div>
+ *   if (!schema) return null
+ *
+ *   return (
+ *     <div className="schema-viewer">
+ *       <h2>{schema.title || schemaId}</h2>
+ *       {schema.description && <p>{schema.description}</p>}
+ *
+ *       <h3>Properties</h3>
+ *       <ul>
+ *         {Object.entries(schema.properties || {}).map(([propName, propDef]: [string, any]) => (
+ *           <li key={propName}>
+ *             <strong>{propName}</strong>
+ *             {propDef.type && <span> ({propDef.type})</span>}
+ *             {schema.required?.includes(propName) && <span className="required"> *</span>}
+ *             {propDef.description && <p>{propDef.description}</p>}
+ *           </li>
+ *         ))}
+ *       </ul>
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * Dynamic form generator from schema:
+ * ```tsx
+ * function DynamicMetadataForm({ schemaId }: { schemaId: string }) {
+ *   const { data: schema } = useSchema({ schemaId })
+ *   const [formData, setFormData] = useState<Record<string, any>>({})
+ *
+ *   if (!schema?.properties) return <div>Loading form...</div>
+ *
+ *   const handleSubmit = (e: React.FormEvent) => {
+ *     e.preventDefault()
+ *     // Validate and submit formData
+ *     console.log('Submitting:', formData)
+ *   }
+ *
+ *   return (
+ *     <form onSubmit={handleSubmit} className="dynamic-form">
+ *       <h2>{schema.title || 'Metadata Form'}</h2>
+ *
+ *       {Object.entries(schema.properties).map(([fieldName, fieldDef]: [string, any]) => {
+ *         const isRequired = schema.required?.includes(fieldName)
+ *
+ *         return (
+ *           <div key={fieldName} className="form-field">
+ *             <label>
+ *               {fieldDef.title || fieldName}
+ *               {isRequired && <span className="required">*</span>}
+ *             </label>
+ *
+ *             {fieldDef.description && (
+ *               <p className="field-help">{fieldDef.description}</p>
+ *             )}
+ *
+ *             {fieldDef.type === 'string' && !fieldDef.enum && (
+ *               <input
+ *                 type="text"
+ *                 value={formData[fieldName] || ''}
+ *                 onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })}
+ *                 required={isRequired}
+ *               />
+ *             )}
+ *
+ *             {fieldDef.enum && (
+ *               <select
+ *                 value={formData[fieldName] || ''}
+ *                 onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })}
+ *                 required={isRequired}
+ *               >
+ *                 <option value="">Select...</option>
+ *                 {fieldDef.enum.map((option: string) => (
+ *                   <option key={option} value={option}>{option}</option>
+ *                 ))}
+ *               </select>
+ *             )}
+ *
+ *             {fieldDef.type === 'array' && (
+ *               <textarea
+ *                 value={formData[fieldName]?.join('\n') || ''}
+ *                 onChange={(e) =>
+ *                   setFormData({
+ *                     ...formData,
+ *                     [fieldName]: e.target.value.split('\n').filter(Boolean),
+ *                   })
+ *                 }
+ *                 placeholder="One value per line"
+ *                 required={isRequired}
+ *               />
+ *             )}
+ *           </div>
+ *         )
+ *       })}
+ *
+ *       <button type="submit">Submit</button>
+ *     </form>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * Schema validation helper:
+ * ```tsx
+ * function MetadataValidator() {
+ *   const [selectedSchema, setSelectedSchema] = useState('dataset')
+ *   const [metadata, setMetadata] = useState('')
+ *   const [validationErrors, setValidationErrors] = useState<string[]>([])
+ *
+ *   const { data: schema } = useSchema({
+ *     schemaId: selectedSchema,
+ *   })
+ *
+ *   const validateMetadata = () => {
+ *     try {
+ *       const data = JSON.parse(metadata)
+ *       const errors: string[] = []
+ *
+ *       // Check required fields
+ *       schema?.required?.forEach(field => {
+ *         if (!data[field]) {
+ *           errors.push(`Missing required field: ${field}`)
+ *         }
+ *       })
+ *
+ *       // Check property types
+ *       Object.entries(data).forEach(([key, value]) => {
+ *         const propDef = schema?.properties?.[key] as any
+ *         if (propDef) {
+ *           const expectedType = propDef.type
+ *           const actualType = Array.isArray(value) ? 'array' : typeof value
+ *
+ *           if (expectedType && actualType !== expectedType) {
+ *             errors.push(`${key}: expected ${expectedType}, got ${actualType}`)
+ *           }
+ *         }
+ *       })
+ *
+ *       setValidationErrors(errors)
+ *     } catch (e) {
+ *       setValidationErrors(['Invalid JSON'])
+ *     }
+ *   }
+ *
+ *   return (
+ *     <div className="metadata-validator">
+ *       <h2>Metadata Validator</h2>
+ *
+ *       <div>
+ *         <label>Schema:</label>
+ *         <select value={selectedSchema} onChange={(e) => setSelectedSchema(e.target.value)}>
+ *           <option value="dataset">Dataset (DCAT-US)</option>
+ *           <option value="data-dictionary">Data Dictionary</option>
+ *           <option value="distribution">Distribution</option>
+ *         </select>
+ *       </div>
+ *
+ *       <div>
+ *         <label>Metadata JSON:</label>
+ *         <textarea
+ *           value={metadata}
+ *           onChange={(e) => setMetadata(e.target.value)}
+ *           rows={15}
+ *           placeholder='{"title": "My Dataset", ...}'
+ *         />
+ *       </div>
+ *
+ *       <button onClick={validateMetadata}>Validate</button>
+ *
+ *       {validationErrors.length > 0 && (
+ *         <div className="validation-errors">
+ *           <h3>Validation Errors</h3>
+ *           <ul>
+ *             {validationErrors.map((error, i) => (
+ *               <li key={i} className="error">{error}</li>
+ *             ))}
+ *           </ul>
+ *         </div>
+ *       )}
+ *
+ *       {validationErrors.length === 0 && metadata && (
+ *         <div className="success">Metadata is valid!</div>
+ *       )}
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @see {@link useSchemas} for listing all available schemas
+ * @see {@link useSchemaItems} for fetching items within a schema
+ * @see https://dkan.readthedocs.io/en/latest/apis/metastore.html
+ */
+export function useSchema(options: UseSchemaOptions) {
+  const client = useDkanClient()
+
+  return useQuery({
+    queryKey: ['metastore', 'schema', options.schemaId] as const,
+    queryFn: () => client.getSchema(options.schemaId),
+    enabled: options.enabled !== false && !!options.schemaId,
+    staleTime: options.staleTime ?? 10 * 60 * 1000, // Default 10 minutes - schemas rarely change
   })
 }
 
