@@ -8,7 +8,7 @@ This is the dkanClientTools repository - a monorepo of packages containing tools
 
 The repository also includes a local DKAN development environment for testing and development.
 
-**Current Status**: Active Development - Comprehensive DKAN API coverage with 37 React hooks, 37 Vue composables, and 300+ tests
+**Current Status**: Active Development - Comprehensive DKAN API coverage with 40 React hooks, 37 Vue composables, and 300+ tests
 
 ## Project Structure
 
@@ -101,15 +101,15 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 - React 18+ support
 - Full TypeScript support
 
-**Hook Categories** (37 total):
+**Hook Categories** (40 total):
 - **Dataset Query Hooks** (3): useDataset, useDatasetSearch, useAllDatasets
 - **Dataset Mutations** (4): useCreateDataset, useUpdateDataset, usePatchDataset, useDeleteDataset
-- **Datastore Hooks** (5): useDatastore, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
+- **Datastore Hooks** (6): useDatastore, useQueryDatastoreMulti, useSqlQuery, useExecuteSqlQuery, useDownloadQuery, useDownloadQueryByDistribution
 - **Data Dictionary Query Hooks** (4): useDataDictionary, useDataDictionaryList, useDataDictionaryFromUrl, useDatastoreSchema
 - **Data Dictionary Mutations** (3): useCreateDataDictionary, useUpdateDataDictionary, useDeleteDataDictionary
 - **Harvest Hooks** (6): useHarvestPlans, useHarvestPlan, useHarvestRuns, useHarvestRun, useRegisterHarvestPlan, useRunHarvest
 - **Datastore Import Hooks** (5): useDatastoreImports, useDatastoreImport, useDatastoreStatistics, useTriggerDatastoreImport, useDeleteDatastore
-- **Metastore Hooks** (3): useSchemas, useSchemaItems, useDatasetFacets
+- **Metastore Hooks** (4): useSchemas, useSchema, useSchemaItems, useDatasetFacets
 - **Revision/Moderation Hooks** (4): useRevisions, useRevision, useCreateRevision, useChangeDatasetState
 - **CKAN Compatibility Hooks** (5): useCkanPackageSearch, useCkanDatastoreSearch, useCkanDatastoreSearchSql, useCkanResourceShow, useCkanCurrentPackageListWithResources
 

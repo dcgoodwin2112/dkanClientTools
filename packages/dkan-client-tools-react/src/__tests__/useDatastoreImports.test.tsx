@@ -11,6 +11,7 @@ import { DkanClientProvider } from '../DkanClientProvider'
 import {
   useDatastoreImports,
   useDatastoreImport,
+  useDatastoreStatistics,
   useTriggerDatastoreImport,
   useDeleteDatastore,
 } from '../useDatastoreImports'
@@ -315,6 +316,195 @@ describe('useDatastoreImports', () => {
       await waitFor(() => {
         expect(screen.getByText('Status: fetching')).toBeInTheDocument()
         expect(screen.getByText('File: /tmp/dataset.csv')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('useDatastoreStatistics', () => {
+    it('should fetch datastore statistics successfully', async () => {
+      const mockStats = {
+        numOfRows: 1500,
+        numOfColumns: 8,
+        columns: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+          created_at: { type: 'date' },
+        },
+      }
+
+      vi.spyOn(mockClient, 'getDatastoreStatistics').mockResolvedValue(mockStats)
+
+      function TestComponent() {
+        const { data: stats, isLoading } = useDatastoreStatistics({
+          identifier: 'resource-1',
+        })
+
+        if (isLoading) return <div>Loading...</div>
+        if (!stats) return null
+
+        return (
+          <div>
+            <div>Rows: {stats.numOfRows}</div>
+            <div>Columns: {stats.numOfColumns}</div>
+          </div>
+        )
+      }
+
+      render(
+        <DkanClientProvider client={mockClient}>
+          <TestComponent />
+        </DkanClientProvider>
+      )
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument()
+
+      await waitFor(() => {
+        expect(screen.getByText('Rows: 1500')).toBeInTheDocument()
+        expect(screen.getByText('Columns: 8')).toBeInTheDocument()
+      })
+
+      expect(mockClient.getDatastoreStatistics).toHaveBeenCalledWith('resource-1')
+    })
+
+    it('should handle loading state', () => {
+      vi.spyOn(mockClient, 'getDatastoreStatistics').mockImplementation(
+        () => new Promise(() => {})
+      )
+
+      function TestComponent() {
+        const { data, isLoading } = useDatastoreStatistics({
+          identifier: 'resource-1',
+        })
+
+        return (
+          <div>
+            <div>Loading: {isLoading ? 'yes' : 'no'}</div>
+            <div>Has data: {data ? 'yes' : 'no'}</div>
+          </div>
+        )
+      }
+
+      render(
+        <DkanClientProvider client={mockClient}>
+          <TestComponent />
+        </DkanClientProvider>
+      )
+
+      expect(screen.getByText('Loading: yes')).toBeInTheDocument()
+      expect(screen.getByText('Has data: no')).toBeInTheDocument()
+    })
+
+    it('should handle error state', async () => {
+      const mockError = new Error('Statistics not found')
+      vi.spyOn(mockClient, 'getDatastoreStatistics').mockRejectedValue(mockError)
+
+      function TestComponent() {
+        const { error, isLoading } = useDatastoreStatistics({
+          identifier: 'resource-1',
+        })
+
+        if (isLoading) return <div>Loading...</div>
+        if (error) return <div>Error: {error.message}</div>
+
+        return <div>Success</div>
+      }
+
+      render(
+        <DkanClientProvider client={mockClient}>
+          <TestComponent />
+        </DkanClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Error: Statistics not found')).toBeInTheDocument()
+      })
+    })
+
+    it('should handle enabled option', () => {
+      const statsSpy = vi
+        .spyOn(mockClient, 'getDatastoreStatistics')
+        .mockResolvedValue({ numOfRows: 100, numOfColumns: 5, columns: {} })
+
+      function TestComponent() {
+        const { data } = useDatastoreStatistics({
+          identifier: 'resource-1',
+          enabled: false,
+        })
+
+        return <div>Data: {data ? 'yes' : 'no'}</div>
+      }
+
+      render(
+        <DkanClientProvider client={mockClient}>
+          <TestComponent />
+        </DkanClientProvider>
+      )
+
+      expect(screen.getByText('Data: no')).toBeInTheDocument()
+      expect(statsSpy).not.toHaveBeenCalled()
+    })
+
+    it('should not fetch when identifier is empty', () => {
+      const statsSpy = vi
+        .spyOn(mockClient, 'getDatastoreStatistics')
+        .mockResolvedValue({ numOfRows: 100, numOfColumns: 5, columns: {} })
+
+      function TestComponent() {
+        const { data } = useDatastoreStatistics({
+          identifier: '',
+        })
+
+        return <div>Data: {data ? 'yes' : 'no'}</div>
+      }
+
+      render(
+        <DkanClientProvider client={mockClient}>
+          <TestComponent />
+        </DkanClientProvider>
+      )
+
+      expect(screen.getByText('Data: no')).toBeInTheDocument()
+      expect(statsSpy).not.toHaveBeenCalled()
+    })
+
+    it('should display column information', async () => {
+      const mockStats = {
+        numOfRows: 2500,
+        numOfColumns: 4,
+        columns: {
+          id: { type: 'integer' },
+          title: { type: 'string' },
+          count: { type: 'number' },
+          active: { type: 'boolean' },
+        },
+      }
+
+      vi.spyOn(mockClient, 'getDatastoreStatistics').mockResolvedValue(mockStats)
+
+      function TestComponent() {
+        const { data: stats } = useDatastoreStatistics({
+          identifier: 'resource-1',
+        })
+
+        if (!stats) return <div>Loading...</div>
+
+        return (
+          <div>
+            <div>Total: {stats.numOfRows}</div>
+            <div>Columns: {Object.keys(stats.columns).join(', ')}</div>
+          </div>
+        )
+      }
+
+      render(
+        <DkanClientProvider client={mockClient}>
+          <TestComponent />
+        </DkanClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Total: 2500')).toBeInTheDocument()
+        expect(screen.getByText('Columns: id, title, count, active')).toBeInTheDocument()
       })
     })
   })

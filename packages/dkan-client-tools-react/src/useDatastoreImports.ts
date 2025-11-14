@@ -7,6 +7,7 @@ import { useDkanClient } from './DkanClientProvider'
 import type {
   DatastoreImport,
   DatastoreImportOptions,
+  DatastoreStatistics,
 } from '@dkan-client-tools/core'
 
 export interface UseDatastoreImportsOptions {
@@ -20,6 +21,12 @@ export interface UseDatastoreImportOptions {
   enabled?: boolean
   staleTime?: number
   refetchInterval?: number
+}
+
+export interface UseDatastoreStatisticsOptions {
+  identifier: string
+  enabled?: boolean
+  staleTime?: number
 }
 
 
@@ -461,6 +468,134 @@ export function useDatastoreImport(options: UseDatastoreImportOptions) {
   }
 }
 
+/**
+ * Fetches statistics about a datastore's imported data.
+ *
+ * This hook retrieves metadata about the structure and size of a datastore table, including
+ * the number of rows, number of columns, and column definitions. This information is useful
+ * for understanding the shape and volume of imported data without querying the data itself.
+ *
+ * The statistics are generated after a successful datastore import and remain available as
+ * long as the datastore exists. They provide a quick way to check if data was imported
+ * successfully and to understand its structure before building queries.
+ *
+ * Use this hook when you need to:
+ * - Display datastore size and structure information
+ * - Verify that a datastore import completed successfully
+ * - Build dynamic UI elements based on available columns
+ * - Show data volume metrics to users
+ * - Check if a datastore has data before querying
+ *
+ * @param options - Configuration options including the datastore identifier
+ *
+ * @returns TanStack Query result object containing:
+ *   - `data`: DatastoreStatistics object with numOfRows, numOfColumns, and columns
+ *   - `isLoading`: True during initial fetch
+ *   - `isError`: True if fetch failed
+ *   - `error`: Error object if request failed
+ *   - `refetch`: Function to manually re-fetch statistics
+ *
+ * @example
+ * Basic usage - display datastore size:
+ * ```tsx
+ * function DatastoreInfo({ identifier }: { identifier: string }) {
+ *   const { data: stats, isLoading, error } = useDatastoreStatistics({
+ *     identifier,
+ *   })
+ *
+ *   if (isLoading) return <div>Loading statistics...</div>
+ *   if (error) return <div>Error: {error.message}</div>
+ *   if (!stats) return <div>No statistics available</div>
+ *
+ *   return (
+ *     <div className="datastore-info">
+ *       <h4>Datastore Statistics</h4>
+ *       <p>Rows: {stats.numOfRows.toLocaleString()}</p>
+ *       <p>Columns: {stats.numOfColumns}</p>
+ *       <p>Available columns: {Object.keys(stats.columns).join(', ')}</p>
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * Building a column selector from statistics:
+ * ```tsx
+ * function ColumnSelector({ identifier }: { identifier: string }) {
+ *   const [selectedColumns, setSelectedColumns] = useState<string[]>([])
+ *   const { data: stats } = useDatastoreStatistics({ identifier })
+ *
+ *   if (!stats) return null
+ *
+ *   const availableColumns = Object.keys(stats.columns)
+ *
+ *   return (
+ *     <div className="column-selector">
+ *       <h4>Select Columns to Display</h4>
+ *       {availableColumns.map(column => (
+ *         <label key={column}>
+ *           <input
+ *             type="checkbox"
+ *             checked={selectedColumns.includes(column)}
+ *             onChange={(e) => {
+ *               if (e.target.checked) {
+ *                 setSelectedColumns([...selectedColumns, column])
+ *               } else {
+ *                 setSelectedColumns(selectedColumns.filter(c => c !== column))
+ *               }
+ *             }}
+ *           />
+ *           {column}
+ *         </label>
+ *       ))}
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * Conditional rendering based on data availability:
+ * ```tsx
+ * function DatastoreViewer({ identifier }: { identifier: string }) {
+ *   const { data: stats, isLoading } = useDatastoreStatistics({ identifier })
+ *
+ *   if (isLoading) return <div>Checking datastore...</div>
+ *
+ *   const hasData = stats && stats.numOfRows > 0
+ *
+ *   return (
+ *     <div className="datastore-viewer">
+ *       {hasData ? (
+ *         <DataQueryInterface
+ *           identifier={identifier}
+ *           columns={Object.keys(stats.columns)}
+ *           totalRows={stats.numOfRows}
+ *         />
+ *       ) : (
+ *         <div className="no-data">
+ *           <p>No data imported yet</p>
+ *           <ImportDataButton identifier={identifier} />
+ *         </div>
+ *       )}
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * @see {@link useDatastoreImport} for monitoring import progress
+ * @see {@link useDatastore} for querying datastore data
+ * @see https://dkan.readthedocs.io/en/latest/apis/datastore-import.html
+ */
+export function useDatastoreStatistics(options: UseDatastoreStatisticsOptions) {
+  const client = useDkanClient()
+
+  return useQuery({
+    queryKey: ['datastore', 'statistics', options.identifier] as const,
+    queryFn: () => client.getDatastoreStatistics(options.identifier),
+    enabled: options.enabled !== false && !!options.identifier,
+    staleTime: options.staleTime ?? 5 * 60 * 1000, // Default 5 minutes
+  })
+}
 
 /**
  * Triggers a new datastore import operation for a distribution resource.
