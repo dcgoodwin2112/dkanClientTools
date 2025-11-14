@@ -631,11 +631,11 @@ export class DkanClient {
   /**
    * List harvest runs for a specific plan.
    *
-   * Returns all harvest run records for a given plan, including status,
-   * counts of created/updated/orphaned datasets, and timestamps.
+   * Returns an array of harvest run identifiers for the given plan.
+   * Use getHarvestRun() with a specific run ID to get full run details.
    *
    * @param planId - Harvest plan identifier
-   * @returns Array of harvest run records with status and statistics
+   * @returns Array of harvest run identifiers (strings)
    * @throws {DkanApiError} If harvest plan not found or request fails
    */
   async listHarvestRuns(planId: string) {

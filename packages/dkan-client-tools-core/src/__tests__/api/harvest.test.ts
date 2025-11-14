@@ -80,10 +80,7 @@ describe('DkanApiClient - Harvest API', () => {
   it('should list harvest runs', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [
-        { identifier: 'run1', status: 'done' },
-        { identifier: 'run2', status: 'in_progress' },
-      ],
+      json: async () => ['run1', 'run2'],
     })
 
     const runs = await client.listHarvestRuns('test-plan')
@@ -93,6 +90,7 @@ describe('DkanApiClient - Harvest API', () => {
       expect.any(Object)
     )
     expect(runs).toHaveLength(2)
+    expect(runs).toEqual(['run1', 'run2'])
   })
 
   it('should get a specific harvest run', async () => {

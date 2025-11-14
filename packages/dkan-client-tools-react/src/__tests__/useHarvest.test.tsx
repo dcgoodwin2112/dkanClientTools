@@ -153,10 +153,7 @@ describe('useHarvest', () => {
 
   describe('useHarvestRuns', () => {
     it('should list harvest runs successfully', async () => {
-      const mockRuns = [
-        { identifier: 'run-1', status: 'done' },
-        { identifier: 'run-2', status: 'in_progress' },
-      ]
+      const mockRuns = ['run-1', 'run-2']
 
       vi.spyOn(mockClient, 'listHarvestRuns').mockResolvedValue(mockRuns)
 
@@ -169,10 +166,8 @@ describe('useHarvest', () => {
         return (
           <div>
             <div>Count: {runs.length}</div>
-            {runs.map((run) => (
-              <div key={run.identifier}>
-                {run.identifier}: {run.status}
-              </div>
+            {runs.map((runId) => (
+              <div key={runId}>Run ID: {runId}</div>
             ))}
           </div>
         )
@@ -186,8 +181,8 @@ describe('useHarvest', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Count: 2')).toBeInTheDocument()
-        expect(screen.getByText('run-1: done')).toBeInTheDocument()
-        expect(screen.getByText('run-2: in_progress')).toBeInTheDocument()
+        expect(screen.getByText('Run ID: run-1')).toBeInTheDocument()
+        expect(screen.getByText('Run ID: run-2')).toBeInTheDocument()
       })
 
       expect(mockClient.listHarvestRuns).toHaveBeenCalledWith('plan-1')

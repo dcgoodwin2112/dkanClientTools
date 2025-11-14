@@ -416,9 +416,8 @@ class ApiResponseRecorder {
           // Get runs for this plan
           const runs = await this.client.listHarvestRuns(this.testHarvestPlanId)
           if (runs.length > 0) {
-            // listHarvestRuns returns an array of strings, not HarvestRun objects
-            // The type definition is incorrect - the API actually returns string[]
-            this.testHarvestRunId = runs[0] as unknown as string
+            // listHarvestRuns returns an array of run IDs (strings)
+            this.testHarvestRunId = runs[0]
             console.log(`  Found harvest run: ${this.testHarvestRunId}`)
           }
         }
@@ -1071,7 +1070,7 @@ class ApiResponseRecorder {
     // getRevision - try to get first revision if available
     if (revisionsResult.response && Array.isArray(revisionsResult.response) && revisionsResult.response.length > 0) {
       const firstRevision = revisionsResult.response[0]
-      // The revision object uses 'identifier' property, not 'revision_id' or 'id'
+      // The revision object uses 'identifier' property. Fallbacks included for API version compatibility.
       const revisionId = firstRevision.identifier || firstRevision.revision_id || firstRevision.id
       if (revisionId) {
         this.results.push(
