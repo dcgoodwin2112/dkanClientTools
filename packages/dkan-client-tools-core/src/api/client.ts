@@ -1601,11 +1601,34 @@ export class DkanApiClient {
   // ==================== OPENAPI DOCUMENTATION ====================
 
   /**
-   * Get OpenAPI documentation UI URL
-   * Returns the URL to the interactive API documentation
+   * Get OpenAPI specification URL
+   *
+   * Returns the URL to the machine-readable OpenAPI 3.0 specification in JSON format.
+   * This document can be consumed by API documentation tools like Swagger UI, Redoc,
+   * or Postman to provide interactive API documentation.
+   *
+   * @returns URL to the OpenAPI specification (e.g., 'https://dkan.example.com/api/1')
+   *
+   * @example
+   * View in Swagger UI:
+   * ```typescript
+   * const specUrl = client.getOpenApiDocsUrl()
+   * // Open in Swagger UI hosted online
+   * window.open(`https://petstore.swagger.io/?url=${encodeURIComponent(specUrl)}`)
+   * ```
+   *
+   * @example
+   * Fetch and inspect the spec:
+   * ```typescript
+   * const specUrl = client.getOpenApiDocsUrl()
+   * const response = await fetch(specUrl)
+   * const openApiSpec = await response.json()
+   * console.log(`API Version: ${openApiSpec.info.version}`)
+   * console.log(`Available paths: ${Object.keys(openApiSpec.paths).length}`)
+   * ```
    */
   getOpenApiDocsUrl(): string {
-    return `${this.baseUrl}/api/1/docs`
+    return `${this.baseUrl}/api/1`
   }
 
 }

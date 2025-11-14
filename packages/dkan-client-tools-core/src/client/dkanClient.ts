@@ -971,11 +971,12 @@ export class DkanClient {
   // ==================== OPENAPI DOCUMENTATION ====================
 
   /**
-   * Get OpenAPI documentation UI URL.
+   * Get OpenAPI specification URL
    *
-   * Returns the URL to the interactive Swagger UI documentation for the DKAN API.
+   * Returns the URL to the machine-readable OpenAPI 3.0 specification in JSON format.
+   * This can be used with documentation tools like Swagger UI, Redoc, or Postman.
    *
-   * @returns URL to the OpenAPI documentation interface
+   * @returns URL to the OpenAPI specification (e.g., 'https://dkan.example.com/api/1')
    */
   getOpenApiDocsUrl() {
     return this.apiClient.getOpenApiDocsUrl()

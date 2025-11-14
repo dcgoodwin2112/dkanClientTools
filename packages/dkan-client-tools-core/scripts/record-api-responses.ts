@@ -1151,7 +1151,7 @@ class ApiResponseRecorder {
     this.results.push({
       method: 'getOpenApiDocsUrl',
       category: 'OpenAPI',
-      endpoint: '/api/1/docs',
+      endpoint: '/api/1',
       timestamp: new Date().toISOString(),
       response: docsUrl,
       status: 200,
