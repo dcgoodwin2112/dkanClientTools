@@ -33,100 +33,32 @@ export interface DkanClientOptions extends DkanClientConfig {
 }
 
 /**
- * DkanClient - Framework-agnostic core client for DKAN data operations
+ * DkanClient - TanStack Query wrapper for DKAN API.
  *
- * Central coordinator for all DKAN API operations, built on TanStack Query's QueryClient.
- * This class provides direct access to all DKAN REST API methods and manages query caching,
- * invalidation, and lifecycle.
+ * Wraps DkanApiClient with QueryClient for automatic caching, background refetching,
+ * and state management. Use this in server-side code or when building custom framework adapters.
  *
- * **Architecture**:
- * - Wraps TanStack Query's QueryClient for caching and state management
- * - Delegates API calls to DkanApiClient which handles HTTP requests
- * - Provides convenience methods for common operations
- * - Manages component mount/unmount lifecycle
+ * For React/Vue applications, use framework-specific hooks/composables from
+ * @dkan-client-tools/react or @dkan-client-tools/vue instead of calling these methods directly.
  *
- * **Usage Pattern**:
- * 1. Create a QueryClient from your framework adapter (@tanstack/react-query or @tanstack/vue-query)
- * 2. Pass it to DkanClient along with your DKAN base URL and optional auth
- * 3. Use framework-specific hooks/composables that consume this client
- * 4. Or call methods directly for imperative data fetching
- *
- * **Direct vs Hook Usage**:
- * - For React/Vue applications, prefer using the framework-specific hooks/composables
- * - Use direct methods for server-side operations, scripts, or custom integrations
- * - Direct methods bypass caching - use hooks/composables for automatic caching
+ * Architecture:
+ * - DkanApiClient handles HTTP requests and authentication
+ * - QueryClient manages caching, deduplication, and stale-time policies
+ * - Methods return Query/Mutation results for direct consumption
  *
  * @example
- * Basic setup with React:
  * ```typescript
- * import { QueryClient } from '@tanstack/react-query'
- * import { DkanClient } from '@dkan-client-tools/core'
- *
- * const queryClient = new QueryClient({
- *   defaultOptions: {
- *     queries: {
- *       staleTime: 5 * 60 * 1000, // 5 minutes
- *     },
- *   },
- * })
- *
- * const dkanClient = new DkanClient({
- *   baseUrl: 'https://demo.getdkan.org',
- *   queryClient,
- * })
- * ```
- *
- * @example
- * With authentication:
- * ```typescript
- * import { QueryClient } from '@tanstack/vue-query'
- * import { DkanClient } from '@dkan-client-tools/core'
- *
  * const dkanClient = new DkanClient({
  *   baseUrl: 'https://data.example.com',
  *   queryClient: new QueryClient(),
- *   auth: {
- *     username: 'admin',
- *     password: 'password'
- *   }
+ *   auth: { username: 'admin', password: 'password' }
  * })
- * ```
  *
- * @example
- * Direct API usage (without hooks):
- * ```typescript
- * // Fetch a dataset
+ * // Direct usage (bypasses caching)
  * const dataset = await dkanClient.fetchDataset('abc-123')
- *
- * // Search datasets
- * const results = await dkanClient.searchDatasets({
- *   searchOptions: { keyword: 'health' }
- * })
- *
- * // Query datastore
- * const data = await dkanClient.queryDatastore('dataset-id', 0, {
- *   limit: 100,
- *   offset: 0
- * })
  * ```
  *
- * @example
- * Cache management:
- * ```typescript
- * // Prefetch a query
- * await dkanClient.prefetchQuery(
- *   ['datasets', 'single', 'abc-123'],
- *   () => dkanClient.fetchDataset('abc-123')
- * )
- *
- * // Invalidate queries after mutation
- * await dkanClient.invalidateQueries(['datasets'])
- *
- * // Clear all caches
- * dkanClient.clear()
- * ```
- *
- * @see {@link DkanApiClient} for the underlying HTTP client
+ * @see DkanApiClient for low-level HTTP client
  * @see https://tanstack.com/query/latest for TanStack Query documentation
  */
 export class DkanClient {
