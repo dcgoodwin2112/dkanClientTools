@@ -22,8 +22,19 @@ A monorepo of packages containing tools to help developers build frontend applic
 
 ### Installation
 
+**React:**
 ```bash
 npm install @dkan-client-tools/react @dkan-client-tools/core @tanstack/react-query
+```
+
+**Vue:**
+```bash
+npm install @dkan-client-tools/vue @dkan-client-tools/core @tanstack/vue-query
+```
+
+**Core (framework-agnostic):**
+```bash
+npm install @dkan-client-tools/core @tanstack/query-core
 ```
 
 ### React Example
@@ -61,21 +72,11 @@ function DatasetList() {
     <ul>
       {data?.results.map((dataset) => (
         <li key={dataset.identifier}>
-          <DatasetItem id={dataset.identifier} />
+          <h3>{dataset.title}</h3>
+          <p>{dataset.description}</p>
         </li>
       ))}
     </ul>
-  )
-}
-
-function DatasetItem({ id }: { id: string }) {
-  const { data } = useDataset({ identifier: id })
-
-  return (
-    <div>
-      <h3>{data?.title}</h3>
-      <p>{data?.description}</p>
-    </div>
   )
 }
 ```
@@ -85,7 +86,7 @@ function DatasetItem({ id }: { id: string }) {
 ```vue
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useDatasetSearch, useDataset } from '@dkan-client-tools/vue'
+import { useDatasetSearch } from '@dkan-client-tools/vue'
 
 const searchQuery = ref('')
 const { data: searchResults, isLoading } = useDatasetSearch({
@@ -99,9 +100,7 @@ const { data: searchResults, isLoading } = useDatasetSearch({
 <template>
   <div>
     <input v-model="searchQuery" placeholder="Search datasets..." />
-
     <div v-if="isLoading">Loading...</div>
-
     <ul v-else-if="searchResults">
       <li v-for="dataset in searchResults.results" :key="dataset.identifier">
         <h3>{{ dataset.title }}</h3>
@@ -121,7 +120,6 @@ const client = new DkanClient({
   baseUrl: 'https://your-dkan-site.com',
 })
 
-// Access the API client
 const apiClient = client.getApiClient()
 
 // Fetch a dataset
@@ -140,106 +138,26 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 })
 ```
 
-## Available Hooks & Composables
+## API Coverage
 
-Both the React and Vue packages provide comprehensive hooks/composables covering all DKAN APIs. The API is identical between frameworks, with Vue using reactive refs and React using standard hooks.
+The packages provide **50+ hooks/composables** covering all major DKAN REST APIs:
 
-### Dataset Hooks (Query)
+- **Datasets** - Search, CRUD operations, metadata management
+- **Datastore** - Query data with SQL-like filters, statistics, imports
+- **Data Dictionary** - Manage Frictionless Table Schema definitions
+- **Harvest** - Manage harvest plans and runs
+- **Metastore** - Schema management and dataset facets
+- **Revisions** - Version control and moderation workflows
 
-- `useDataset` - Fetch a single dataset by identifier
-- `useDatasetSearch` - Search for datasets with filters
-- `useAllDatasets` - Get all datasets with full metadata
-
-### Dataset Hooks (Mutations)
-
-- `useCreateDataset` - Create a new dataset
-- `useUpdateDataset` - Update an entire dataset
-- `usePatchDataset` - Partially update a dataset
-- `useDeleteDataset` - Delete a dataset
-
-### Datastore Hooks
-
-- `useDatastore` - Query datastore data
-- `useQueryDatastoreMulti` - Query multiple datastore resources with JOINs
-- `useSqlQuery` - Execute SQL queries
-- `useExecuteSqlQuery` - Execute SQL queries on demand (mutation)
-- `useDownloadQuery` - Download query results (mutation)
-- `useDownloadQueryByDistribution` - Download by distribution (mutation)
-
-### Data Dictionary Hooks (Query)
-
-- `useDataDictionary` - Get a data dictionary
-- `useDataDictionaryList` - List all data dictionaries
-- `useDataDictionaryFromUrl` - Fetch dictionary from URL
-- `useDatastoreSchema` - Get schema for a datastore
-
-### Data Dictionary Hooks (Mutations)
-
-- `useCreateDataDictionary` - Create a data dictionary
-- `useUpdateDataDictionary` - Update a data dictionary
-- `useDeleteDataDictionary` - Delete a data dictionary
-
-### Harvest Hooks
-
-- `useHarvestPlans` - List all harvest plans
-- `useHarvestPlan` - Get a specific harvest plan
-- `useHarvestRuns` - List harvest runs for a plan
-- `useHarvestRun` - Get harvest run status
-- `useRegisterHarvestPlan` - Register a new harvest plan (mutation)
-- `useRunHarvest` - Run a harvest (mutation)
-
-### Datastore Import Hooks
-
-- `useDatastoreImports` - List all datastore imports
-- `useDatastoreImport` - Get a specific import
-- `useDatastoreStatistics` - Get datastore statistics
-- `useTriggerDatastoreImport` - Trigger a datastore import (mutation)
-- `useDeleteDatastore` - Delete a datastore (mutation)
-
-### Metastore Hooks
-
-- `useSchemas` - List available metastore schemas
-- `useSchema` - Get a specific metastore schema definition
-- `useSchemaItems` - Get items for a specific schema
-- `useDatasetFacets` - Get dataset facets (themes, keywords, publishers)
-
-### Revision/Moderation Hooks
-
-- `useRevisions` - Get all revisions for an item
-- `useRevision` - Get a specific revision
-- `useCreateRevision` - Create a new revision (mutation)
-- `useChangeDatasetState` - Change dataset workflow state (mutation)
-
-See package READMEs for detailed documentation:
-- [React package README](./packages/dkan-client-tools-react/README.md)
-- [Vue package README](./packages/dkan-client-tools-vue/README.md)
-
-## DKAN API Coverage
-
-The packages support all major DKAN REST APIs:
-
-- **Metastore API** - Dataset metadata (DCAT-US schema), CRUD operations, revisions
-- **Datastore API** - Query data with SQL-like filters, statistics, imports
-- **Search API** - Search datasets with faceting and full-text search
-- **Harvest API** - Manage harvest plans and runs
+See the **[API Reference](./docs/API_REFERENCE.md)** for complete documentation of all hooks and composables.
 
 ## Architecture
 
-Built on the proven [TanStack Query](https://tanstack.com/query) architecture:
+Built on the proven TanStack Query architecture with a core + adapters pattern:
 
 ```
 ┌──────────────────────┐  ┌──────────────────────┐
-│  React Components    │  │  Vue Components      │
-│  (Comprehensive API) │  │  (Comprehensive API) │
-└──────────┬───────────┘  └──────────┬───────────┘
-           │                         │
-           ▼                         ▼
-┌──────────────────────┐  ┌──────────────────────┐
-│ @dkan-client-tools/  │  │ @dkan-client-tools/  │
-│ react                │  │ vue                  │
-│ - TanStack React     │  │ - TanStack Vue Query │
-│   Query              │  │ - Vue Plugin         │
-│ - Context Provider   │  │ - Reactive Params    │
+│  React Hooks         │  │  Vue Composables     │
 └──────────┬───────────┘  └──────────┬───────────┘
            │                         │
            └────────────┬────────────┘
@@ -258,9 +176,17 @@ Built on the proven [TanStack Query](https://tanstack.com/query) architecture:
            │   - Datastore           │
            │   - Search              │
            │   - Harvest             │
-           │   - Properties          │
            └─────────────────────────┘
 ```
+
+**Key Architectural Concepts:**
+
+- **Framework-agnostic core** - All HTTP logic and types in a single shared package
+- **Smart caching** - TanStack Query handles automatic caching, deduplication, and background refetching
+- **Type safety** - Full TypeScript support with DCAT-US schema types and Frictionless Table Schema types
+- **Reactive** - Vue composables support reactive parameters, React hooks follow standard patterns
+
+See **[Architecture Documentation](./docs/ARCHITECTURE.md)** for detailed design decisions.
 
 ## Development
 
@@ -273,7 +199,7 @@ This is a monorepo managed with npm workspaces.
 npm install
 
 # Build all packages
-npm run build
+npm run build:all
 
 # Run in watch mode
 npm run dev
@@ -285,39 +211,21 @@ npm test
 npm run typecheck
 ```
 
-### Project Structure
+### Building
 
+The project uses an automated build orchestrator:
+
+```bash
+npm run build:all              # Complete workflow: packages → deploy → examples
+npm run build:all:drupal       # Complete build + clear Drupal cache
+npm run build:packages         # Build only packages (core, react, vue)
 ```
-/
-├── packages/
-│   ├── dkan-client-tools-core/    # Core package
-│   │   ├── src/
-│   │   │   ├── api/               # DkanApiClient
-│   │   │   ├── client/            # DkanClient
-│   │   │   └── types/             # TypeScript types
-│   │   └── __tests__/             # Core tests
-│   ├── dkan-client-tools-react/   # React package
-│   │   ├── src/
-│   │   │   ├── use*.ts            # React hooks
-│   │   │   └── DkanClientProvider.tsx
-│   │   └── __tests__/             # Comprehensive hook tests
-│   └── dkan-client-tools-vue/     # Vue package
-│       ├── src/
-│       │   ├── use*.ts            # Vue composables
-│       │   └── plugin.ts          # Vue plugin
-│       └── __tests__/             # Comprehensive composable tests
-├── examples/                      # Demo applications
-│   ├── react-demo-app/            # React example app
-│   └── vue-demo-app/              # Vue example app
-├── dkan/                          # Local DKAN instance (for testing)
-├── docs/                          # User documentation
-├── package.json                   # Root workspace config
-└── README.md                      # This file
-```
+
+See **[Build Process](./docs/BUILD_PROCESS.md)** for detailed build documentation.
 
 ### Testing
 
-Comprehensive test suite across React and Vue packages:
+Comprehensive test suite with **500+ tests** across React and Vue packages:
 
 ```bash
 # Run all tests
@@ -327,41 +235,14 @@ npm test
 npm test -- --watch
 
 # Run tests for a specific package
-cd packages/dkan-client-tools-react
-npm test
-
-cd packages/dkan-client-tools-vue
-npm test
+npm test -w @dkan-client-tools/react
 ```
 
-All hooks and composables are tested for:
-- Loading states
-- Error handling
-- Data fetching
-- Mutations
-- Callbacks
-- Edge cases
-- Reactive parameters (Vue)
-
-### Local DKAN Development Environment
-
-A local DKAN site is included for testing and development:
-
-```bash
-cd dkan
-ddev start
-ddev drush status
-```
-
-The local DKAN instance runs at: `https://dkan.ddev.site`
-
-**Note:** The `/dkan` directory is excluded from git as it's a separate Drupal/DKAN project. Set up your own DKAN instance for testing.
-
-See [DRUPAL_INTEGRATION.md](./docs/DRUPAL_INTEGRATION.md) for DKAN/Drupal integration details.
+All hooks and composables are tested for loading states, error handling, data fetching, mutations, callbacks, and edge cases.
 
 ## Example Applications
 
-Complete example applications are available in the `examples/` directory:
+Complete example applications demonstrating all features:
 
 **React Demo App:**
 ```bash
@@ -377,68 +258,41 @@ npm install
 npm run dev
 ```
 
-The example apps demonstrate:
-- Dataset search and filtering with pagination
-- Dataset details view with full metadata
-- Datastore querying with SQL support
-- Data dictionary management
-- Harvest operations (plans and runs)
-- Download functionality (CSV/JSON)
-- Loading states and error handling
-- Authentication setup
-- TypeScript integration
-
-## Framework Support
-
-Currently supported frameworks:
-
-- ✅ **React** - Comprehensive hooks via `@tanstack/react-query`
-- ✅ **Vue** - Comprehensive composables via `@tanstack/vue-query`
-
-Each framework adapter:
-1. Depends on `@dkan-client-tools/core`
-2. Uses the corresponding TanStack Query framework adapter
-3. Provides framework-specific hooks/composables/components
-
-### Code Style
-
-- TypeScript for all code
-- Comprehensive JSDoc comments on all hooks
-- Test coverage for all functionality
-- Follow existing patterns and conventions
+The example apps demonstrate dataset search, datastore querying, data dictionary management, harvest operations, and more.
 
 ## Documentation
 
 Comprehensive documentation is available in the `/docs` directory:
 
+### Getting Started
 - **[Installation Guide](./docs/INSTALLATION.md)** - Install packages for React, Vue, or vanilla JavaScript
 - **[Quick Start](./docs/QUICK_START.md)** - Get up and running in 5 minutes
-- **[Drupal Integration](./docs/DRUPAL_INTEGRATION.md)** - Using DKAN Client Tools in Drupal themes and modules
-- **[Build Process](./docs/BUILD_PROCESS.md)** - Understanding the automated build system
 
-See **[docs/README.md](./docs/README.md)** for complete documentation index.
+### Framework Integration
+- **[React Guide](./docs/REACT_GUIDE.md)** - Complete React integration guide
+- **[Vue Guide](./docs/VUE_GUIDE.md)** - Complete Vue integration guide
+- **[Drupal Integration](./docs/DRUPAL_INTEGRATION.md)** - Using in Drupal themes and modules
+
+### Reference
+- **[API Reference](./docs/API_REFERENCE.md)** - Complete API documentation
+- **[Architecture](./docs/ARCHITECTURE.md)** - Design decisions and patterns
+- **[Build Process](./docs/BUILD_PROCESS.md)** - Understanding the build system
+
+**See [docs/README.md](./docs/README.md) for the complete documentation index.**
+
+## Resources
+
+- [DKAN Documentation](https://dkan.readthedocs.io/) - Official DKAN documentation
+- [DCAT-US Schema](https://resources.data.gov/resources/dcat-us/) - Federal data catalog standard
+- [TanStack Query](https://tanstack.com/query) - Foundation for this project
+- [Frictionless Standards](https://specs.frictionlessdata.io/) - Data dictionary specifications
 
 ## License
 
 MIT
 
-## Resources
-
-- [DKAN Documentation](https://dkan.readthedocs.io/)
-- [DCAT-US Schema](https://resources.data.gov/resources/dcat-us/)
-- [TanStack Query](https://tanstack.com/query) - Foundation for this project
-- [Project Open Data](https://project-open-data.cio.gov/) - Federal open data standards
-- [Frictionless Standards](https://specs.frictionlessdata.io/) - Data dictionary specifications
-
 ## Project Status
 
 **Status**: Active Development
 
-This project provides comprehensive coverage of DKAN APIs with:
-- ✅ Complete React hooks for all DKAN APIs
-- ✅ Complete Vue composables for all DKAN APIs
-- ✅ Comprehensive test coverage
-- ✅ Full TypeScript support
-- ✅ Complete DCAT-US type definitions
-- ✅ All major DKAN APIs supported
-- ✅ Example applications
+This project provides comprehensive coverage of DKAN APIs with complete React hooks, Vue composables, TypeScript support, and extensive test coverage.
