@@ -715,6 +715,402 @@ TanStack Query prevents common memory leaks:
 
 ---
 
+## Performance Considerations
+
+Understanding the performance implications of different TanStack Query configurations.
+
+### Cache Size Management
+
+#### Monitoring Cache Size
+
+The in-memory query cache grows as users navigate your application. Monitor cache size to prevent excessive memory usage.
+
+**Checking Current Cache Size:**
+
+```typescript
+import { useQueryClient } from '@tanstack/react-query'
+
+function CacheMonitor() {
+  const queryClient = useQueryClient()
+
+  const cacheSize = queryClient.getQueryCache().getAll().length
+  const mutationCacheSize = queryClient.getMutationCache().getAll().length
+
+  console.log(`Queries in cache: ${cacheSize}`)
+  console.log(`Mutations in cache: ${mutationCacheSize}`)
+
+  return <div>Cache entries: {cacheSize}</div>
+}
+```
+
+**Memory Usage Patterns:**
+
+| Cache Entries | Est. Memory | Use Case |
+|---------------|-------------|----------|
+| 0-50 | <5 MB | Small app, few queries |
+| 50-200 | 5-20 MB | Medium app, normal usage |
+| 200-500 | 20-50 MB | Large app, heavy navigation |
+| 500+ | 50+ MB | May need optimization |
+
+**When to Be Concerned:**
+- Cache growing beyond 500 entries
+- Users report slow performance on lower-end devices
+- Memory profiling shows TanStack Query using >100 MB
+- App crashes on mobile devices
+
+---
+
+#### Cache Size Strategies
+
+Different `gcTime` strategies for memory management:
+
+**Aggressive Garbage Collection (Memory-Constrained Apps):**
+
+```typescript
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1 * 60 * 1000, // 1 minute
+      staleTime: 30 * 1000,  // 30 seconds
+    },
+  },
+})
+```
+
+**Trade-offs:**
+- ✅ Lower memory usage
+- ✅ Better for mobile devices
+- ❌ More network requests
+- ❌ Users see loading states more often
+
+**Conservative Garbage Collection (Fast Navigation Apps):**
+
+```typescript
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 30 * 60 * 1000, // 30 minutes
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+})
+```
+
+**Trade-offs:**
+- ✅ Instant back navigation
+- ✅ Fewer network requests
+- ✅ Better UX for power users
+- ❌ Higher memory usage
+- ❌ May accumulate stale data
+
+**Per-Query Configuration:**
+
+```typescript
+// Long-lived reference data
+useQuery({
+  queryKey: ['countries'],
+  queryFn: fetchCountries,
+  staleTime: Infinity,    // Never refetch
+  gcTime: Infinity,       // Never garbage collect
+})
+
+// Frequently changing data
+useQuery({
+  queryKey: ['liveStock', symbol],
+  queryFn: () => fetchStock(symbol),
+  staleTime: 0,           // Always stale
+  gcTime: 2 * 60 * 1000,  // Clean up after 2 minutes
+})
+```
+
+---
+
+### staleTime Trade-offs
+
+The `staleTime` setting balances data freshness vs network efficiency.
+
+#### Network Impact vs Freshness
+
+**Comparison Table:**
+
+| staleTime | Network Requests | Data Freshness | Use Case |
+|-----------|------------------|----------------|----------|
+| `0` (default) | High - refetch on every mount | Maximum | Live data, stock prices |
+| `30s - 1m` | Moderate | Good | Frequently updated content |
+| `5m - 15m` | Low | Acceptable | Most application data |
+| `30m - 1h` | Very Low | Delayed | Infrequently changed data |
+| `Infinity` | Minimal - only on invalidation | Potentially stale | Static reference data |
+
+**Example Scenarios:**
+
+```typescript
+// Dashboard with live metrics - always fresh
+useQuery({
+  queryKey: ['dashboard', 'metrics'],
+  queryFn: fetchMetrics,
+  staleTime: 0,
+  refetchInterval: 30 * 1000, // Refetch every 30s
+})
+// Network: ~120 requests/hour
+
+// E-commerce product catalog - balanced
+useQuery({
+  queryKey: ['products'],
+  queryFn: fetchProducts,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+})
+// Network: ~12 requests/hour (if viewed frequently)
+
+// User profile - rarely changes
+useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+  staleTime: 30 * 60 * 1000, // 30 minutes
+})
+// Network: ~2 requests/hour
+
+// Country list - never changes
+useQuery({
+  queryKey: ['countries'],
+  queryFn: fetchCountries,
+  staleTime: Infinity,
+})
+// Network: 1 request per session
+```
+
+---
+
+#### Real-World staleTime Recommendations
+
+Recommended `staleTime` values by data type:
+
+| Data Type | staleTime | Reasoning |
+|-----------|-----------|-----------|
+| User authentication state | 5-10 minutes | Balance security vs UX |
+| Search results | 2-5 minutes | Results may change frequently |
+| Dataset catalog | 5-15 minutes | Datasets updated periodically |
+| Dataset metadata | 10-30 minutes | Metadata rarely changes |
+| Datastore query results | 5-10 minutes | Data may be updated |
+| Reference data (themes, etc.) | Infinity | Truly static data |
+| User preferences | 15-30 minutes | Changed infrequently |
+| Activity feeds | 1-2 minutes | Frequent updates expected |
+
+**Implementation Example:**
+
+```typescript
+// src/config/queryDefaults.ts
+export const STALE_TIMES = {
+  LIVE_DATA: 0,
+  REALTIME: 30 * 1000,           // 30 seconds
+  FREQUENTLY_UPDATED: 2 * 60 * 1000,  // 2 minutes
+  NORMAL: 5 * 60 * 1000,         // 5 minutes
+  INFREQUENT: 15 * 60 * 1000,    // 15 minutes
+  RARE: 30 * 60 * 1000,          // 30 minutes
+  STATIC: Infinity,
+}
+
+// Usage
+useQuery({
+  queryKey: ['datasets'],
+  queryFn: fetchDatasets,
+  staleTime: STALE_TIMES.NORMAL,
+})
+```
+
+---
+
+### Query Key Granularity
+
+Query key structure affects cache efficiency and performance.
+
+#### Performance Impact
+
+**Too Broad - Unnecessary Refetches:**
+
+```typescript
+// ❌ Single key for all products
+useQuery({
+  queryKey: ['products'],
+  queryFn: () => fetchProducts(filters),
+})
+// Problem: Changing filters requires manual refetch
+// or cache invalidation affecting all product queries
+```
+
+**Too Specific - Cache Fragmentation:**
+
+```typescript
+// ❌ Includes timestamp in key
+useQuery({
+  queryKey: ['products', filters, Date.now()],
+  queryFn: () => fetchProducts(filters),
+})
+// Problem: Every render creates new cache entry
+// Memory grows unbounded, no cache hits
+```
+
+**Optimal Granularity:**
+
+```typescript
+// ✅ Include relevant filter parameters
+useQuery({
+  queryKey: ['products', { category, search, page }],
+  queryFn: () => fetchProducts({ category, search, page }),
+  staleTime: 5 * 60 * 1000,
+})
+// Benefit: Separate cache per filter combination
+// Navigate back = instant load from cache
+```
+
+---
+
+### Optimization Guidance
+
+#### Best Practices Checklist
+
+**Query Configuration:**
+- ✅ Set appropriate `staleTime` for each query type
+- ✅ Use `gcTime` to control memory footprint
+- ✅ Enable background refetching for important data
+- ✅ Disable refetching for static reference data
+- ✅ Use `select` to prevent re-renders from unchanged data
+
+**Query Keys:**
+- ✅ Include all parameters that affect the result
+- ✅ Use stable objects/primitives (not Date.now(), Math.random())
+- ✅ Order keys consistently: `['resource', id, { filters }]`
+- ✅ Don't include UI state in query keys
+
+**Memory Management:**
+- ✅ Monitor cache size in production
+- ✅ Set conservative `gcTime` for mobile apps
+- ✅ Invalidate queries when data changes server-side
+- ✅ Remove unused queries with `queryClient.removeQueries()`
+
+**Network Optimization:**
+- ✅ Batch related queries together
+- ✅ Prefetch data for likely navigation paths
+- ✅ Use `keepPreviousData` for pagination
+- ✅ Implement proper loading states to avoid UX issues
+
+---
+
+#### Anti-Patterns to Avoid
+
+**Over-Fetching:**
+
+```typescript
+// ❌ Fetching too much data
+useQuery({
+  queryKey: ['allDatasets'],
+  queryFn: () => fetchAllDatasets(), // Could be 10,000+ datasets
+})
+
+// ✅ Fetch only what's needed
+useQuery({
+  queryKey: ['datasets', { page, pageSize }],
+  queryFn: () => fetchDatasets({ page, pageSize }),
+})
+```
+
+**Over-Invalidating:**
+
+```typescript
+// ❌ Invalidating all queries
+queryClient.invalidateQueries() // Refetches EVERYTHING
+
+// ✅ Invalidate only affected queries
+queryClient.invalidateQueries({
+  queryKey: ['datasets', datasetId]
+})
+```
+
+**Ignoring staleTime:**
+
+```typescript
+// ❌ Using default staleTime for everything
+useQuery({
+  queryKey: ['countries'],
+  queryFn: fetchCountries,
+  // staleTime: 0 (default) - refetches static data unnecessarily
+})
+
+// ✅ Match staleTime to data characteristics
+useQuery({
+  queryKey: ['countries'],
+  queryFn: fetchCountries,
+  staleTime: Infinity, // Static data
+})
+```
+
+**Not Monitoring in Production:**
+
+```typescript
+// ❌ No visibility into cache behavior
+
+// ✅ Add monitoring
+const queryCache = queryClient.getQueryCache()
+queryCache.subscribe((event) => {
+  if (event.type === 'added') {
+    console.log('Cache size:', queryCache.getAll().length)
+  }
+})
+
+// Or use DevTools in development
+```
+
+---
+
+#### Production Monitoring
+
+Track these metrics to optimize performance:
+
+**Key Metrics:**
+
+| Metric | How to Track | Healthy Range |
+|--------|--------------|---------------|
+| Cache size | `queryCache.getAll().length` | <200 entries |
+| Cache hit rate | Track refetch vs cache use | >60% hits |
+| Average query time | DevTools or custom logging | <500ms |
+| Memory usage | Browser DevTools Memory tab | <50 MB for TanStack Query |
+| Failed requests | Error boundary / logging | <1% failure rate |
+
+**Implementation Example:**
+
+```typescript
+// Log query cache stats periodically
+useEffect(() => {
+  const interval = setInterval(() => {
+    const cache = queryClient.getQueryCache()
+    const queries = cache.getAll()
+
+    const stats = {
+      total: queries.length,
+      active: queries.filter(q => q.getObserversCount() > 0).length,
+      stale: queries.filter(q => q.isStale()).length,
+      fetching: queries.filter(q => q.isFetching()).length,
+    }
+
+    console.log('Query Cache Stats:', stats)
+
+    // Send to analytics service
+    analytics.track('query_cache_stats', stats)
+  }, 60 * 1000) // Every minute
+
+  return () => clearInterval(interval)
+}, [])
+```
+
+**When to Adjust Configuration:**
+
+- **Cache growing >500 entries**: Reduce `gcTime`
+- **High network usage**: Increase `staleTime`
+- **Stale data complaints**: Reduce `staleTime` or add refetch triggers
+- **Slow navigation**: Increase `gcTime` and use prefetching
+- **Memory issues**: Reduce `gcTime` and implement query removal
+
+---
+
 ## Debugging
 
 ### TanStack Query DevTools
