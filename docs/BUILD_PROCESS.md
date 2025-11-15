@@ -1,349 +1,373 @@
-# DKAN Client Tools - Automated Build Process
+# Build Process
+
+Automated build system for DKAN Client Tools packages, examples, and Drupal modules.
 
 ## Overview
 
-The DKAN Client Tools project uses an automated build orchestrator to handle the complete workflow from package builds to Drupal module deployment. This document explains the build system, available commands, and how to use them.
+The build system uses an orchestrator script that automates the complete workflow:
 
-## Quick Start
-
-```bash
-# Complete build workflow (everything)
-npm run build:all
-
-# Complete build + clear Drupal cache
-npm run build:all:drupal
-```
-
-## Build Architecture
-
-The build process follows this sequence:
-
-1. **Build Packages** - Build core, react, and vue packages (tsup)
+1. **Build Packages** - Compile TypeScript packages to multiple distribution formats
 2. **Deploy to Drupal** - Copy IIFE builds to Drupal base modules
-3. **Build Examples** - Build standalone demo apps (Vite)
-4. **Build Drupal Modules** - Build Drupal demo modules (Vite)
+3. **Build Examples** - Compile standalone demo applications
+4. **Build Drupal Modules** - Compile Drupal demo modules
 
-### Build Order
-
-```
-Packages (dependency order):
-  1. dkan-client-tools-core       (no dependencies)
-  2. dkan-client-tools-react      (depends on core)
-  3. dkan-client-tools-vue        (depends on core)
-     ↓
-  [Copy IIFE builds to Drupal base modules]
-     ↓
-Standalone Examples (parallel):
-  4. vanilla-demo-app             (uses core)
-  5. react-demo-app               (uses react)
-  6. vue-demo-app                 (uses vue)
-     ↓
-Drupal Demo Modules:
-  7. dkan_client_demo_react       (uses react base module)
-  8. dkan_client_demo_vue         (uses vue base module)
-```
-
-## Available Commands
-
-### Complete Workflows
+## Quick Reference
 
 ```bash
-# Build everything (packages → deploy → examples → drupal modules)
+# Complete workflow (all phases)
 npm run build:all
 
-# Build everything + clear Drupal cache
+# Complete workflow + clear Drupal cache
 npm run build:all:drupal
+
+# Individual phases
+npm run build:packages      # Phase 1: Build packages only
+npm run build:deploy        # Phase 2: Deploy to Drupal only
+npm run build:examples      # Phase 3: Build examples only
+npm run build:drupal        # Phase 4: Build Drupal modules only
+
+# Development
+npm run dev                 # Watch mode (packages only)
+
+# Legacy
+npm run build              # Build all packages (no deployment)
 ```
-
-### Individual Phases
-
-```bash
-# Build only packages (core, react, vue)
-npm run build:packages
-
-# Deploy already-built packages to Drupal modules
-npm run build:deploy
-
-# Build only standalone example apps
-npm run build:examples
-
-# Build only Drupal demo modules
-npm run build:drupal
-```
-
-### Legacy Commands
-
-```bash
-# Build packages using workspace commands (no orchestration)
-npm run build
-
-# Build specific package
-npm run build -w @dkan-client-tools/core
-npm run build -w @dkan-client-tools/react
-npm run build -w @dkan-client-tools/vue
-```
-
-## File Deployment Mappings
-
-The build orchestrator automatically copies built IIFE files to Drupal modules:
-
-### Core Package
-```
-Source:      packages/dkan-client-tools-core/dist/index.global.min.js (40KB)
-Destination: dkan/docroot/modules/custom/dkan_client_tools_core_base/js/vendor/dkan-client-tools-core.min.js
-Global:      window.DkanClientTools
-```
-
-### React Package
-```
-Source:      packages/dkan-client-tools-react/dist/index.global.min.js (205KB)
-Destination: dkan/docroot/modules/custom/dkan_client_tools_react_base/js/vendor/dkan-client-tools-react.min.js
-Global:      window.DkanClientToolsReact
-```
-
-### Vue Package (Full with Compiler)
-```
-Source:      packages/dkan-client-tools-vue/dist/index.global.full.min.js (240KB)
-Destination: dkan/docroot/modules/custom/dkan_client_tools_vue_base/js/vendor/dkan-client-tools-vue.min.js
-Global:      window.DkanClientToolsVue
-```
-
-### Vue Package (Runtime Only)
-```
-Source:      packages/dkan-client-tools-vue/dist/index-runtime.global.runtime.min.js (174KB)
-Destination: dkan/docroot/modules/custom/dkan_client_tools_vue_base/js/vendor/dkan-client-tools-vue-runtime.min.js
-Global:      window.DkanClientToolsVue
-```
-
-## Build Output Verification
-
-The orchestrator automatically verifies:
-
-- ✅ Source files exist before copying
-- ✅ File sizes are within expected ranges
-- ✅ Destination directories are created if missing
-- ✅ Build commands complete successfully
-- ⚠️ Warnings for unexpected file sizes
-
-## Development Workflows
-
-### Making Changes to Core Package
-
-```bash
-# Edit code in packages/dkan-client-tools-core/src/
-
-# Build and deploy
-npm run build:all
-
-# Clear Drupal cache and test
-cd dkan && ddev drush cr
-```
-
-### Making Changes to React Package
-
-```bash
-# Edit code in packages/dkan-client-tools-react/src/
-
-# Build and deploy
-npm run build:all
-
-# Clear Drupal cache and test
-cd dkan && ddev drush cr
-```
-
-### Making Changes to Vue Package
-
-```bash
-# Edit code in packages/dkan-client-tools-vue/src/
-
-# Build and deploy
-npm run build:all
-
-# Clear Drupal cache and test
-cd dkan && ddev drush cr
-```
-
-### Making Changes to Drupal Demo Modules
-
-```bash
-# Edit code in dkan/docroot/modules/custom/dkan_client_demo_react/
-
-# Rebuild just the Drupal modules
-npm run build:drupal
-
-# Clear Drupal cache and test
-cd dkan && ddev drush cr
-```
-
-### Making Changes to Example Apps
-
-```bash
-# Edit code in examples/react-demo-app/
-
-# Rebuild just the examples
-npm run build:examples
-
-# Or use the example's dev server
-cd examples/react-demo-app
-npm run dev
-```
-
-## Error Handling
-
-The build orchestrator uses **fail-fast** error handling:
-
-- ❌ If package builds fail → stops immediately
-- ❌ If deployment fails → stops immediately
-- ❌ If example builds fail → stops immediately
-- ❌ If Drupal module builds fail → stops immediately
-
-This ensures you catch errors early and don't deploy broken builds.
-
-## File Size Expectations
-
-The orchestrator warns if file sizes are outside expected ranges:
-
-| File | Expected Size | Warning If |
-|------|--------------|------------|
-| Core | 35-50 KB | < 35KB or > 50KB |
-| React | 200-220 KB | < 200KB or > 220KB |
-| Vue Full | 230-260 KB | < 230KB or > 260KB |
-| Vue Runtime | 165-185 KB | < 165KB or > 185KB |
-
-## Build Configuration
-
-Build settings are centralized in `/scripts/build-config.js`:
-
-- Deployment mappings (source → destination)
-- Package build order (respects dependencies)
-- Example apps list
-- Drupal demo modules list
-- File size expectations
-
-## Troubleshooting
-
-### Build fails with "Source file not found"
-
-**Problem**: Package didn't build successfully before deployment.
-
-**Solution**: Run `npm run build:packages` and check for errors.
-
-### Build succeeds but changes don't appear in Drupal
-
-**Problem**: Drupal cache needs clearing.
-
-**Solution**: Run `ddev drush cr` or use `npm run build:all:drupal`.
-
-### File size warnings
-
-**Problem**: Build output is larger/smaller than expected.
-
-**Solution**:
-- Check if dependencies changed
-- Verify tsup configuration
-- Update expected sizes in `scripts/build-config.js` if intentional
-
-### Drupal module build fails with missing dependencies
-
-**Problem**: `node_modules` not installed in Drupal module.
-
-**Solution**: The orchestrator auto-runs `npm install` if `node_modules` is missing. If issues persist, manually run:
-
-```bash
-cd dkan/docroot/modules/custom/dkan_client_demo_react
-npm install
-```
-
-## Advanced Usage
-
-### Running Individual Phases
-
-You can run phases independently for faster iteration:
-
-```bash
-# Just rebuild packages
-npm run build:packages
-
-# Just deploy to Drupal (assumes packages already built)
-npm run build:deploy
-
-# Just rebuild examples
-npm run build:examples
-
-# Just rebuild Drupal modules
-npm run build:drupal
-```
-
-### Watch Mode (Coming Soon)
-
-Watch mode is not yet implemented but planned for the future:
-
-```bash
-# Future: Watch packages and auto-deploy on change
-npm run dev:watch
-```
-
-## CI/CD Integration
-
-For continuous integration pipelines:
-
-```bash
-# Full build (fails fast on errors)
-npm run build:all
-
-# Check exit code
-if [ $? -eq 0 ]; then
-  echo "Build successful"
-else
-  echo "Build failed"
-  exit 1
-fi
-```
-
-## Architecture Decisions
-
-### Why Separate Build and Deploy?
-
-- **Packages** build multiple formats (ESM/CJS/IIFE)
-- **Drupal** only needs IIFE format
-- **Separation** allows flexibility (can build without deploying)
-
-### Why Fail-Fast?
-
-- Catches errors immediately
-- Prevents deploying broken builds
-- Clear error messages at point of failure
-
-### Why Automated Copying?
-
-- Manual copying is error-prone
-- Ensures consistency
-- Enables CI/CD automation
-- Faster development workflow
-
-### Why File Size Validation?
-
-- Early warning of bloat
-- Catches bundling issues
-- Documents expected sizes
-
-## Related Documentation
-
-- **[BUILD_PROCESS_ANALYSIS.md](../research/BUILD_PROCESS_ANALYSIS.md)** - Technical deep dive
-- **[BUILD_ARCHITECTURE_DIAGRAM.md](../research/BUILD_ARCHITECTURE_DIAGRAM.md)** - Visual diagrams
-- **[BUILD_EXPLORATION_SUMMARY.md](../research/BUILD_EXPLORATION_SUMMARY.md)** - Executive overview
-- **[CLAUDE.md](../CLAUDE.md)** - Overall project structure
-
-## Questions?
-
-If you have questions about the build process, check:
-
-1. This documentation
-2. `/scripts/build-config.js` - Configuration
-3. `/scripts/build-orchestrator.js` - Implementation
-4. `/research/BUILD_*.md` - Detailed analysis
 
 ---
 
-**Last Updated**: November 2025
-**Maintainer**: DKAN Client Tools Team
+## Build Workflow
+
+### Phase 1: Build Packages
+
+Builds all packages in dependency order using `tsup`:
+
+1. **@dkan-client-tools/core** (no dependencies)
+2. **@dkan-client-tools/react** (depends on core)
+3. **@dkan-client-tools/vue** (depends on core)
+
+**Output Formats**:
+
+Each package generates multiple distribution formats:
+
+- **ESM** (`dist/index.js`) - Modern JavaScript modules for bundlers
+- **CommonJS** (`dist/index.cjs`) - Node.js compatibility
+- **TypeScript Declarations** (`dist/index.d.ts`) - Type definitions
+- **IIFE** (`dist/index.global.js`) - Browser/Drupal builds
+- **IIFE Minified** (`dist/index.global.min.js`) - Production browser builds
+
+**Build Tool**: tsup (TypeScript → JavaScript compiler)
+- Source maps enabled
+- Tree-shaking enabled
+- External dependencies specified per format
+
+### Phase 2: Deploy to Drupal
+
+Copies IIFE builds from packages to Drupal base modules:
+
+```
+packages/dkan-client-tools-core/dist/index.global.min.js
+  → dkan/docroot/modules/custom/dkan_client_tools_core_base/js/vendor/
+
+packages/dkan-client-tools-react/dist/index.global.min.js
+  → dkan/docroot/modules/custom/dkan_client_tools_react_base/js/vendor/
+
+packages/dkan-client-tools-vue/dist/index.global.full.min.js
+  → dkan/docroot/modules/custom/dkan_client_tools_vue_base/js/vendor/
+```
+
+**Validation**: Checks file sizes to ensure builds completed successfully.
+
+### Phase 3: Build Examples
+
+Builds standalone demo applications using Vite:
+
+- **Vanilla Demo App** (`examples/vanilla-demo-app`)
+- **React Demo App** (`examples/react-demo-app`)
+- **Vue Demo App** (`examples/vue-demo-app`)
+
+Each app is built for production deployment.
+
+### Phase 4: Build Drupal Modules
+
+Builds Drupal demo modules that use the framework adapters:
+
+- **React Demo Module** (`dkan/docroot/modules/custom/dkan_client_demo_react`)
+- **Vue Demo Module** (`dkan/docroot/modules/custom/dkan_client_demo_vue`)
+
+Note: Vanilla demo module has no build step (uses plain JavaScript).
+
+---
+
+## Package Build Details
+
+### Core Package
+
+**Entry**: `src/index.ts`
+
+**Outputs**:
+```
+dist/
+├── index.js              # ESM build
+├── index.cjs             # CommonJS build
+├── index.d.ts            # TypeScript declarations
+├── index.global.js       # IIFE build (unminified)
+└── index.global.min.js   # IIFE build (minified)
+```
+
+**Global Variable**: `window.DkanClientTools`
+
+**Features**:
+- All dependencies bundled in IIFE builds
+- TanStack Query Core included
+- Tree-shakeable ESM/CJS builds
+
+### React Package
+
+**Entry**: `src/index.ts`
+
+**Outputs**:
+```
+dist/
+├── index.js              # ESM build
+├── index.cjs             # CommonJS build
+├── index.d.ts            # TypeScript declarations
+├── index.global.js       # IIFE build (unminified)
+└── index.global.min.js   # IIFE build (minified)
+```
+
+**Global Variable**: `window.DkanClientToolsReact`
+
+**Features**:
+- IIFE builds include React and ReactDOM
+- TanStack React Query bundled
+- Core package bundled in IIFE
+
+### Vue Package
+
+**Entry**: `src/index.ts`
+
+**Outputs**:
+```
+dist/
+├── index.js                      # ESM build
+├── index.cjs                     # CommonJS build
+├── index.d.ts                    # TypeScript declarations
+├── index.global.full.js          # IIFE build with Vue compiler
+├── index.global.full.min.js      # Minified full build
+├── index.global.runtime.js       # IIFE build (runtime only)
+└── index.global.runtime.min.js   # Minified runtime build
+```
+
+**Global Variable**: `window.DkanClientToolsVue`
+
+**Features**:
+- **Full build**: Includes Vue compiler (for template strings)
+- **Runtime build**: Runtime only (for pre-compiled components)
+- TanStack Vue Query bundled
+- Core package bundled in IIFE
+
+---
+
+## Development Workflow
+
+### Watch Mode
+
+```bash
+npm run dev
+```
+
+Starts watch mode for all packages. Changes trigger automatic recompilation.
+
+### Individual Package Development
+
+```bash
+# Work on core package
+cd packages/dkan-client-tools-core
+npm run dev
+
+# Work on React package
+cd packages/dkan-client-tools-react
+npm run dev
+
+# Work on Vue package
+cd packages/dkan-client-tools-vue
+npm run dev
+```
+
+### Testing with Drupal
+
+After making changes:
+
+```bash
+# Build and deploy, then clear Drupal cache
+npm run build:all:drupal
+
+# Or manually:
+npm run build:all
+cd dkan
+ddev drush cr
+```
+
+---
+
+## Build Configuration
+
+### Build Orchestrator
+
+**Location**: `scripts/build-orchestrator.js`
+
+The orchestrator automates the complete workflow with:
+- Colored terminal output
+- Error handling with descriptive messages
+- File size validation
+- Phase-by-phase execution
+
+### Build Config
+
+**Location**: `scripts/build-config.js`
+
+Defines:
+- Deployment mappings (package → Drupal module)
+- Build order (respects dependencies)
+- Example app locations
+- Drupal module locations
+
+### TypeScript Config
+
+**Location**: `tsup.config.ts` (in each package)
+
+Configures build formats, output extensions, and bundling options.
+
+---
+
+## Troubleshooting
+
+### Build Fails in Phase 1
+
+**Symptom**: Package build errors
+
+**Solutions**:
+- Check TypeScript errors: `npm run typecheck`
+- Ensure dependencies installed: `npm install`
+- Clear dist folder: `npm run clean` then rebuild
+
+### Build Fails in Phase 2
+
+**Symptom**: Deployment errors
+
+**Solutions**:
+- Verify Phase 1 completed successfully
+- Check dist files exist in package directories
+- Ensure Drupal module directories exist
+
+### Build Fails in Phase 3
+
+**Symptom**: Example app build errors
+
+**Solutions**:
+- Ensure packages built first: `npm run build:packages`
+- Check example app dependencies: `cd examples/{app} && npm install`
+- Verify Vite config is correct
+
+### Build Fails in Phase 4
+
+**Symptom**: Drupal module build errors
+
+**Solutions**:
+- Check module has node_modules: orchestrator will auto-install if missing
+- Verify package builds completed
+- Check module's package.json for build script
+
+### File Size Warnings
+
+**Symptom**: "File size outside expected range" warnings
+
+**Cause**: Build output larger/smaller than expected
+
+**Action**: Usually safe to ignore unless size drastically changed. May indicate:
+- Added/removed dependencies
+- Minification issues
+- Incorrect build target
+
+### IIFE Builds Missing Global Variable
+
+**Symptom**: `window.DkanClientTools` is undefined in browser
+
+**Solutions**:
+- Verify correct file loaded (`index.global.min.js`)
+- Check browser console for syntax errors
+- Ensure script tag appears before usage
+- Check Drupal library dependencies are correct
+
+### Watch Mode Not Detecting Changes
+
+**Symptom**: Changes don't trigger rebuild in watch mode
+
+**Solutions**:
+- Stop and restart watch: `npm run dev`
+- Check file is within package src directory
+- Verify tsup config includes changed file
+
+---
+
+## Build Outputs
+
+### What Gets Committed
+
+**Committed**:
+- Source files (`src/`)
+- Build configuration (`tsup.config.ts`, `package.json`)
+- Example source code
+- Drupal module source
+
+**Not Committed** (`.gitignore`):
+- Package dist folders (`packages/*/dist`)
+- Example build outputs (`examples/*/dist`)
+- Node modules
+- Drupal module build outputs
+
+### Drupal Deployed Files
+
+The following built files are committed to the Drupal codebase:
+
+```
+dkan/docroot/modules/custom/
+├── dkan_client_tools_core_base/js/vendor/
+│   └── dkan-client-tools-core.min.js
+├── dkan_client_tools_react_base/js/vendor/
+│   └── dkan-client-tools-react.min.js
+└── dkan_client_tools_vue_base/js/vendor/
+    └── dkan-client-tools-vue.min.js
+```
+
+These are deployed via `npm run build:deploy` and committed as part of the Drupal codebase.
+
+---
+
+## CI/CD Integration
+
+The build system can be integrated into CI/CD pipelines:
+
+```yaml
+# Example GitHub Actions workflow
+steps:
+  - name: Install dependencies
+    run: npm install
+
+  - name: Run tests
+    run: npm test
+
+  - name: Build all packages
+    run: npm run build:all
+
+  - name: Deploy
+    run: # Your deployment commands
+```
+
+---
+
+## Next Steps
+
+- [Installation Guide](./INSTALLATION.md) - Install packages
+- [Drupal Integration](./DRUPAL_INTEGRATION.md) - Using IIFE builds in Drupal
+- [API Reference](./API_REFERENCE.md) - Complete API documentation

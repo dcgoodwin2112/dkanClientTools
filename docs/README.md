@@ -1,90 +1,60 @@
-# DKAN Client Tools - User Documentation
+# DKAN Client Tools Documentation
 
-This directory contains comprehensive guides for using DKAN Client Tools packages in different environments.
+Developer-focused guides for building applications with DKAN Client Tools.
 
-## Available Guides
+## Quick Navigation
 
-### [Creating a React Standalone App](./REACT_STANDALONE_APP.md)
+### Getting Started
+- **[Installation](./INSTALLATION.md)** - Install packages for React, Vue, or vanilla JavaScript
+- **[Quick Start](./QUICK_START.md)** - Get up and running in 5 minutes
 
-Complete guide for building standalone React applications with `@dkan-client-tools/react`:
+### Framework Guides
+- **[React Guide](./REACT_GUIDE.md)** - Complete guide for React developers
+- **[Vue Guide](./VUE_GUIDE.md)** - Complete guide for Vue 3 developers
 
-- Setting up a Vite + React project
-- Installing and configuring the DKAN Client Provider
-- Using React hooks for data fetching
-- Authentication and CORS configuration
-- Building and deploying for production
-- Testing with Vitest
-- Performance optimization techniques
+### Integration
+- **[Drupal Integration](./DRUPAL_INTEGRATION.md)** - Using DKAN Client Tools in Drupal themes and modules
+- **[Build Process](./BUILD_PROCESS.md)** - Understanding the build system
 
-**Best for**: Modern React SPAs, Next.js apps, or any React-based frontend application
+### Reference
+- **[API Reference](./API_REFERENCE.md)** - Complete API method documentation
 
-### [Creating a Vue Standalone App](./VUE_STANDALONE_APP.md)
+## Package Documentation
 
-Complete guide for building standalone Vue 3 applications with `@dkan-client-tools/vue`:
+Each package has its own README with installation and API details:
 
-- Setting up a Vite + Vue project
-- Installing and configuring the DKAN Client Plugin
-- Using Vue composables for data fetching
-- Authentication and CORS configuration
-- Building and deploying for production
-- Testing with Vitest
-- Performance optimization techniques
-
-**Best for**: Modern Vue 3 SPAs, Nuxt apps, or any Vue-based frontend application
-
-### [Drupal Integration](./DRUPAL_USAGE.md)
-
-Comprehensive guide for integrating DKAN Client Tools with Drupal:
-
-- IIFE builds for browser/Drupal usage
-- Drupal library definitions
-- Using with Drupal Behaviors
-- React and Vue integration in Drupal themes/modules
-- Global variable reference
-- Build size information
-
-**Best for**: Drupal themes, custom Drupal modules, or integrating with existing Drupal sites
-
-## Quick Reference
-
-| Framework | Package | Documentation |
-|-----------|---------|---------------|
-| React | `@dkan-client-tools/react` | [React Standalone App Guide](./REACT_STANDALONE_APP.md) |
-| Vue 3 | `@dkan-client-tools/vue` | [Vue Standalone App Guide](./VUE_STANDALONE_APP.md) |
-| Vanilla JS / Drupal | `@dkan-client-tools/core` | [Drupal Usage Guide](./DRUPAL_USAGE.md) |
+- **[@dkan-client-tools/core](../packages/dkan-client-tools-core/README.md)** - Framework-agnostic core
+- **[@dkan-client-tools/react](../packages/dkan-client-tools-react/README.md)** - React hooks
+- **[@dkan-client-tools/vue](../packages/dkan-client-tools-vue/README.md)** - Vue composables
 
 ## Example Applications
 
-Working examples are available in the repository:
+Working examples to learn from:
 
-- **React Example**: `/examples/react-demo-app` - Complete React app with dataset search, details, and Tailwind CSS
-- **Vue Example**: `/examples/vue-demo-app` - Vue 3 app with dataset search and pagination
+- **[React Demo App](../examples/react-demo-app/README.md)** - Complete React application
+- **[Vue Demo App](../examples/vue-demo-app/README.md)** - Complete Vue 3 application
+- **[Vanilla Demo App](../examples/vanilla-demo-app/README.md)** - Vanilla JavaScript example
 
-## Common Features Across All Frameworks
+## Architecture
 
-All packages provide:
+DKAN Client Tools is built on [TanStack Query](https://tanstack.com/query):
 
-- **Comprehensive hooks/composables** covering all DKAN REST APIs
-- **Full TypeScript support** with DCAT-US schema types
-- **Smart caching** via TanStack Query
-- **Automatic refetching** and background updates
-- **Optimistic updates** for mutations
-- **Authentication support** (Basic Auth and Bearer tokens)
-- **CORS handling** via proxy configuration
+- **Core package** - Wraps TanStack Query Core with DKAN-specific client
+- **Framework adapters** - React and Vue packages provide hooks/composables
+- **Type-safe** - Full TypeScript support with DCAT-US and Frictionless schemas
+- **Smart caching** - Automatic caching, deduplication, and background refetching
 
-## Getting Help
+## Common Tasks
 
-- **API Reference**: See [DKAN API Research](../research/DKAN_API_RESEARCH.md)
-- **Package README**: Each package has its own detailed README:
-  - [Core Package](../packages/dkan-client-tools-core/README.md)
-  - [React Package](../packages/dkan-client-tools-react/README.md)
-  - [Vue Package](../packages/dkan-client-tools-vue/README.md)
-- **Issues**: Report issues on GitHub
-- **DKAN Documentation**: https://dkan.readthedocs.io
+- **Install for React** → [Installation Guide](./INSTALLATION.md#react)
+- **Install for Vue** → [Installation Guide](./INSTALLATION.md#vue)
+- **Search datasets** → [React Guide - Dataset Hooks](./REACT_GUIDE.md#dataset-hooks) / [Vue Guide](./VUE_GUIDE.md#dataset-composables)
+- **Query datastore** → [React Guide - Datastore Hooks](./REACT_GUIDE.md#datastore-hooks) / [Vue Guide](./VUE_GUIDE.md#datastore-composables)
+- **Integrate with Drupal** → [Drupal Integration Guide](./DRUPAL_INTEGRATION.md)
+- **Build packages** → [Build Process Guide](./BUILD_PROCESS.md)
 
-## Next Steps
+## Support
 
-1. Choose your framework (React, Vue, or Drupal)
-2. Follow the appropriate guide above
-3. Explore the example applications
-4. Read the API documentation for advanced usage
+- **Issues**: [GitHub Issues](https://github.com/dcgoodwin2112/dkanClientTools/issues)
+- **DKAN Documentation**: [dkan.readthedocs.io](https://dkan.readthedocs.io)
+- **TanStack Query Docs**: [tanstack.com/query](https://tanstack.com/query)
