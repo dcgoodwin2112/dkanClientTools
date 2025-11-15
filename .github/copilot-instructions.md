@@ -9,19 +9,22 @@ This is a monorepo of TypeScript packages providing DKAN data catalog integratio
 - `@dkan-client-tools/react` - React hooks (TanStack React Query)
 - `@dkan-client-tools/vue` - Vue composables (TanStack Vue Query)
 
-**Current Status**: 40+ hooks/composables, 43 API methods, 300+ tests
+**Current Status**: 50+ hooks/composables, 42 API methods across 9 categories, 500+ tests
 
 ## Build & Test Commands
 
 ```bash
 # Build workflow (automated orchestrator)
 npm run build:all              # Complete build: packages → deploy → examples → drupal
+npm run build:all:drupal       # Complete build + clear Drupal cache
 npm run build:packages         # Build only packages (core, react, vue)
 npm run build:examples         # Build standalone demo apps
 npm run build:drupal           # Build Drupal demo modules
+npm run build:deploy           # Deploy already-built packages to Drupal modules
+npm run build                  # Legacy: Build all packages (no deployment)
 
 # Testing
-npm test                       # Run all tests (300+ tests)
+npm test                       # Run all tests (500+ tests)
 npm run test:watch             # Watch mode
 npm run typecheck              # Type checking
 
@@ -29,7 +32,11 @@ npm run typecheck              # Type checking
 npm run dev                    # Watch mode for all packages
 ```
 
-**Required Versions**: Node.js 20.19+ or 22.12+ (for Vite 7 in demo apps), npm >= 9.0.0
+**Required Versions**:
+- Node.js 20.19+ or 22.12+ (for Vite 7 in demo apps)
+- npm >= 9.0.0
+- React ^18.0.0 || ^19.0.0 (for React package)
+- Vue ^3.3.0 (for Vue package)
 
 ## Code Review Focus Areas
 
@@ -93,7 +100,7 @@ const mockClient = { getDataset: vi.fn() } as any
 ```
 
 **Test Coverage Requirements**:
-- Loading states (`isLoading` for React, `isPending` for mutations)
+- Loading states (`isLoading` for queries, `isPending` for mutations in both React and Vue)
 - Error handling (`isError`, error messages)
 - Successful data fetching (`isSuccess`, data validation)
 - Mutations (create, update, delete operations)
@@ -108,14 +115,18 @@ const mockClient = { getDataset: vi.fn() } as any
 
 ### 4. API Coverage & Completeness
 
-**38 API Methods** across 7 categories (see CLAUDE.md for full list):
+**42 API Methods** across 9 categories (see CLAUDE.md for full list):
 - Dataset operations (7 methods)
-- Datastore operations (5 methods)
+- Datastore query (4 methods)
+- Datastore download (2 methods)
 - Data dictionary operations (6 methods)
 - Harvest operations (6 methods)
-- Metastore operations (6 methods)
 - Datastore import operations (4 methods)
+- Metastore operations (4 methods)
 - Revision/moderation operations (4 methods)
+- Utility operations (3 methods: getBaseUrl, getDefaultOptions, getOpenApiDocsUrl)
+
+**Important**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the API endpoints return 404. These hooks/composables exist but are non-functional.
 
 When adding new API methods:
 1. Add to `DkanApiClient` in core package
@@ -177,8 +188,9 @@ When adding new API methods:
 - Internal URLs or endpoints
 
 **Authentication**: All authentication should use:
-- HTTP Basic Auth (username/password in config)
-- Bearer tokens (if configured)
+- **HTTP Basic Auth** (username/password in config) - **Recommended for DKAN 2.x** (works out-of-the-box)
+- **Bearer tokens** - Requires additional Drupal modules (NOT supported by default in DKAN 2.x)
+- **Anonymous read access** - No auth required for GET requests to public endpoints
 - Never store credentials in source code
 
 **Error Handling**: All API calls should handle:
@@ -201,6 +213,14 @@ When adding new API methods:
 
 ## Project-Specific Conventions
 
+### Monorepo Structure
+
+This project uses **npm workspaces** for monorepo management:
+- **Workspace protocol**: Internal dependencies use `workspace:*` in package.json
+- **Hoisted dependencies**: Common dependencies installed at root level
+- **Independent versioning**: Each package maintains its own version number
+- **Build orchestration**: Automated build system handles dependencies between packages
+
 ### File Structure
 ```
 packages/
@@ -222,6 +242,37 @@ packages/
 │   │   ├── use*.ts                 # Individual composables
 │   │   └── __tests__/
 ```
+
+### Example Applications
+
+The repository includes complete demo applications:
+- **React Demo App** (`/examples/react-demo-app`) - Full-featured React app with Tailwind CSS
+- **Vue Demo App** (`/examples/vue-demo-app`) - Vue 3 Composition API demo
+- **Vanilla Demo App** (`/examples/vanilla-demo-app`) - Framework-agnostic JavaScript demo
+- **Drupal Demo Modules** (`/examples/drupal-demo-module-{react|vanilla|vue}`) - Drupal integration examples
+
+### DKAN Local Development Environment
+
+The `/dkan` directory contains a fully configured Drupal 11 + DKAN 2.x development environment:
+
+**Setup**: DDEV-based with Drupal 11, DKAN 2.x, PHP 8.3, MariaDB, nginx-fpm
+
+**Access**:
+- Site URL: https://dkan.ddev.site
+- Admin credentials: admin/admin
+
+**Common Commands**:
+```bash
+ddev start                              # Start environment
+ddev drush cr                           # Clear cache
+ddev drush dkan:sample-content:create   # Create sample datasets
+ddev drush dkan:harvest:list            # List harvest plans
+```
+
+**Important**:
+- All Drupal/DKAN commands must be prefixed with `ddev`
+- Never commit changes while on main branch
+- Drupal web root is `docroot/` (not `web/`)
 
 ### Naming Conventions
 - React hooks: `use[Feature]` (e.g., `useDataset`, `useCreateDataset`)
@@ -266,7 +317,12 @@ Follow conventional commits:
 
 ## References
 
-- Full API documentation: `research/DKAN_API_RESEARCH.md`
-- Project instructions: `CLAUDE.md`
-- Build system: `docs/BUILD_PROCESS.md`
-- Testing patterns: Check existing `__tests__/` directories
+- **Project instructions**: `CLAUDE.md`
+- **Full API documentation**: `research/DKAN_API.md`
+- **Architecture documentation**: `research/ARCHITECTURE.md`
+- **Build system guide**: `docs/BUILD_PROCESS.md`
+- **React integration guide**: `docs/REACT_GUIDE.md`
+- **Vue integration guide**: `docs/VUE_GUIDE.md`
+- **Drupal integration guide**: `docs/DRUPAL_INTEGRATION.md`
+- **API reference**: `docs/API_REFERENCE.md`
+- **Testing patterns**: Check existing `__tests__/` directories in each package
