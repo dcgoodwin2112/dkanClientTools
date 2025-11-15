@@ -60,6 +60,201 @@ DKAN's REST APIs are organized into functional categories:
 
 ---
 
+## Choosing the Right API
+
+### Dataset Metadata vs Data Rows
+
+**Metastore API** - Manages metadata (title, description, publisher, distributions):
+- **Use when**: Creating/updating catalog entries, managing dataset descriptions
+- **Returns**: DCAT-US formatted JSON with dataset metadata
+- **Example**: "What datasets are available about housing?" → metadata
+- **Not for**: Accessing actual data rows in CSV/Excel files
+
+**Datastore API** - Accesses actual tabular data:
+- **Use when**: Querying data rows, generating reports, data analysis
+- **Returns**: Tabular data in CSV or JSON format
+- **Example**: "Show me all housing records for 2023" → data rows
+- **Not for**: Dataset descriptions or catalog search
+
+**Decision Guide**:
+```
+Need dataset title/description/publisher? → Metastore API
+Need actual data rows from CSV/Excel?     → Datastore API
+Need both?                                 → Use both (fetch metadata, then query data)
+```
+
+### Search vs Direct Access
+
+**Search API** (`/api/1/search`):
+- **Use when**:
+  - Building catalog search interfaces
+  - Filtering by keyword, theme, publisher
+  - Faceted search with aggregations
+  - User doesn't know exact dataset ID
+- **Returns**: Array of datasets matching search criteria
+- **Performance**: Optimized for keyword/facet searches
+- **Example**: "Find all datasets tagged 'transportation'"
+
+**Metastore GET** (`/metastore/schemas/dataset/items/{id}`):
+- **Use when**:
+  - Fetching single dataset by known ID
+  - Need complete metadata with all fields
+  - Programmatic access with dataset UUID
+- **Returns**: Single dataset with full DCAT-US metadata
+- **Performance**: Faster for single dataset lookups
+- **Example**: "Get dataset abc-123"
+
+**Decision Guide**:
+```
+User entering keywords to search?     → Search API
+Know exact dataset ID?                 → Metastore GET
+Building discovery interface?          → Search API
+Loading specific dataset details?      → Metastore GET
+```
+
+### Datastore Query API vs SQL API
+
+**Query API** (`POST /datastore/query/{datasetId}/{index}`):
+- **Use when**:
+  - Simple filtering and sorting
+  - Programmatic access with JSON configuration
+  - Need structured query format
+  - Building UI with filter controls
+- **Syntax**: JSON-based filters, sorts, pagination
+- **Example**: Filter rows where `year > 2020`, sort by `population`
+
+**SQL API** (`GET /datastore/sql?query=...`):
+- **Use when**:
+  - Complex queries (joins, aggregations, subqueries)
+  - Familiar SQL syntax preferred
+  - Need advanced analytics (GROUP BY, SUM, AVG)
+  - Bulk data extraction
+- **Syntax**: SQL SELECT statements with bracket notation for table names
+- **Example**: `SELECT year, SUM(population) FROM [abc-123][0] GROUP BY year`
+
+**Decision Guide**:
+```
+Simple filter/sort?                    → Query API
+Need joins or aggregations?            → SQL API
+Building filter UI?                    → Query API
+Familiar with SQL?                     → SQL API
+One-off data analysis?                 → SQL API
+Programmatic filtering?                → Query API
+```
+
+**Comparison**:
+
+| Feature | Query API | SQL API |
+|---------|-----------|---------|
+| Syntax | JSON | SQL SELECT |
+| Joins | No | Yes |
+| Aggregations | No | Yes (GROUP BY, SUM, etc.) |
+| Filtering | Yes | Yes (WHERE clause) |
+| Sorting | Yes | Yes (ORDER BY) |
+| Pagination | Yes | Manual (LIMIT/OFFSET) |
+| Best for | UI filters | Analytics |
+
+### Authentication Methods
+
+**HTTP Basic Authentication**:
+- **Use when**:
+  - Standard DKAN 2.x installation
+  - Simple username/password auth
+  - Testing and development
+  - Default authentication needed
+- **Works**: Out-of-the-box with DKAN 2.x
+- **Header**: `Authorization: Basic base64(username:password)`
+
+**Bearer Token Authentication**:
+- **Use when**:
+  - Third-party integrations (OAuth clients)
+  - Need fine-grained permissions
+  - Token expiration required
+  - Building external applications
+- **Requires**: Additional Drupal modules (Simple OAuth or similar)
+- **NOT default**: Must be configured separately
+- **Header**: `Authorization: Bearer {token}`
+
+**Decision Guide**:
+```
+Default DKAN installation?             → HTTP Basic Auth
+Need OAuth integration?                → Bearer tokens (requires setup)
+Testing/development?                   → HTTP Basic Auth
+Production API for external apps?      → Bearer tokens (if configured)
+```
+
+### Common Use Cases
+
+**Building a Dataset Catalog**:
+1. Search API - Browse and filter datasets
+2. Metastore API - Show dataset details
+3. Datastore API - Preview data samples
+
+**Data Analysis Dashboard**:
+1. Metastore API - Get dataset metadata
+2. SQL API - Run analytics queries (aggregations, joins)
+3. Download API - Export results as CSV
+
+**Dataset Management Tool**:
+1. Metastore API - CRUD operations on datasets
+2. Data Dictionary API - Manage table schemas
+3. Harvest API - Import from external sources
+4. Revision API - Track changes and approvals
+
+**Public Data Portal**:
+1. Search API - Homepage search
+2. Metastore API - Dataset detail pages
+3. Datastore API - Data previews and queries
+4. Download API - Export data files
+
+### Anti-Patterns (What to Avoid)
+
+**❌ Using Search API for single dataset lookups**:
+```typescript
+// Bad - Slow and returns array
+const results = await searchDatasets({ fulltext: datasetId })
+const dataset = results[0]
+
+// Good - Fast direct access
+const dataset = await getDataset(datasetId)
+```
+
+**❌ Using Metastore API to query data rows**:
+```typescript
+// Wrong - Metastore is for metadata only
+const metadata = await getDataset(datasetId)
+// metadata doesn't contain actual data rows!
+
+// Correct - Use Datastore API for data
+const data = await queryDatastore(datasetId, 0, { conditions: [...] })
+```
+
+**❌ Making separate requests for each dataset in search results**:
+```typescript
+// Bad - N+1 query problem
+const results = await searchDatasets({ keyword: 'housing' })
+for (const result of results) {
+  const fullDataset = await getDataset(result.identifier) // Slow!
+}
+
+// Good - Search results already include key metadata
+const results = await searchDatasets({ keyword: 'housing' })
+// Use results directly
+```
+
+**❌ Using SQL API for simple single-field filters**:
+```typescript
+// Overcomplicated - SQL not needed
+const query = `SELECT * FROM [abc-123][0] WHERE year = '2023'`
+
+// Simpler - Use Query API
+const data = await queryDatastore('abc-123', 0, {
+  conditions: [{ property: 'year', value: '2023' }]
+})
+```
+
+---
+
 ## Metastore API
 
 Manages dataset metadata following DCAT-US specification.

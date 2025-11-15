@@ -34,6 +34,12 @@ Reference documentation for TanStack Query patterns and capabilities.
 - Vue: `@tanstack/vue-query` → `useQuery`, `useMutation`
 - Core: `@tanstack/query-core` → `QueryClient`
 
+**Version Compatibility**:
+- This project uses: TanStack Query v5
+- Breaking changes from v4 → v5: `cacheTime` → `gcTime`, `isLoading` → `isPending`
+- v5 removed deprecated options and improved TypeScript types
+- See "Version Migration" section below for details
+
 ---
 
 ## Overview
@@ -777,6 +783,450 @@ queryClient.getMutationCache().subscribe((event) => {
   console.log('Mutation event:', event.type, event.mutation)
 })
 ```
+
+---
+
+## Version Migration
+
+### TanStack Query v4 → v5
+
+This project uses **TanStack Query v5**. Key breaking changes from v4:
+
+**Property Renames**:
+
+```typescript
+// v4
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  cacheTime: 5 * 60 * 1000,  // ❌ v4 property
+})
+
+// v5
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  gcTime: 5 * 60 * 1000,     // ✅ v5 property (garbage collection time)
+})
+```
+
+**State Property Changes**:
+
+```typescript
+// v4
+const { isLoading, isFetching } = useQuery(...)
+
+// isLoading: true when no data AND fetching
+// isFetching: true when fetching (any time)
+
+// v5
+const { isPending, isFetching, isLoading } = useQuery(...)
+
+// isPending: true when no data AND fetching (new primary property)
+// isFetching: true when fetching (any time) - unchanged
+// isLoading: deprecated alias for isPending (kept for compatibility)
+```
+
+**Behavior Changes**:
+
+1. **Query keys must be arrays** (was already best practice):
+```typescript
+// v4 - string keys worked
+useQuery('items', fetchItems) // Deprecated
+
+// v5 - array keys required
+useQuery({ queryKey: ['items'], queryFn: fetchItems }) // Required
+```
+
+2. **Object syntax preferred** (v4 had multiple overloads):
+```typescript
+// v4 - multiple syntax options
+useQuery('items', fetchItems, { staleTime: 1000 })
+useQuery(['items'], fetchItems, { staleTime: 1000 })
+
+// v5 - single object syntax
+useQuery({ queryKey: ['items'], queryFn: fetchItems, staleTime: 1000 })
+```
+
+3. **Removed deprecated options**:
+- `cacheTime` → `gcTime`
+- `useErrorBoundary` → `throwOnError`
+- `onSuccess`, `onError`, `onSettled` callbacks removed from useQuery (use mutations or separate effects)
+- `structuralSharing` option simplified
+
+**TypeScript Improvements**:
+
+v5 has better type inference and stricter types:
+
+```typescript
+// v5 infers data types better
+const { data } = useQuery({
+  queryKey: ['item', id],
+  queryFn: () => fetchItem(id),
+  // data is automatically typed based on fetchItem return type
+})
+
+// Better discriminated unions for states
+if (isPending) {
+  // TypeScript knows data is undefined here
+} else if (isError) {
+  // TypeScript knows error is defined here
+} else {
+  // TypeScript knows data is defined here
+}
+```
+
+**Migration Checklist**:
+
+- [ ] Replace `cacheTime` with `gcTime`
+- [ ] Replace `isLoading` with `isPending` (or keep using `isLoading` as alias)
+- [ ] Use object syntax for all queries
+- [ ] Remove `onSuccess`, `onError`, `onSettled` from queries (keep in mutations)
+- [ ] Replace `useErrorBoundary` with `throwOnError`
+- [ ] Ensure all query keys are arrays
+- [ ] Update TypeScript types if using custom types
+
+**Official Migration Guide**: https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5
+
+---
+
+## Troubleshooting
+
+### Infinite Refetch Loops
+
+**Problem**: Query refetches continuously without stopping.
+
+**Common Causes**:
+
+1. **Unstable query key** - Query key changes on every render:
+```typescript
+// ❌ Bad - Creates new array on every render
+useQuery({
+  queryKey: ['items', { filter: value }], // New object reference each time
+  queryFn: fetchItems,
+})
+
+// ✅ Good - Stable query key
+useQuery({
+  queryKey: ['items', value], // Primitive value
+  queryFn: () => fetchItems({ filter: value }),
+})
+```
+
+2. **Query key depends on query data**:
+```typescript
+// ❌ Bad - Query key changes when data changes
+const { data } = useQuery({
+  queryKey: ['item', data?.id], // data changes → key changes → refetch
+  queryFn: fetchItem,
+})
+
+// ✅ Good - Use separate queries
+const { data: listData } = useQuery({ queryKey: ['list'], queryFn: fetchList })
+const { data: itemData } = useQuery({
+  queryKey: ['item', listData?.id],
+  queryFn: () => fetchItem(listData.id),
+  enabled: !!listData?.id,
+})
+```
+
+3. **State updates in onSuccess callback**:
+```typescript
+// ❌ Bad - State change triggers re-render and new query
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  onSuccess: (data) => {
+    setFilteredItems(data.filter(...)) // Re-render → new query key if unstable
+  },
+})
+
+// ✅ Good - Use derived state or useMemo
+const { data } = useQuery({ queryKey: ['items'], queryFn: fetchItems })
+const filteredItems = useMemo(() => data?.filter(...), [data])
+```
+
+**Debugging**:
+- Enable React Query DevTools to watch query activity
+- Check if query key is stable using `console.log(queryKey)`
+- Look for component re-renders that trigger new queries
+
+### Query Not Refetching
+
+**Problem**: Query shows stale data and doesn't refetch when expected.
+
+**Common Causes**:
+
+1. **staleTime too high**:
+```typescript
+// Data considered fresh for 10 minutes
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  staleTime: 10 * 60 * 1000, // Won't refetch for 10 minutes
+})
+
+// Solution: Reduce staleTime or force refetch
+refetch() // Manual refetch
+queryClient.invalidateQueries({ queryKey: ['items'] }) // Mark as stale
+```
+
+2. **Query is disabled**:
+```typescript
+// Query won't run if enabled is false
+useQuery({
+  queryKey: ['item', id],
+  queryFn: () => fetchItem(id),
+  enabled: !!id, // Query disabled when id is falsy
+})
+```
+
+3. **refetchOnWindowFocus disabled**:
+```typescript
+// Query won't refetch on window focus
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  refetchOnWindowFocus: false, // Default is true
+})
+```
+
+**Solutions**:
+- Check `staleTime` configuration (default: 0)
+- Verify `enabled` condition evaluates to true
+- Use `refetch()` for manual refetching
+- Invalidate queries after mutations
+
+### Cache Not Updating After Mutations
+
+**Problem**: UI doesn't reflect changes after create/update/delete operations.
+
+**Common Causes**:
+
+1. **Missing invalidation**:
+```typescript
+// ❌ Bad - No cache invalidation
+const mutation = useMutation({
+  mutationFn: createItem,
+  // Cache still shows old data
+})
+
+// ✅ Good - Invalidate related queries
+const mutation = useMutation({
+  mutationFn: createItem,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['items'] })
+  },
+})
+```
+
+2. **Invalidation timing issues**:
+```typescript
+// ❌ Bad - Invalidate before mutation completes
+const mutation = useMutation({
+  mutationFn: async (data) => {
+    queryClient.invalidateQueries({ queryKey: ['items'] }) // Too early!
+    return createItem(data)
+  },
+})
+
+// ✅ Good - Invalidate in onSuccess
+const mutation = useMutation({
+  mutationFn: createItem,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['items'] })
+  },
+})
+```
+
+3. **Query key mismatch**:
+```typescript
+// Query uses key ['items', 'active']
+useQuery({ queryKey: ['items', 'active'], queryFn: fetchActiveItems })
+
+// ❌ Bad - Invalidates different key
+queryClient.invalidateQueries({ queryKey: ['items'] }) // Only exact match
+
+// ✅ Good - Invalidate with prefix matching
+queryClient.invalidateQueries({
+  queryKey: ['items'],
+  refetchType: 'active', // Refetch active queries
+})
+```
+
+**Solutions**:
+- Always invalidate in `onSuccess` callback
+- Use query key prefixes for related queries
+- Consider optimistic updates for immediate feedback
+- Use `setQueryData` for direct cache updates
+
+### Query State Confusion
+
+**Problem**: Unclear when to use `isPending`, `isLoading`, `isFetching`, or `isStale`.
+
+**State Explanations**:
+
+```typescript
+const { isPending, isLoading, isFetching, isStale } = useQuery({
+  queryKey: ['item'],
+  queryFn: fetchItem,
+})
+```
+
+**TanStack Query v5 States**:
+
+- **`isPending`** - No cached data AND currently fetching
+  - First load with no data
+  - Use for: Initial loading spinners
+
+- **`isFetching`** - Query is fetching (any time)
+  - True during background refetches
+  - Use for: Loading indicators that show during refetches
+
+- **`isLoading`** - Same as `isPending` (deprecated alias in v5)
+  - Use `isPending` in new code
+
+- **`isStale`** - Data is older than `staleTime`
+  - True when data needs refetching
+  - Doesn't mean query will refetch immediately
+
+**Common Patterns**:
+
+```typescript
+// Show spinner only on initial load
+{isPending && <Spinner />}
+
+// Show data with loading indicator during refetch
+{data && (
+  <div>
+    {isFetching && <RefreshIcon />}
+    <DataView data={data} />
+  </div>
+)}
+
+// Handle all states
+{isPending && <Spinner />}
+{isError && <Error error={error} />}
+{isSuccess && <DataView data={data} />}
+```
+
+### Performance Issues
+
+**Problem**: Too many refetches or slow query performance.
+
+**Solutions**:
+
+1. **Reduce unnecessary refetches**:
+```typescript
+// Default behavior refetches often
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  // Refetches on: mount, window focus, network reconnect
+})
+
+// Tune refetch behavior
+useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  staleTime: 5 * 60 * 1000, // Fresh for 5 minutes
+  refetchOnWindowFocus: false, // Don't refetch on focus
+  refetchOnMount: false, // Don't refetch on mount if data exists
+})
+```
+
+2. **Optimize query keys for granularity**:
+```typescript
+// ❌ Bad - Invalidates all items
+queryClient.invalidateQueries({ queryKey: ['items'] })
+
+// ✅ Good - Invalidate only specific item
+queryClient.invalidateQueries({ queryKey: ['items', itemId] })
+```
+
+3. **Use select to prevent unnecessary re-renders**:
+```typescript
+// Component re-renders whenever ANY data changes
+const { data } = useQuery({ queryKey: ['items'], queryFn: fetchItems })
+
+// Component only re-renders when selected data changes
+const { data: itemCount } = useQuery({
+  queryKey: ['items'],
+  queryFn: fetchItems,
+  select: (data) => data.length, // Only re-render if length changes
+})
+```
+
+4. **Monitor cache size**:
+```typescript
+// Check cache size in DevTools or programmatically
+const cache = queryClient.getQueryCache()
+console.log(`Cached queries: ${cache.getAll().length}`)
+
+// Reduce gcTime (garbage collection time) for less-used queries
+useQuery({
+  queryKey: ['temporary-data'],
+  queryFn: fetchTempData,
+  gcTime: 5 * 60 * 1000, // Clean up after 5 minutes of no observers
+})
+```
+
+**Debugging Tips**:
+
+1. **Enable query logging**:
+```typescript
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Log query lifecycle
+      onSuccess: (data) => console.log('Query success:', data),
+      onError: (error) => console.error('Query error:', error),
+    },
+  },
+})
+```
+
+2. **Use React Query DevTools**:
+- Watch query state transitions
+- Track refetch frequency
+- Monitor cache memory usage
+- Inspect query timelines
+
+3. **Check network tab**:
+- Verify request deduplication
+- Monitor request timing
+- Check for duplicate requests (indicates unstable query key)
+
+### Memory Leaks
+
+**Problem**: Memory usage grows over time.
+
+**Common Causes**:
+
+1. **Long gcTime with many queries**:
+```typescript
+// Queries stay in cache for 24 hours
+useQuery({
+  queryKey: ['item', id],
+  queryFn: () => fetchItem(id),
+  gcTime: 24 * 60 * 60 * 1000, // Very long
+})
+
+// Solution: Reduce gcTime for frequently-created queries
+gcTime: 5 * 60 * 1000, // 5 minutes
+```
+
+2. **Not cleaning up query client**:
+```typescript
+// In tests or dynamic apps, clear cache when done
+queryClient.clear() // Remove all queries
+queryClient.removeQueries({ queryKey: ['temporary'] }) // Remove specific queries
+```
+
+**Prevention**:
+- Use reasonable `gcTime` values (default: 5 minutes)
+- Clear cache when unmounting major sections
+- Monitor cache size in production
 
 ---
 
