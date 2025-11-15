@@ -4,9 +4,9 @@ Technical documentation for DCAT-US and Frictionless Table Schema standards as i
 
 **Last Updated**: 2025-11-15
 **Related Documentation**:
-- [DKAN API](./DKAN_API.md)
-- [DKAN Features](./DKAN_FEATURES.md)
-- [Architecture](../docs/ARCHITECTURE.md)
+- [DKAN API](../platforms/DKAN_API.md)
+- [DKAN Features](../platforms/DKAN.md)
+- [Architecture](../../ARCHITECTURE.md)
 
 ## Quick Reference
 
@@ -894,5 +894,5 @@ export const mockDataDictionary: DataDictionary = {
 
 ### Internal Documentation
 
-- [DKAN API Documentation](./DKAN_API.md)
-- [Architecture Documentation](../docs/ARCHITECTURE.md)
+- [DKAN API Documentation](../platforms/DKAN_API.md)
+- [Architecture Documentation](../../ARCHITECTURE.md)

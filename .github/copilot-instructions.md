@@ -318,8 +318,8 @@ Follow conventional commits:
 ## References
 
 - **Project instructions**: `CLAUDE.md`
-- **DKAN API documentation**: `research/DKAN_API.md`
-- **Data standards documentation**: `research/DATA_STANDARDS.md`
+- **DKAN API documentation**: `docs/external/platforms/DKAN_API.md`
+- **Data standards documentation**: `docs/external/standards/DATA_STANDARDS.md`
 - **Architecture documentation**: `docs/ARCHITECTURE.md`
 - **Build system guide**: `docs/BUILD_PROCESS.md`
 - **React integration guide**: `docs/REACT_GUIDE.md`

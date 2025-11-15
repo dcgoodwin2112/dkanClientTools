@@ -5,8 +5,8 @@ Technical documentation for DKAN 2 open data platform features and architecture.
 **Last Updated**: 2025-11-15
 **Related Documentation**:
 - [DKAN API](./DKAN_API.md)
-- [Data Standards](./DATA_STANDARDS.md)
-- [Architecture](../docs/ARCHITECTURE.md)
+- [Data Standards](../standards/DATA_STANDARDS.md)
+- [Architecture](../../ARCHITECTURE.md)
 
 ## Quick Reference
 
@@ -91,7 +91,7 @@ No backward compatibility exists between versions - migration tools are required
 
 ### Metastore: Dataset Metadata Management
 
-The Metastore manages dataset metadata following [DCAT-US v1.1 specification](./DATA_STANDARDS.md#dcat-us-specification). It provides structured metadata storage with validation and versioning.
+The Metastore manages dataset metadata following [DCAT-US v1.1 specification](../standards/DATA_STANDARDS.md#dcat-us-specification). It provides structured metadata storage with validation and versioning.
 
 **Key Capabilities:**
 - JSON-based metadata storage
@@ -1233,5 +1233,5 @@ const { data } = useDataset({ id: 'abc-123' })
 ### Internal Documentation
 
 - [DKAN API Documentation](./DKAN_API.md)
-- [Data Standards Documentation](./DATA_STANDARDS.md)
-- [Architecture Documentation](../docs/ARCHITECTURE.md)
+- [Data Standards Documentation](../standards/DATA_STANDARDS.md)
+- [Architecture Documentation](../../ARCHITECTURE.md)

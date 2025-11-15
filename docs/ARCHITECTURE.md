@@ -354,7 +354,7 @@ Automated build workflow:
 
 ### Query Key Structure
 
-Hierarchical query keys for granular cache control. For TanStack Query fundamentals, see `/research/TANSTACK_QUERY.md`.
+Hierarchical query keys for granular cache control. For TanStack Query fundamentals, see `/docs/external/libraries/TANSTACK_QUERY.md`.
 
 **Complete DKAN Query Key Patterns:**
 
@@ -1186,8 +1186,8 @@ The architecture supports:
 
 ## References
 
-- **TanStack Query Technology:** `/research/TANSTACK_QUERY.md`
-- **DKAN API:** `/research/DKAN_API.md`
+- **TanStack Query Technology:** `/docs/external/libraries/TANSTACK_QUERY.md`
+- **DKAN API:** `/docs/external/platforms/DKAN_API.md`
 - **TanStack Query Documentation:** https://tanstack.com/query
 - **DKAN:** https://getdkan.org
 - **TypeScript:** https://www.typescriptlang.org

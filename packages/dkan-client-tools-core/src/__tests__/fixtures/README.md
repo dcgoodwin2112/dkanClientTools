@@ -160,4 +160,3 @@ To capture the remaining APIs:
 ## Related Files
 
 - `scripts/record-api-responses.ts` - API recording script
-- `research/API_TESTING_PLAN.md` - Complete testing strategy

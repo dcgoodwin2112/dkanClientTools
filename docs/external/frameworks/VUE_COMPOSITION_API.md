@@ -4,9 +4,9 @@ Reference documentation for Vue 3 Composition API patterns and capabilities.
 
 **Last Updated**: 2025-11-15
 **Related Documentation**:
-- [TanStack Query](./TANSTACK_QUERY.md)
+- [TanStack Query](../libraries/TANSTACK_QUERY.md)
 - [React Hooks](./REACT_HOOKS.md) (for comparison)
-- [Vue Guide](../docs/VUE_GUIDE.md)
+- [Vue Guide](../../VUE_GUIDE.md)
 
 ## Quick Reference
 
@@ -118,7 +118,7 @@ The Vue 3 Composition API is a set of function-based APIs that enable flexible c
 - Foundation for modern Vue patterns
 
 **In This Project:**
-- Custom composables built on [TanStack Vue Query](./TANSTACK_QUERY.md) (`useDataset`, `useDatastore`, etc.)
+- Custom composables built on [TanStack Vue Query](../libraries/TANSTACK_QUERY.md) (`useDataset`, `useDatastore`, etc.)
 - Plugin system with provide/inject (`DkanClientPlugin`, `useDkanClient`)
 - `MaybeRefOrGetter<T>` pattern for flexible reactive parameters
 - Composable composition for complex data fetching

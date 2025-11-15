@@ -4,9 +4,9 @@ Technical documentation about DKAN's REST API endpoints and capabilities.
 
 **Last Updated**: 2025-11-15
 **Related Documentation**:
-- [DKAN Features](./DKAN_FEATURES.md)
-- [Data Standards](./DATA_STANDARDS.md)
-- [API Reference](../docs/API_REFERENCE.md)
+- [DKAN Features](./DKAN.md)
+- [Data Standards](../standards/DATA_STANDARDS.md)
+- [API Reference](../../API_REFERENCE.md)
 
 ## Quick Reference
 
@@ -37,7 +37,7 @@ Technical documentation about DKAN's REST API endpoints and capabilities.
 
 ## Overview
 
-DKAN provides RESTful APIs for managing open data catalogs. The APIs follow [DCAT-US and Frictionless standards](./DATA_STANDARDS.md) for metadata and data dictionaries. For more on DKAN platform features, see [DKAN Features](./DKAN_FEATURES.md).
+DKAN provides RESTful APIs for managing open data catalogs. The APIs follow [DCAT-US and Frictionless standards](../standards/DATA_STANDARDS.md) for metadata and data dictionaries. For more on DKAN platform features, see [DKAN Features](./DKAN.md).
 
 **Base API Path:** `/api/1/`
 
