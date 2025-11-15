@@ -201,77 +201,33 @@ const client = new DkanClient({
 
 ## Common Next Steps
 
-### Search with Filters
-
+**Search with filters:**
 ```typescript
-// React
 const { data } = useDatasetSearch({
-  searchOptions: {
-    keyword: 'health',
-    fulltext: 'covid',
-    'page-size': 20
-  }
-})
-
-// Vue
-const { data } = useDatasetSearch({
-  searchOptions: {
-    keyword: 'health',
-    fulltext: 'covid',
-    'page-size': 20
-  }
+  searchOptions: { keyword: 'health', fulltext: 'covid', 'page-size': 20 }
 })
 ```
 
-### Query Datastore
-
+**Query datastore:**
 ```typescript
-// React
 const { data } = useDatastore({
   datasetId: 'dataset-id',
   index: 0,
-  queryOptions: {
-    limit: 50,
-    offset: 0
-  }
-})
-
-// Vue
-const { data } = useDatastore({
-  datasetId: 'dataset-id',
-  index: 0,
-  queryOptions: {
-    limit: 50,
-    offset: 0
-  }
+  queryOptions: { limit: 50 }
 })
 ```
 
-### Handle Loading & Errors
-
-Both React and Vue hooks return the same state:
-
-- `data` - The fetched data (undefined while loading)
-- `isLoading` - Initial loading state
-- `error` - Error object if request failed
-- `isSuccess` - True when data successfully fetched
-- `isFetching` - True during any fetch (including background refetch)
+**State values:** `data`, `isLoading`, `error`, `isSuccess`, `isFetching`
 
 ---
 
 ## Working with Local DKAN
 
-If running DKAN locally via DDEV:
-
 ```typescript
-const client = new DkanClient({
-  baseUrl: 'https://dkan.ddev.site'
-})
+const client = new DkanClient({ baseUrl: 'https://dkan.ddev.site' })
 ```
 
-For CORS issues during development, see:
-- [React Guide - CORS Configuration](./REACT_GUIDE.md#cors-configuration)
-- [Vue Guide - CORS Configuration](./VUE_GUIDE.md#cors-configuration)
+**CORS issues?** Configure Vite proxy - see [React Guide](./REACT_GUIDE.md) or [Vue Guide](./VUE_GUIDE.md)
 
 ---
 

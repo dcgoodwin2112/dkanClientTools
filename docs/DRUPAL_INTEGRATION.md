@@ -216,151 +216,29 @@ window.DkanClientToolsVue = {
 
 ## Using with Drupal Behaviors
 
-### Vanilla JavaScript Example
+**Vanilla JavaScript**:
 
 ```javascript
-// yourmodule.js
 (function (Drupal, once) {
-  'use strict';
-
-  Drupal.behaviors.dkanDatasetList = {
+  Drupal.behaviors.dkanWidget = {
     attach: function (context, settings) {
-      const elements = once('dkan-dataset-list', '.dataset-list', context);
-
-      elements.forEach(async (element) => {
+      once('dkan-widget', '.widget', context).forEach(async (element) => {
         const { DkanClient } = window.DkanClientToolsCore;
-
         const client = new DkanClient({
           baseUrl: settings.dkanClientTools?.baseUrl || 'https://demo.getdkan.org'
         });
 
-        const apiClient = client.getApiClient();
-
-        try {
-          const results = await apiClient.searchDatasets({
-            'page-size': 10
-          });
-
-          element.innerHTML = results.results
-            .map(dataset => `<li>${dataset.title}</li>`)
-            .join('');
-        } catch (error) {
-          element.innerHTML = `<p>Error: ${error.message}</p>`;
-        }
+        const results = await client.getApiClient().searchDatasets({ 'page-size': 10 });
+        element.innerHTML = results.results.map(d => `<li>${d.title}</li>`).join('');
       });
     }
   };
 })(Drupal, once);
 ```
 
-### React in Drupal Behavior
+**React**: Use `DkanClientProvider`, wrap components, access hooks via `window.DkanClientToolsReact`, clean up in `detach` hook with `root.unmount()`
 
-```javascript
-// yourmodule-react.js
-(function (Drupal, React, ReactDOM, once) {
-  'use strict';
-
-  Drupal.behaviors.dkanReactWidget = {
-    attach: function (context, settings) {
-      const elements = once('dkan-react-widget', '.react-dataset-widget', context);
-
-      elements.forEach((element) => {
-        const { DkanClient } = window.DkanClientToolsCore;
-        const { DkanClientProvider, useDatasetSearch } = window.DkanClientToolsReact;
-
-        const client = new DkanClient({
-          baseUrl: settings.dkanClientTools?.baseUrl || 'https://demo.getdkan.org'
-        });
-
-        function DatasetList() {
-          const { data, isLoading, error } = useDatasetSearch({
-            searchOptions: { 'page-size': 10 }
-          });
-
-          if (isLoading) return React.createElement('div', null, 'Loading...');
-          if (error) return React.createElement('div', null, `Error: ${error.message}`);
-
-          return React.createElement(
-            'ul',
-            null,
-            data?.results.map(dataset =>
-              React.createElement('li', { key: dataset.identifier }, dataset.title)
-            )
-          );
-        }
-
-        function App() {
-          return React.createElement(
-            DkanClientProvider,
-            { client },
-            React.createElement(DatasetList)
-          );
-        }
-
-        const root = ReactDOM.createRoot(element);
-        root.render(React.createElement(App));
-      });
-    },
-
-    detach: function (context, settings, trigger) {
-      if (trigger === 'unload') {
-        const elements = once.remove('dkan-react-widget', '.react-dataset-widget', context);
-        elements.forEach((element) => {
-          const root = ReactDOM.createRoot(element);
-          root.unmount();
-        });
-      }
-    }
-  };
-})(Drupal, window.DkanClientToolsReact.React, window.DkanClientToolsReact.ReactDOM, once);
-```
-
-### Vue in Drupal Behavior
-
-```javascript
-// yourmodule-vue.js
-(function (Drupal, once) {
-  'use strict';
-
-  Drupal.behaviors.dkanVueWidget = {
-    attach: function (context, settings) {
-      const elements = once('dkan-vue-widget', '.vue-dataset-widget', context);
-
-      elements.forEach((element) => {
-        const { createApp } = window.Vue;
-        const { DkanClientPlugin, useDatasetSearch } = window.DkanClientToolsVue;
-
-        const app = createApp({
-          setup() {
-            const { data, isLoading, error } = useDatasetSearch({
-              searchOptions: { 'page-size': 10 }
-            });
-
-            return { data, isLoading, error };
-          },
-          template: `
-            <div v-if="isLoading">Loading...</div>
-            <div v-else-if="error">Error: {{ error.message }}</div>
-            <ul v-else>
-              <li v-for="dataset in data?.results" :key="dataset.identifier">
-                {{ dataset.title }}
-              </li>
-            </ul>
-          `
-        });
-
-        app.use(DkanClientPlugin, {
-          clientOptions: {
-            baseUrl: settings.dkanClientTools?.baseUrl || 'https://demo.getdkan.org'
-          }
-        });
-
-        app.mount(element);
-      });
-    }
-  };
-})(Drupal, once);
-```
+**Vue**: Use `DkanClientPlugin`, access composables via `window.DkanClientToolsVue`, mount with `createApp()`
 
 ---
 
@@ -383,37 +261,6 @@ function yourmodule_page_attachments(array &$attachments) {
     ],
   ];
 }
-```
-
----
-
-## Framework Comparison
-
-| Feature | Core (Vanilla) | React | Vue |
-|---------|----------------|-------|-----|
-| Bundle Size | Lightweight | Larger | Larger |
-| External Dependencies | None | React, ReactDOM, TanStack React Query | Vue 3, TanStack Vue Query |
-| Learning Curve | Low | Medium | Medium |
-| Drupal Integration | Excellent | Good (via core/react) | Good (custom library) |
-| Reactivity | Manual | Hooks | Reactive refs |
-| Best For | Simple widgets | Complex UIs, existing React | Modern SPAs, reactive UIs |
-
----
-
-## Example Drupal Module Structure
-
-```
-modules/custom/yourmodule/
-├── yourmodule.info.yml
-├── yourmodule.libraries.yml
-├── yourmodule.module
-└── js/
-    ├── dkan-client-core.min.js
-    ├── dkan-client-react.min.js
-    ├── dkan-client-vue.min.js
-    ├── yourmodule-vanilla.js
-    ├── yourmodule-react.js
-    └── yourmodule-vue.js
 ```
 
 ---

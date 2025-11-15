@@ -16,48 +16,22 @@ The `DkanApiClient` provides direct access to all DKAN REST API endpoints. For m
 
 ## Client Initialization
 
-### Basic Setup
-
 ```typescript
 import { DkanApiClient } from '@dkan-client-tools/core'
 
-const client = new DkanApiClient({
-  baseUrl: 'https://demo.getdkan.org'
-})
-```
+// Basic
+const client = new DkanApiClient({ baseUrl: 'https://demo.getdkan.org' })
 
-### With Authentication
-
-```typescript
-// HTTP Basic Auth (recommended for DKAN 2.x)
-const client = new DkanApiClient({
+// With HTTP Basic Auth
+const authedClient = new DkanApiClient({
   baseUrl: 'https://demo.getdkan.org',
-  auth: {
-    username: 'admin',
-    password: 'password'
-  }
+  auth: { username: 'admin', password: 'password' }
 })
 
-// Bearer Token (requires additional Drupal modules)
-const client = new DkanApiClient({
+// With options
+const customClient = new DkanApiClient({
   baseUrl: 'https://demo.getdkan.org',
-  auth: {
-    token: 'your-token-here'
-  }
-})
-```
-
-### With Custom Options
-
-```typescript
-const client = new DkanApiClient({
-  baseUrl: 'https://demo.getdkan.org',
-  defaultOptions: {
-    retry: 3,              // Number of retry attempts
-    retryDelay: 1000,      // Delay between retries (ms)
-    staleTime: 0,          // Cache stale time
-    cacheTime: 300000      // Cache time (5 minutes)
-  }
+  defaultOptions: { retry: 3, staleTime: 300000 }
 })
 ```
 
@@ -84,14 +58,9 @@ async getDataset(
 
 ```typescript
 const dataset = await client.getDataset('abc-123')
-console.log(dataset.title)
-console.log(dataset.description)
 
 // With distribution identifiers
-const datasetWithIds = await client.getDataset('abc-123', {
-  showReferenceIds: true
-})
-console.log(datasetWithIds.distribution[0].identifier)
+const withIds = await client.getDataset('abc-123', { showReferenceIds: true })
 ```
 
 **Returns:** Dataset metadata with DCAT-US schema
@@ -122,14 +91,8 @@ const results = await client.searchDatasets({
   keyword: 'environment',
   fulltext: 'water quality',
   'page-size': 20,
-  page: 0,
   sort: 'modified',
   'sort-order': 'desc'
-})
-
-console.log(`Total: ${results.total}`)
-results.results.forEach(dataset => {
-  console.log(dataset.title)
 })
 ```
 
@@ -149,7 +112,6 @@ async listAllDatasets(): Promise<DkanDataset[]>
 
 ```typescript
 const allDatasets = await client.listAllDatasets()
-console.log(`Total datasets: ${allDatasets.length}`)
 ```
 
 **Returns:** Array of complete dataset objects
@@ -167,25 +129,20 @@ async createDataset(dataset: DkanDataset): Promise<MetastoreWriteResponse>
 **Example:**
 
 ```typescript
-const newDataset = {
+const response = await client.createDataset({
   title: 'Water Quality Measurements',
   description: 'Monthly water quality data',
   identifier: 'water-quality-2025',
   accessLevel: 'public',
   modified: '2025-01-15',
   keyword: ['water', 'environment'],
-  publisher: {
-    name: 'Environmental Protection Agency'
-  },
+  publisher: { name: 'Environmental Protection Agency' },
   contactPoint: {
     '@type': 'vcard:Contact',
     fn: 'Data Team',
     hasEmail: 'mailto:data@epa.gov'
   }
-}
-
-const response = await client.createDataset(newDataset)
-console.log(`Created: ${response.identifier}`)
+})
 ```
 
 **Returns:** Write response with identifier and endpoint
@@ -259,7 +216,6 @@ async deleteDataset(identifier: string): Promise<{ message: string }>
 
 ```typescript
 await client.deleteDataset('water-quality-2025')
-console.log('Dataset deleted')
 ```
 
 **Returns:** Confirmation message
@@ -297,18 +253,10 @@ async queryDatastore(
 ```typescript
 const data = await client.queryDatastore('dataset-id', 0, {
   limit: 100,
-  offset: 0,
-  conditions: [
-    { property: 'status', value: 'active', operator: '=' }
-  ],
-  sorts: [
-    { property: 'date', order: 'desc' }
-  ],
+  conditions: [{ property: 'status', value: 'active', operator: '=' }],
+  sorts: [{ property: 'date', order: 'desc' }],
   keys: ['name', 'date', 'value']
 })
-
-console.log(data.results)
-console.log(data.schema.fields)
 ```
 
 **Returns:** Query results with schema and rows
@@ -364,9 +312,6 @@ async getDatastoreSchema(
 
 ```typescript
 const schema = await client.getDatastoreSchema('dataset-id', 0)
-schema.schema.fields.forEach(field => {
-  console.log(`${field.name}: ${field.type}`)
-})
 ```
 
 **Returns:** Schema information with empty results
@@ -408,7 +353,6 @@ const filtered = await client.querySql({
 const count = await client.querySql({
   query: '[SELECT COUNT(*) FROM dist-id];'
 })
-console.log(count[0].expression)
 
 // With database column names
 const results = await client.querySql({
@@ -510,9 +454,6 @@ async listDataDictionaries(): Promise<DataDictionary[]>
 
 ```typescript
 const dictionaries = await client.listDataDictionaries()
-dictionaries.forEach(dict => {
-  console.log(`${dict.identifier}: ${dict.data.title}`)
-})
 ```
 
 **Returns:** Array of data dictionaries
@@ -531,9 +472,6 @@ async getDataDictionary(identifier: string): Promise<DataDictionary>
 
 ```typescript
 const dict = await client.getDataDictionary('dict-id')
-dict.data.fields.forEach(field => {
-  console.log(`${field.name}: ${field.type}`)
-})
 ```
 
 **Returns:** Data dictionary with field definitions
@@ -604,7 +542,6 @@ const dictionary = {
 }
 
 const response = await client.createDataDictionary(dictionary)
-console.log(`Created: ${response.identifier}`)
 ```
 
 **Returns:** Write response with identifier
@@ -676,7 +613,6 @@ async listHarvestPlans(): Promise<string[]>
 
 ```typescript
 const plans = await client.listHarvestPlans()
-console.log(`Plans: ${plans.join(', ')}`)
 ```
 
 **Returns:** Array of plan identifiers
@@ -695,7 +631,6 @@ async getHarvestPlan(planId: string): Promise<HarvestPlan>
 
 ```typescript
 const plan = await client.getHarvestPlan('my-harvest')
-console.log(plan.extract.uri)
 ```
 
 **Returns:** Harvest plan configuration
@@ -726,7 +661,6 @@ const plan = {
 }
 
 const response = await client.registerHarvestPlan(plan)
-console.log(`Registered: ${response.identifier}`)
 ```
 
 **Returns:** Write response with identifier
@@ -745,7 +679,6 @@ async listHarvestRuns(planId: string): Promise<string[]>
 
 ```typescript
 const runs = await client.listHarvestRuns('my-harvest')
-runs.forEach(runId => console.log(runId))
 ```
 
 **Returns:** Array of run identifiers
@@ -764,8 +697,6 @@ async getHarvestRun(runId: string, planId: string): Promise<HarvestRun>
 
 ```typescript
 const run = await client.getHarvestRun('run-id', 'my-harvest')
-console.log(`Status: ${run.status}`)
-console.log(`Created: ${run.created}`)
 ```
 
 **Returns:** Harvest run with status and statistics
@@ -786,7 +717,6 @@ async runHarvest(options: HarvestRunOptions): Promise<HarvestRun>
 const run = await client.runHarvest({
   plan_id: 'my-harvest'
 })
-console.log(`Run ID: ${run.identifier}`)
 ```
 
 **Returns:** Harvest run record
@@ -807,9 +737,6 @@ async listDatastoreImports(): Promise<Record<string, DatastoreImport>>
 
 ```typescript
 const imports = await client.listDatastoreImports()
-Object.entries(imports).forEach(([id, importRecord]) => {
-  console.log(`${id}: ${importRecord.state}`)
-})
 ```
 
 **Returns:** Object mapping identifiers to import records
@@ -828,8 +755,6 @@ async getDatastoreStatistics(identifier: string): Promise<DatastoreStatistics>
 
 ```typescript
 const stats = await client.getDatastoreStatistics('dist-id')
-console.log(`Rows: ${stats.numOfRows}`)
-console.log(`Columns: ${stats.numOfColumns}`)
 ```
 
 **Returns:** Statistics with row/column counts
@@ -852,7 +777,6 @@ async triggerDatastoreImport(
 const importRecord = await client.triggerDatastoreImport({
   resource: 'dist-id'
 })
-console.log(`Import state: ${importRecord.state}`)
 ```
 
 **Returns:** Import record with initial status
@@ -871,7 +795,6 @@ async deleteDatastore(identifier: string): Promise<{ message: string }>
 
 ```typescript
 await client.deleteDatastore('dist-id')
-console.log('Datastore deleted')
 ```
 
 **Returns:** Confirmation message
@@ -892,7 +815,6 @@ async listSchemas(): Promise<string[]>
 
 ```typescript
 const schemas = await client.listSchemas()
-console.log(schemas) // ['dataset', 'data-dictionary', ...]
 ```
 
 **Returns:** Array of schema identifiers
@@ -911,7 +833,6 @@ async getSchema(schemaId: string): Promise<JsonSchema>
 
 ```typescript
 const schema = await client.getSchema('dataset')
-console.log(schema.properties)
 ```
 
 **Returns:** JSON Schema definition
@@ -961,9 +882,6 @@ async getDatasetFacets(): Promise<{
 
 ```typescript
 const facets = await client.getDatasetFacets()
-console.log('Themes:', facets.theme)
-console.log('Keywords:', facets.keyword)
-console.log('Publishers:', facets.publisher)
 ```
 
 **Returns:** Object with theme, keyword, and publisher arrays
@@ -987,9 +905,6 @@ async getRevisions(
 
 ```typescript
 const revisions = await client.getRevisions('dataset', 'dataset-id')
-revisions.forEach(rev => {
-  console.log(`${rev.timestamp}: ${rev.state}`)
-})
 ```
 
 **Returns:** Array of revision records
@@ -1012,7 +927,6 @@ async getRevision(
 
 ```typescript
 const revision = await client.getRevision('dataset', 'dataset-id', '1')
-console.log(revision.data)
 ```
 
 **Returns:** Revision record with data
@@ -1086,7 +1000,6 @@ getBaseUrl(): string
 
 ```typescript
 const url = client.getBaseUrl()
-console.log(url) // 'https://demo.getdkan.org'
 ```
 
 **Returns:** Base URL without trailing slash
@@ -1110,7 +1023,6 @@ getDefaultOptions(): {
 
 ```typescript
 const options = client.getDefaultOptions()
-console.log(`Retry attempts: ${options.retry}`)
 ```
 
 **Returns:** Copy of default options

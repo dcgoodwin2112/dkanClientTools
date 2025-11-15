@@ -101,720 +101,81 @@ datasetId.value = 'uuid-2'
 
 ---
 
-## Dataset Composables
 
-### Query Composables
+## Available Composables
 
-#### useDataset
+All DKAN API methods are available as Vue composables. See **[API Reference](./API_REFERENCE.md)** for complete documentation of all composables including:
 
-Fetch a single dataset by identifier.
+- **Dataset Composables**: `useDataset`, `useDatasetSearch`, `useCreateDataset`, `useUpdateDataset`, `usePatchDataset`, `useDeleteDataset`
+- **Datastore Composables**: `useDatastore`, `useQueryDatastoreMulti`, `useSqlQuery`, `useDownloadQuery`
+- **Data Dictionary Composables**: `useDataDictionary`, `useDataDictionaryList`, `useCreateDataDictionary`, `useUpdateDataDictionary`, `useDeleteDataDictionary`
+- **Harvest Composables**: `useHarvestPlans`, `useHarvestPlan`, `useRegisterHarvestPlan`, `useRunHarvest`
+- **Datastore Import Composables**: `useDatastoreImports`, `useDatastoreImport`, `useTriggerDatastoreImport`, `useDeleteDatastore`
+- **Metastore Composables**: `useSchemas`, `useSchema`, `useSchemaItems`, `useDatasetFacets`
+- **Revision/Moderation Composables**: `useRevisions`, `useRevision`, `useCreateRevision`, `useChangeDatasetState`
+
+---
+
+## Vue-Specific Patterns
+
+### Template Integration
 
 ```vue
-<script setup lang="ts">
-import { useDataset } from '@dkan-client-tools/vue'
+<script setup>
+import { useDatasetSearch } from '@dkan-client-tools/vue'
 
-const props = defineProps<{ id: string }>()
-
-const { data, isLoading, error } = useDataset({
-  identifier: () => props.id // Getter function (reactive)
+const { data, isLoading, error } = useDatasetSearch({
+  searchOptions: { 'page-size': 10 }
 })
 </script>
 
 <template>
   <div v-if="isLoading">Loading...</div>
   <div v-else-if="error">Error: {{ error.message }}</div>
-  <div v-else>
-    <h1>{{ data?.title }}</h1>
-    <p>{{ data?.description }}</p>
-    <p>Publisher: {{ data?.publisher?.name }}</p>
-  </div>
-</template>
-```
-
-**Options**:
-- `identifier` - Dataset UUID (required, reactive)
-- `enabled` - Conditionally enable query (reactive)
-- `staleTime` - Cache duration
-
-#### useDatasetSearch
-
-Search datasets with filters and pagination.
-
-```vue
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useDatasetSearch } from '@dkan-client-tools/vue'
-
-const keyword = ref('')
-const page = ref(1)
-
-const { data, isLoading } = useDatasetSearch({
-  searchOptions: computed(() => ({
-    keyword: keyword.value,
-    fulltext: keyword.value,
-    'page-size': 20,
-    page: page.value
-  }))
-})
-</script>
-
-<template>
-  <div>
-    <input
-      v-model="keyword"
-      placeholder="Search datasets..."
-    />
-
-    <div v-for="dataset in data?.results" :key="dataset.identifier">
-      <h3>{{ dataset.title }}</h3>
-    </div>
-
-    <button @click="page--" :disabled="page === 1">Previous</button>
-    <button @click="page++">Next</button>
-  </div>
-</template>
-```
-
-**Search Options**:
-- `keyword` - Theme/keyword filter
-- `fulltext` - Full-text search
-- `page` - Page number
-- `page-size` - Results per page
-- `sort` - Sort field
-- `sort-order` - Sort direction
-
-#### useAllDatasets
-
-Get all datasets with full metadata.
-
-```vue
-<script setup lang="ts">
-import { useAllDatasets } from '@dkan-client-tools/vue'
-
-const { data } = useAllDatasets()
-</script>
-```
-
-### Mutation Composables
-
-#### useCreateDataset
-
-Create a new dataset.
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useCreateDataset } from '@dkan-client-tools/vue'
-
-const createDataset = useCreateDataset()
-const formData = ref({
-  title: '',
-  description: ''
-})
-
-const handleSubmit = async () => {
-  try {
-    const result = await createDataset.mutateAsync({
-      title: formData.value.title,
-      description: formData.value.description,
-      // ... other DCAT-US fields
-    })
-    console.log('Created:', result.identifier)
-  } catch (error) {
-    console.error('Failed:', error)
-  }
-}
-</script>
-
-<template>
-  <form @submit.prevent="handleSubmit">
-    <input v-model="formData.title" placeholder="Title" />
-    <textarea v-model="formData.description" placeholder="Description" />
-    <button type="submit" :disabled="createDataset.isPending">
-      {{ createDataset.isPending ? 'Creating...' : 'Create' }}
-    </button>
-  </form>
-</template>
-```
-
-#### useUpdateDataset
-
-Update entire dataset (replaces all fields).
-
-```vue
-<script setup lang="ts">
-const updateDataset = useUpdateDataset()
-
-await updateDataset.mutateAsync({
-  identifier: 'uuid',
-  data: { /* complete dataset object */ }
-})
-</script>
-```
-
-#### usePatchDataset
-
-Partially update dataset (updates specific fields).
-
-```vue
-<script setup lang="ts">
-const patchDataset = usePatchDataset()
-
-await patchDataset.mutateAsync({
-  identifier: 'uuid',
-  data: { title: 'New Title' }
-})
-</script>
-```
-
-#### useDeleteDataset
-
-Delete a dataset.
-
-```vue
-<script setup lang="ts">
-const deleteDataset = useDeleteDataset()
-
-await deleteDataset.mutateAsync('dataset-uuid')
-</script>
-```
-
----
-
-## Datastore Composables
-
-### useDatastore
-
-Query datastore data with SQL-like operations.
-
-```vue
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useDatastore } from '@dkan-client-tools/vue'
-
-const props = defineProps<{ datasetId: string }>()
-const limit = ref(50)
-const offset = ref(0)
-
-const { data, isLoading } = useDatastore({
-  datasetId: () => props.datasetId,
-  index: 0,
-  queryOptions: computed(() => ({
-    limit: limit.value,
-    offset: offset.value,
-    sorts: [
-      { property: 'date', order: 'desc' }
-    ],
-    conditions: [
-      { property: 'status', value: 'active', operator: '=' }
-    ]
-  }))
-})
-</script>
-
-<template>
-  <div v-if="isLoading">Loading...</div>
-  <table v-else>
-    <thead>
-      <tr>
-        <th v-for="field in data?.schema.fields" :key="field.name">
-          {{ field.name }}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(row, i) in data?.results" :key="i">
-        <td v-for="(value, key) in row" :key="key">
-          {{ value }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</template>
-```
-
-**Query Options**:
-- `limit` - Max results
-- `offset` - Skip results
-- `sorts` - Sort conditions
-- `conditions` - Filter conditions
-- `joins` - Join other resources
-- `groupBy` - Group results
-
-### useQueryDatastoreMulti
-
-Query multiple datastore resources with JOINs.
-
-```vue
-<script setup lang="ts">
-const { data } = useQueryDatastoreMulti({
-  resources: [
-    { id: 'dataset1', alias: 'sales' },
-    { id: 'dataset2', alias: 'products' }
-  ],
-  queryOptions: {
-    joins: [{
-      resource: 'products',
-      condition: { sales: 'product_id', products: 'id' }
-    }]
-  }
-})
-</script>
-```
-
-### useSqlQuery
-
-Execute SQL queries against datastore.
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useSqlQuery } from '@dkan-client-tools/vue'
-
-const query = ref('SELECT * FROM datastore_12345 WHERE status = "active" LIMIT 100')
-
-const { data } = useSqlQuery({
-  sqlQuery: query
-})
-</script>
-
-<template>
-  <textarea v-model="query" />
-  <pre>{{ JSON.stringify(data, null, 2) }}</pre>
-</template>
-```
-
-### useExecuteSqlQuery
-
-Execute SQL queries on-demand (mutation).
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const executeSql = useExecuteSqlQuery()
-const query = ref('')
-
-const handleExecute = async () => {
-  const result = await executeSql.mutateAsync({
-    sqlQuery: query.value
-  })
-}
-</script>
-```
-
-### Download Composables
-
-#### useDownloadQuery
-
-Download query results as CSV or JSON.
-
-```vue
-<script setup lang="ts">
-const downloadQuery = useDownloadQuery()
-
-const handleDownload = async () => {
-  await downloadQuery.mutateAsync({
-    datasetId: 'uuid',
-    index: 0,
-    format: 'csv',
-    queryOptions: { limit: 1000 }
-  })
-}
-</script>
-```
-
-#### useDownloadQueryByDistribution
-
-Download by distribution identifier.
-
-```vue
-<script setup lang="ts">
-const download = useDownloadQueryByDistribution()
-
-await download.mutateAsync({
-  distributionId: 'dist-uuid',
-  format: 'json'
-})
-</script>
-```
-
----
-
-## Data Dictionary Composables
-
-### Query Composables
-
-#### useDataDictionary
-
-Get data dictionary for a dataset.
-
-```vue
-<script setup lang="ts">
-const { data } = useDataDictionary({
-  identifier: 'dataset-uuid',
-  index: 0
-})
-
-// Access field definitions
-const fields = computed(() => data.value?.data.fields)
-</script>
-```
-
-#### useDataDictionaryList
-
-List all data dictionaries.
-
-```vue
-<script setup lang="ts">
-const { data } = useDataDictionaryList()
-</script>
-```
-
-#### useDataDictionaryFromUrl
-
-Fetch dictionary from URL.
-
-```vue
-<script setup lang="ts">
-const { data } = useDataDictionaryFromUrl({
-  url: 'https://example.com/dictionary.json'
-})
-</script>
-```
-
-#### useDatastoreSchema
-
-Get schema for a datastore.
-
-```vue
-<script setup lang="ts">
-const { data } = useDatastoreSchema({
-  identifier: 'dataset-uuid',
-  index: 0
-})
-</script>
-```
-
-### Mutation Composables
-
-#### useCreateDataDictionary
-
-Create a data dictionary.
-
-```vue
-<script setup lang="ts">
-const create = useCreateDataDictionary()
-
-await create.mutateAsync({
-  identifier: 'dataset-uuid',
-  index: 0,
-  data: {
-    fields: [
-      {
-        name: 'id',
-        type: 'integer',
-        title: 'ID'
-      }
-    ]
-  }
-})
-</script>
-```
-
-#### useUpdateDataDictionary
-
-Update existing dictionary.
-
-```vue
-<script setup lang="ts">
-const update = useUpdateDataDictionary()
-
-await update.mutateAsync({
-  identifier: 'dataset-uuid',
-  index: 0,
-  data: { /* updated dictionary */ }
-})
-</script>
-```
-
-#### useDeleteDataDictionary
-
-Delete a data dictionary.
-
-```vue
-<script setup lang="ts">
-const deleteDictionary = useDeleteDataDictionary()
-
-await deleteDictionary.mutateAsync({
-  identifier: 'dataset-uuid',
-  index: 0
-})
-</script>
-```
-
----
-
-## Harvest Composables
-
-### useHarvestPlans
-
-List all harvest plans.
-
-```vue
-<script setup lang="ts">
-const { data } = useHarvestPlans()
-</script>
-
-<template>
-  <ul>
-    <li v-for="plan in data" :key="plan.identifier">
-      {{ plan.label }}
+  <ul v-else>
+    <li v-for="dataset in data?.results" :key="dataset.identifier">
+      {{ dataset.title }}
     </li>
   </ul>
 </template>
 ```
 
-### useHarvestPlan
-
-Get specific harvest plan.
+### Reactive Parameters with MaybeRefOrGetter
 
 ```vue
-<script setup lang="ts">
-const { data } = useHarvestPlan({ planId: 'plan-id' })
-</script>
-```
+<script setup>
+import { ref } from 'vue'
+import { useDataset } from '@dkan-client-tools/vue'
 
-### useHarvestRuns
+const datasetId = ref('abc-123')
 
-List runs for a harvest plan.
-
-```vue
-<script setup lang="ts">
-const { data } = useHarvestRuns({ planId: 'plan-id' })
-</script>
-```
-
-### useHarvestRun
-
-Get specific harvest run status.
-
-```vue
-<script setup lang="ts">
-const { data } = useHarvestRun({
-  planId: 'plan-id',
-  runId: 'run-id'
+// Parameter automatically reactive - updates when datasetId changes
+const { data, isLoading } = useDataset({
+  identifier: datasetId
 })
 </script>
+
+<template>
+  <input v-model="datasetId" placeholder="Enter dataset ID" />
+  <div v-if="isLoading">Loading...</div>
+  <div v-else>{{ data?.title }}</div>
+</template>
 ```
 
-### useRegisterHarvestPlan
-
-Register new harvest plan (mutation).
+### Computed Parameters
 
 ```vue
-<script setup lang="ts">
-const register = useRegisterHarvestPlan()
+<script setup>
+import { ref, computed } from 'vue'
+import { useDatasetSearch } from '@dkan-client-tools/vue'
 
-await register.mutateAsync({
-  identifier: 'my-harvest',
-  extract: {
-    type: 'json',
-    uri: 'https://source.org/data.json'
-  },
-  transforms: [],
-  load: { destination: 'dataset' }
-})
-</script>
-```
+const keyword = ref('')
+const searchOptions = computed(() => ({
+  keyword: keyword.value,
+  'page-size': 10
+}))
 
-### useRunHarvest
-
-Execute harvest (mutation).
-
-```vue
-<script setup lang="ts">
-const runHarvest = useRunHarvest()
-
-await runHarvest.mutateAsync('plan-id')
-</script>
-```
-
----
-
-## Datastore Import Composables
-
-### useDatastoreImports
-
-List all datastore imports.
-
-```vue
-<script setup lang="ts">
-const { data } = useDatastoreImports()
-</script>
-```
-
-### useDatastoreImport
-
-Get specific import.
-
-```vue
-<script setup lang="ts">
-const { data } = useDatastoreImport({
-  identifier: 'dataset-uuid',
-  index: 0
-})
-</script>
-```
-
-### useDatastoreStatistics
-
-Get datastore statistics.
-
-```vue
-<script setup lang="ts">
-const { data } = useDatastoreStatistics()
-</script>
-```
-
-### useTriggerDatastoreImport
-
-Trigger datastore import (mutation).
-
-```vue
-<script setup lang="ts">
-const trigger = useTriggerDatastoreImport()
-
-await trigger.mutateAsync({
-  identifier: 'dataset-uuid',
-  index: 0
-})
-</script>
-```
-
-### useDeleteDatastore
-
-Delete a datastore (mutation).
-
-```vue
-<script setup lang="ts">
-const deleteDs = useDeleteDatastore()
-
-await deleteDs.mutateAsync({
-  identifier: 'dataset-uuid',
-  index: 0
-})
-</script>
-```
-
----
-
-## Metastore Composables
-
-### useSchemas
-
-List available metastore schemas.
-
-```vue
-<script setup lang="ts">
-const { data } = useSchemas()
-// Returns: ['dataset', 'distribution', 'publisher', ...]
-</script>
-```
-
-### useSchema
-
-Get specific schema definition.
-
-```vue
-<script setup lang="ts">
-const { data } = useSchema({ schemaId: 'dataset' })
-</script>
-```
-
-### useSchemaItems
-
-Get all items for a schema.
-
-```vue
-<script setup lang="ts">
-const { data } = useSchemaItems({ schemaId: 'publisher' })
-</script>
-```
-
-### useDatasetFacets
-
-Get dataset facets (themes, keywords, publishers).
-
-```vue
-<script setup lang="ts">
-const { data } = useDatasetFacets()
-
-// Access facets
-const themes = computed(() => data.value?.theme)
-const keywords = computed(() => data.value?.keyword)
-</script>
-```
-
----
-
-## Revision/Moderation Composables
-
-### useRevisions
-
-Get all revisions for a dataset.
-
-```vue
-<script setup lang="ts">
-const { data } = useRevisions({
-  schemaId: 'dataset',
-  identifier: 'dataset-uuid'
-})
-</script>
-```
-
-### useRevision
-
-Get specific revision.
-
-```vue
-<script setup lang="ts">
-const { data } = useRevision({
-  schemaId: 'dataset',
-  identifier: 'dataset-uuid',
-  revision: '1'
-})
-</script>
-```
-
-### useCreateRevision
-
-Create new revision (mutation).
-
-```vue
-<script setup lang="ts">
-const createRevision = useCreateRevision()
-
-await createRevision.mutateAsync({
-  schemaId: 'dataset',
-  identifier: 'dataset-uuid',
-  data: { /* updated dataset */ }
-})
-</script>
-```
-
-### useChangeDatasetState
-
-Change workflow state (mutation).
-
-```vue
-<script setup lang="ts">
-const changeState = useChangeDatasetState()
-
-await changeState.mutateAsync({
-  identifier: 'dataset-uuid',
-  state: 'published' // or 'draft', 'archived'
-})
+const { data } = useDatasetSearch({ searchOptions })
 </script>
 ```
 
@@ -981,73 +342,7 @@ const { data, isLoading, isFetching, isPending } = useDataset({ identifier: 'uui
 </script>
 ```
 
----
-
-## Authentication
-
-### Basic Auth
-
-```typescript
-// main.ts
-app.use(DkanClientPlugin, {
-  clientOptions: {
-    baseUrl: 'https://your-site.com',
-    auth: {
-      username: 'user',
-      password: 'pass'
-    }
-  }
-})
-```
-
-### Token Auth
-
-```typescript
-// main.ts
-app.use(DkanClientPlugin, {
-  clientOptions: {
-    baseUrl: 'https://your-site.com',
-    headers: {
-      'Authorization': 'Bearer YOUR_TOKEN'
-    }
-  }
-})
-```
-
----
-
-## CORS & Development
-
-For local development with CORS issues, use a Vite proxy:
-
-```typescript
-// vite.config.ts
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-
-export default defineConfig({
-  plugins: [vue()],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://demo.getdkan.org',
-        changeOrigin: true
-      }
-    }
-  }
-})
-```
-
-Then connect to local proxy:
-
-```typescript
-// main.ts
-app.use(DkanClientPlugin, {
-  clientOptions: {
-    baseUrl: 'http://localhost:5173' // Vite dev server
-  }
-})
-```
+**Authentication and CORS**: See [Quick Start Guide](./QUICK_START.md) for authentication setup and CORS configuration.
 
 ---
 
