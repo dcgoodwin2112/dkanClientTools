@@ -1078,6 +1078,17 @@ Key differences from React hooks:
 
 ---
 
+## See Also
+
+**Prefer React?** Check out the [React Guide](./REACT_GUIDE.md) for React hooks with the same API.
+
+**Key Differences:**
+- React returns direct values, Vue returns reactive refs
+- React uses callbacks for reactivity, Vue uses reactive parameters
+- React requires explicit refetch, Vue auto-refetches on parameter changes
+
+---
+
 ## Next Steps
 
 - [API Reference](./API_REFERENCE.md) - Complete API documentation

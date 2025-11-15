@@ -899,6 +899,17 @@ const dkanClient = new DkanClient({
 
 ---
 
+## See Also
+
+**Prefer Vue?** Check out the [Vue Guide](./VUE_GUIDE.md) for Vue 3 composables with the same API.
+
+**Key Differences:**
+- Vue uses reactive refs (`data.value`) instead of direct values
+- Parameters can be reactive (refs, computed, or getters)
+- Template usage doesn't require `.value`
+
+---
+
 ## Next Steps
 
 - [API Reference](./API_REFERENCE.md) - Complete API documentation

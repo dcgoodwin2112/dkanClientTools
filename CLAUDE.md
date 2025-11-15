@@ -22,12 +22,18 @@ The repository also includes a local DKAN development environment for testing an
 │   ├── react-demo-app/                # React demo application
 │   └── vue-demo-app/                  # Vue demo application
 ├── dkan/                              # DKAN development site (DDEV)
+├── research/                          # Research and analysis documentation
+│   ├── DKAN_API.md                    # DKAN REST API documentation
+│   └── ARCHITECTURE.md                # Architecture documentation
 ├── docs/                              # User documentation
 │   ├── README.md                      # Documentation index
 │   ├── INSTALLATION.md                # Installation guide
 │   ├── QUICK_START.md                 # Quick start guide
+│   ├── REACT_GUIDE.md                 # Complete React guide
+│   ├── VUE_GUIDE.md                   # Complete Vue guide
 │   ├── DRUPAL_INTEGRATION.md          # Drupal integration guide
-│   └── BUILD_PROCESS.md               # Build system guide
+│   ├── BUILD_PROCESS.md               # Build system guide
+│   └── API_REFERENCE.md               # Complete API reference
 ├── scripts/                           # Build automation scripts
 │   ├── build-orchestrator.js          # Automated build orchestrator
 │   └── build-config.js                # Build configuration
