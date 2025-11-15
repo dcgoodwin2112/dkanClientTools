@@ -2,6 +2,109 @@
 
 Reference documentation for TypeScript patterns and best practices.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [React Hooks](./REACT_HOOKS.md)
+- [Vue Composition API](./VUE_COMPOSITION_API.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+
+## Quick Reference
+
+**Strict Mode Essentials**:
+- `strict: true` - Enable all strict checks
+- `noImplicitAny` - Require explicit types
+- `strictNullChecks` - null/undefined are distinct types
+
+**Common Type Patterns**:
+- Union: `string | number`
+- Intersection: `TypeA & TypeB`
+- Generic: `Array<T>`, `Promise<T>`
+- Literal: `'success' | 'error'`
+
+**Utility Types**:
+- `Partial<T>` - All properties optional
+- `Required<T>` - All properties required
+- `Pick<T, K>` - Subset of properties
+- `Omit<T, K>` - Exclude properties
+- `Record<K, V>` - Object with key-value types
+
+**Framework Patterns**:
+- React: `FC<Props>`, `ReactNode`, `useState<T>`
+- Vue: `Ref<T>`, `ComputedRef<T>`, `MaybeRefOrGetter<T>`
+
+**Type Guards**:
+- `typeof` - Primitive type checking
+- `instanceof` - Class instance checking
+- Custom predicates: `(x): x is Type`
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [TypeScript Configuration](#typescript-configuration)
+  - [Strict Mode and Compiler Options](#strict-mode-and-compiler-options)
+  - [Module Resolution Strategies](#module-resolution-strategies)
+  - [Path Mapping and Aliases](#path-mapping-and-aliases)
+  - [Declaration File Generation](#declaration-file-generation)
+  - [Source Map Configuration](#source-map-configuration)
+  - [Project References for Monorepos](#project-references-for-monorepos)
+- [Type System Fundamentals](#type-system-fundamentals)
+  - [Primitive Types](#primitive-types)
+  - [Type Literals and Literal Types](#type-literals-and-literal-types)
+  - [Type Inference vs Annotations](#type-inference-vs-annotations)
+  - [Union Types](#union-types)
+  - [Intersection Types](#intersection-types)
+  - [Type Narrowing and Type Guards](#type-narrowing-and-type-guards)
+  - [Discriminated Unions](#discriminated-unions)
+- [Advanced Type Patterns](#advanced-type-patterns)
+  - [Generic Types and Constraints](#generic-types-and-constraints)
+  - [Conditional Types](#conditional-types)
+  - [Mapped Types](#mapped-types)
+  - [Template Literal Types](#template-literal-types)
+  - [Utility Types](#utility-types)
+  - [infer Keyword](#infer-keyword)
+- [Interface and Type Patterns](#interface-and-type-patterns)
+  - [Interface vs Type Aliases](#interface-vs-type-aliases)
+  - [Declaration Merging](#declaration-merging)
+  - [Extending Interfaces](#extending-interfaces)
+  - [Index Signatures](#index-signatures)
+  - [Function Signatures and Overloads](#function-signatures-and-overloads)
+  - [Optional and Readonly Modifiers](#optional-and-readonly-modifiers)
+- [Module and Declaration Patterns](#module-and-declaration-patterns)
+  - [ES Modules and Imports/Exports](#es-modules-and-importsexports)
+  - [Module Augmentation](#module-augmentation)
+  - [Ambient Declarations](#ambient-declarations)
+  - [.d.ts Declaration Files](#dts-declaration-files)
+  - [Namespace Patterns](#namespace-patterns)
+  - [Triple-Slash Directives](#triple-slash-directives)
+- [Framework-Specific Typing](#framework-specific-typing)
+  - [React Component Types and Props](#react-component-types-and-props)
+  - [React Hooks with Generics](#react-hooks-with-generics)
+  - [Vue MaybeRefOrGetter and Ref Types](#vue-maybereforgetter-and-ref-types)
+  - [TanStack Query Types](#tanstack-query-types)
+- [Type Safety Best Practices](#type-safety-best-practices)
+  - [Avoiding any and Using unknown](#avoiding-any-and-using-unknown)
+  - [Type Guards and Assertion Functions](#type-guards-and-assertion-functions)
+  - [Runtime Validation vs Compile-Time Types](#runtime-validation-vs-compile-time-types)
+  - [Strict Null Checking](#strict-null-checking)
+  - [Error Handling with Typed Errors](#error-handling-with-typed-errors)
+  - [Never Type for Exhaustive Checks](#never-type-for-exhaustive-checks)
+- [Patterns Used in This Project](#patterns-used-in-this-project)
+  - [DCAT-US Schema Type Definitions](#dcat-us-schema-type-definitions)
+  - [Frictionless Table Schema Types](#frictionless-table-schema-types)
+  - [API Response Typing](#api-response-typing)
+  - [Generic Hook/Composable Signatures](#generic-hookcomposable-signatures)
+  - [Type-Safe Query Keys](#type-safe-query-keys)
+  - [MaybeRefOrGetter Pattern (Vue)](#maybereforgetter-pattern-vue)
+- [Common Patterns](#common-patterns)
+  - [Builder Pattern with Types](#builder-pattern-with-types)
+  - [Factory Functions with Generics](#factory-functions-with-generics)
+  - [Branded Types for Type Safety](#branded-types-for-type-safety)
+- [TypeScript with Testing](#typescript-with-testing)
+- [Troubleshooting](#troubleshooting)
+- [References](#references)
+
 ---
 
 ## Overview
@@ -1794,6 +1897,8 @@ const buffer: Buffer = Buffer.from('hello')
 ---
 
 ## Framework-Specific Typing
+
+TypeScript integration patterns for React and Vue frameworks used in this project. For React-specific typing patterns, see [React Hooks](./REACT_HOOKS.md). For Vue patterns, see [Vue Composition API](./VUE_COMPOSITION_API.md).
 
 ### React Component Types and Props
 

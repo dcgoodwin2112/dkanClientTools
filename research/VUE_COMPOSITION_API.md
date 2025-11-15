@@ -2,6 +2,107 @@
 
 Reference documentation for Vue 3 Composition API patterns and capabilities.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [TanStack Query](./TANSTACK_QUERY.md)
+- [React Hooks](./REACT_HOOKS.md) (for comparison)
+- [Vue Guide](../docs/VUE_GUIDE.md)
+
+## Quick Reference
+
+**Core APIs**:
+- `ref()` - Reactive primitive values
+- `reactive()` - Reactive objects
+- `computed()` - Derived state
+- `watch()` - React to state changes
+- `toValue()` - Unwrap refs/getters (Vue 3.3+)
+
+**Setup Patterns**:
+- `setup()` function - Traditional Composition API
+- `<script setup>` - Modern syntax (recommended)
+
+**Common Patterns in This Project**:
+- TanStack Query composables: `useDataset`, `useDatastore`, `useDatasetSearch`
+- `MaybeRefOrGetter<T>` - Accept refs, computed, or plain values
+- Plugin injection: `useDkanClient`
+- Computed query keys for reactivity
+
+**Reactivity Gotchas**:
+- Access `.value` for refs
+- Objects inside `ref()` are deeply reactive
+- Destructuring reactive objects loses reactivity
+- Use `toValue()` to unwrap refs/getters
+
+**Lifecycle Hooks**:
+- `onMounted`, `onUpdated`, `onUnmounted`
+- `onBeforeMount`, `onBeforeUpdate`, `onBeforeUnmount`
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Composition API Fundamentals](#composition-api-fundamentals)
+  - [setup() Function](#setup-function)
+  - [`<script setup>` Syntax](#script-setup-syntax)
+  - [reactive()](#reactive)
+  - [ref()](#ref)
+  - [ref() vs reactive()](#ref-vs-reactive)
+  - [computed()](#computed)
+  - [watch() and watchEffect()](#watch-and-watcheffect)
+  - [toValue() and toRef()](#tovalue-and-toref)
+- [Vue-Specific Patterns](#vue-specific-patterns)
+  - [Composables Pattern](#composables-pattern)
+  - [MaybeRefOrGetter<T> Pattern](#maybereforgettert-pattern)
+  - [Lifecycle Hooks](#lifecycle-hooks)
+  - [Provide/Inject Dependency Injection](#provideinject-dependency-injection)
+  - [Template Refs and DOM Access](#template-refs-and-dom-access)
+  - [Reactive Props and Emits](#reactive-props-and-emits)
+- [Reactivity System](#reactivity-system)
+  - [How Vue's Reactivity Works](#how-vues-reactivity-works)
+  - [Ref Unwrapping](#ref-unwrapping)
+  - [Shallow vs Deep Reactivity](#shallow-vs-deep-reactivity)
+  - [Performance Considerations](#performance-considerations)
+- [TypeScript Integration](#typescript-integration)
+  - [Typing Composables with Generics](#typing-composables-with-generics)
+  - [MaybeRefOrGetter and Ref Types](#maybereforgetter-and-ref-types)
+  - [Defining Component Props](#defining-component-props)
+  - [Defining Component Emits](#defining-component-emits)
+  - [Component Type Inference](#component-type-inference)
+  - [Ref Type Narrowing](#ref-type-narrowing)
+- [Building Composables](#building-composables)
+  - [Composable Structure and Naming](#composable-structure-and-naming)
+  - [Building Custom Composables](#building-custom-composables)
+  - [Using toValue() for Flexible Parameters](#using-tovalue-for-flexible-parameters)
+  - [Computed Query Keys for Reactivity](#computed-query-keys-for-reactivity)
+  - [Return Value Patterns](#return-value-patterns)
+  - [Composable Composition](#composable-composition)
+- [Provide/Inject Pattern](#provideinject-pattern)
+  - [InjectionKey Pattern with TypeScript](#injectionkey-pattern-with-typescript)
+  - [Creating Vue Plugins](#creating-vue-plugins)
+  - [Providing Values in Plugins](#providing-values-in-plugins)
+  - [Consuming with Inject and Composables](#consuming-with-inject-and-composables)
+  - [Error Handling for Missing Providers](#error-handling-for-missing-providers)
+- [Integration with TanStack Query](#integration-with-tanstack-query)
+  - [How useQuery and useMutation Work in Vue](#how-usequery-and-usemutation-work-in-vue)
+  - [Combining Custom Composables with Vue Query](#combining-custom-composables-with-vue-query)
+  - [Plugin Setup](#plugin-setup)
+  - [Reactive Query Keys with computed()](#reactive-query-keys-with-computed)
+  - [MaybeRefOrGetter for Reactive Parameters](#maybereforgetter-for-reactive-parameters)
+- [Testing Composables](#testing-composables)
+  - [Testing with Vue Test Utils](#testing-with-vue-test-utils)
+  - [mount() and Wrapper API](#mount-and-wrapper-api)
+  - [Testing with Provide/Inject](#testing-with-provideinject)
+  - [Mocking and Spying](#mocking-and-spying)
+  - [Testing Reactive Behavior](#testing-reactive-behavior)
+- [Best Practices](#best-practices)
+  - [When to Use ref() vs reactive()](#when-to-use-ref-vs-reactive)
+  - [Composable Naming Conventions](#composable-naming-conventions)
+  - [Avoiding Common Pitfalls](#avoiding-common-pitfalls)
+  - [Performance Optimization](#performance-optimization)
+  - [TypeScript Best Practices](#typescript-best-practices)
+- [References](#references)
+
 ---
 
 ## Overview
@@ -17,11 +118,12 @@ The Vue 3 Composition API is a set of function-based APIs that enable flexible c
 - Foundation for modern Vue patterns
 
 **In This Project:**
-- Custom composables built on TanStack Vue Query (`useDataset`, `useDatastore`, etc.)
+- Custom composables built on [TanStack Vue Query](./TANSTACK_QUERY.md) (`useDataset`, `useDatastore`, etc.)
 - Plugin system with provide/inject (`DkanClientPlugin`, `useDkanClient`)
 - `MaybeRefOrGetter<T>` pattern for flexible reactive parameters
 - Composable composition for complex data fetching
 - TypeScript-first composable design with strict typing
+- For React equivalent patterns, see [React Hooks](./REACT_HOOKS.md)
 
 ---
 

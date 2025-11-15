@@ -2,6 +2,104 @@
 
 Reference documentation for Drupal 10 architecture and development patterns.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [DKAN Features](./DKAN_FEATURES.md)
+- [DKAN API](./DKAN_API.md)
+- [Drupal Integration](../docs/DRUPAL_INTEGRATION.md)
+
+## Quick Reference
+
+**Current Version**: Drupal 10.5.6 (in this project)
+
+**Core Concepts**:
+- Entity API - Data modeling (nodes, users, custom entities)
+- Configuration Management - YAML-based config export/import
+- Service Container - Symfony dependency injection
+- Hook System - Event-driven extensibility
+- Plugin System - Reusable, discoverable components
+
+**Common Drush Commands**:
+- `drush cr` - Clear cache
+- `drush en module_name` - Enable module
+- `drush updb` - Run database updates
+- `drush cex` - Export configuration
+- `drush cim` - Import configuration
+
+**File Structure**:
+- `docroot/core/` - Drupal core
+- `docroot/modules/` - Contributed and custom modules
+- `docroot/themes/` - Themes
+- `docroot/sites/default/` - Site configuration and files
+
+**API Paths**:
+- REST API: `/api/1/` (DKAN)
+- JSON:API: `/jsonapi/` (Drupal core)
+- Admin UI: `/admin/`
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Drupal 10 Architecture](#drupal-10-architecture)
+  - [Core Architecture Overview](#core-architecture-overview)
+  - [Request Lifecycle](#request-lifecycle)
+  - [Entity System](#entity-system)
+  - [Configuration Management System](#configuration-management-system)
+  - [Database Layer and Schema API](#database-layer-and-schema-api)
+  - [Dependency Injection Container](#dependency-injection-container)
+  - [Service Architecture](#service-architecture)
+  - [Hook System and Event System](#hook-system-and-event-system)
+- [Module System](#module-system)
+  - [Module Structure and Anatomy](#module-structure-and-anatomy)
+  - [Module Lifecycle](#module-lifecycle)
+  - [Hook System](#hook-system)
+  - [Event Subscribers](#event-subscribers)
+  - [Plugin System](#plugin-system)
+  - [Module Dependencies](#module-dependencies)
+  - [Custom Module Development](#custom-module-development)
+- [DKAN Integration](#dkan-integration)
+  - [How DKAN Modules Integrate with Drupal](#how-dkan-modules-integrate-with-drupal)
+  - [DKAN's Use of Drupal Entities](#dkans-use-of-drupal-entities)
+  - [Metastore Module Architecture](#metastore-module-architecture)
+  - [Datastore Module Architecture](#datastore-module-architecture)
+  - [DKAN's REST API Endpoints via Drupal Routing](#dkans-rest-api-endpoints-via-drupal-routing)
+- [Entity System](#entity-system-1)
+  - [Entity Types](#entity-types)
+  - [Core Entity Types](#core-entity-types)
+  - [Entity Fields and Field API](#entity-fields-and-field-api)
+  - [Entity Reference Fields](#entity-reference-fields)
+  - [Entity Query API](#entity-query-api)
+  - [Entity Storage](#entity-storage)
+- [Configuration Management](#configuration-management)
+  - [Configuration vs Content](#configuration-vs-content)
+  - [Configuration Storage](#configuration-storage)
+  - [Configuration Workflow](#configuration-workflow)
+  - [Settings.php and Environment Configuration](#settingsphp-and-environment-configuration)
+  - [Development vs Production Settings](#development-vs-production-settings)
+- [Database Layer](#database-layer)
+  - [Database Abstraction Layer](#database-abstraction-layer)
+  - [Schema API](#schema-api)
+  - [Query Builders](#query-builders)
+- [Drush Command-Line Tool](#drush-command-line-tool)
+  - [Drush Basics](#drush-basics)
+  - [Common Drush Commands](#common-drush-commands)
+  - [DKAN-Specific Drush Commands](#dkan-specific-drush-commands)
+  - [Custom Drush Commands](#custom-drush-commands)
+- [REST API and JSON:API](#rest-api-and-jsonapi)
+  - [Drupal's REST Module](#drupals-rest-module)
+  - [JSON:API Module](#jsonapi-module)
+  - [Authentication and Permissions](#authentication-and-permissions)
+- [Theming System](#theming-system)
+- [DDEV Development Environment](#ddev-development-environment)
+- [Routing System](#routing-system)
+- [Service Container](#service-container)
+- [Drupal 10 vs Drupal 11](#drupal-10-vs-drupal-11)
+- [Best Practices](#best-practices)
+- [Common Tasks](#common-tasks)
+- [References](#references)
+
 ---
 
 ## Overview
@@ -948,7 +1046,7 @@ ddev drush generate service
 
 **DKAN Architecture on Drupal:**
 
-DKAN is a suite of Drupal modules that extend Drupal's core functionality to create a data catalog platform.
+DKAN is a suite of Drupal modules that extend Drupal's core functionality to create a data catalog platform. For DKAN-specific APIs and endpoints, see [DKAN API](./DKAN_API.md) and [DKAN Features](./DKAN_FEATURES.md).
 
 **DKAN Modules:**
 

@@ -2,6 +2,38 @@
 
 Reference documentation for TanStack Query patterns and capabilities.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [React Hooks](./REACT_HOOKS.md)
+- [Vue Composition API](./VUE_COMPOSITION_API.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+
+## Quick Reference
+
+**Default Configuration**:
+- `staleTime`: 0 (data immediately stale)
+- `gcTime`: 5 minutes (cache lifetime when inactive)
+- `retry`: 3 attempts
+- `refetchOnWindowFocus`: true
+
+**Query States**:
+- `isPending` - No data yet (initial load)
+- `isFetching` - Currently fetching (initial or background)
+- `isSuccess` - Query successful with data
+- `isError` - Query failed
+- `isStale` - Data exists but needs refresh
+
+**Common Patterns**:
+- Queries: Read operations, automatic caching
+- Mutations: Write operations, manual invalidation
+- Query keys: Arrays for cache identification
+- Invalidation: Force refetch on related data changes
+
+**Framework Adapters**:
+- React: `@tanstack/react-query` → `useQuery`, `useMutation`
+- Vue: `@tanstack/vue-query` → `useQuery`, `useMutation`
+- Core: `@tanstack/query-core` → `QueryClient`
+
 ---
 
 ## Overview
@@ -20,6 +52,8 @@ TanStack Query is an industry-standard data fetching and caching library that pr
 **Architecture:**
 - Framework-agnostic core (`@tanstack/query-core`)
 - Framework-specific adapters (`@tanstack/react-query`, `@tanstack/vue-query`, etc.)
+  - See [React Hooks](./REACT_HOOKS.md) for React implementation patterns
+  - See [Vue Composition API](./VUE_COMPOSITION_API.md) for Vue implementation patterns
 - QueryClient manages all queries and cache
 - Declarative hooks/composables for data fetching
 

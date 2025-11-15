@@ -2,6 +2,38 @@
 
 Technical documentation for DKAN 2 open data platform features and architecture.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [DKAN API](./DKAN_API.md)
+- [Data Standards](./DATA_STANDARDS.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+
+## Quick Reference
+
+**Current Version**: DKAN 2.21.2 (October 2025)
+
+**Drupal Support**: 10.2+ and 11.x
+
+**Core Modules**:
+- `metastore` - Dataset metadata (DCAT-US)
+- `datastore` - Data query and SQL
+- `harvest` - External source harvesting
+- `search` - Faceted search with Search API
+
+**Standards**:
+- Metadata: DCAT-US v1.1
+- Data Dictionaries: Frictionless Table Schema v1
+- Format: JSON-LD
+
+**API-First Architecture**:
+- REST APIs at `/api/1/`
+- CKAN-compatible layer at `/api/3/action/`
+- Decoupled frontend support
+
+**Moderation States**:
+- Draft → Published → Archived
+- Revision tracking for all changes
+
 ---
 
 ## Overview
@@ -59,7 +91,7 @@ No backward compatibility exists between versions - migration tools are required
 
 ### Metastore: Dataset Metadata Management
 
-The Metastore manages dataset metadata following DCAT-US v1.1 specification. It provides structured metadata storage with validation and versioning.
+The Metastore manages dataset metadata following [DCAT-US v1.1 specification](./DATA_STANDARDS.md#dcat-us-specification). It provides structured metadata storage with validation and versioning.
 
 **Key Capabilities:**
 - JSON-based metadata storage
@@ -277,7 +309,7 @@ Data dictionaries link to distributions via DCAT-US `describedBy` field:
 
 ### REST API: Complete CRUD Coverage
 
-All DKAN functionality is accessible via REST APIs under `/api/1/` base path.
+All DKAN functionality is accessible via REST APIs under `/api/1/` base path. For complete API documentation, see [DKAN API](./DKAN_API.md).
 
 **API Design Principles:**
 - Consistent JSON request/response format

@@ -2,6 +2,38 @@
 
 Reference documentation for React Hooks patterns and capabilities.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [TanStack Query](./TANSTACK_QUERY.md)
+- [Vue Composition API](./VUE_COMPOSITION_API.md) (for comparison)
+- [React Guide](../docs/REACT_GUIDE.md)
+
+## Quick Reference
+
+**Core Hooks**:
+- `useState` - Local component state
+- `useEffect` - Side effects and lifecycle
+- `useContext` - Access React context
+- `useRef` - Persist values without re-renders
+- `useMemo` - Memoize expensive computations
+- `useCallback` - Memoize functions
+
+**Rules of Hooks**:
+1. Only call at top level (not in loops/conditions)
+2. Only call from React functions (components or custom hooks)
+3. Custom hooks must start with "use"
+
+**Common Patterns in This Project**:
+- TanStack Query hooks: `useDataset`, `useDatastore`, `useDatasetSearch`
+- Context injection: `useDkanClient`
+- Custom hooks for DKAN API integration
+- TypeScript generics for type safety
+
+**Dependency Arrays**:
+- Empty `[]` - Run once on mount
+- Omitted - Run on every render
+- `[dep1, dep2]` - Run when dependencies change
+
 ---
 
 ## Overview
@@ -17,10 +49,11 @@ React Hooks are functions that allow you to use state and other React features i
 - Foundation for modern React patterns
 
 **In This Project:**
-- Custom hooks built on TanStack Query (`useDataset`, `useDatastore`, etc.)
+- Custom hooks built on [TanStack Query](./TANSTACK_QUERY.md) (`useDataset`, `useDatastore`, etc.)
 - Context API for dependency injection (`DkanClientProvider`, `useDkanClient`)
 - Hook composition for complex data fetching patterns
 - TypeScript-first hook design with strict typing
+- For Vue equivalent patterns, see [Vue Composition API](./VUE_COMPOSITION_API.md)
 
 ---
 
