@@ -10,7 +10,7 @@ Guidance for Claude Code (claude.ai/code) when working with the dkanClientTools 
 
 **Documentation Locations**:
 - `/docs/` - User guides, framework integration, API reference
-- `/research/` - External dependencies (DKAN APIs, data standards, third-party libraries)
+- `/docs/external/` - External dependencies (DKAN APIs, data standards, third-party libraries)
 - Package READMEs - Package-specific installation and usage
 
 **Key Commands**:
@@ -43,8 +43,8 @@ npm run typecheck        # Verify TypeScript types
 │   ├── react-demo-app/                # React demo
 │   └── vue-demo-app/                  # Vue demo
 ├── dkan/                              # DKAN development site (DDEV)
-├── research/                          # External dependency docs
 ├── docs/                              # User documentation
+│   └── external/                      # External dependency docs
 └── scripts/                           # Build automation
 ```
 
@@ -299,10 +299,10 @@ ddev composer require [package]                 # Add package
 | Directory | Content | Examples |
 |-----------|---------|----------|
 | `/docs` | Internal project documentation | INSTALLATION.md, REACT_GUIDE.md, BUILD_PROCESS.md, API_REFERENCE.md |
-| `/research` | External dependencies and technologies | DKAN_API.md, DATA_STANDARDS.md, TANSTACK_QUERY.md |
+| `/docs/external` | External dependencies and technologies | platforms/DKAN_API.md, standards/DATA_STANDARDS.md, libraries/TANSTACK_QUERY.md |
 | Package READMEs | Package-specific installation and API | Each package's README.md |
 
-**Simple Rule**: If it's about how dkanClientTools works internally or how to use it, put it in `/docs`. If it's about an external API, library, or standard, put it in `/research`.
+**Simple Rule**: If it's about how dkanClientTools works internally or how to use it, put it in `/docs`. If it's about an external API, library, or standard, put it in `/docs/external`.
 
 ### Documentation Types
 
@@ -312,11 +312,12 @@ ddev composer require [package]                 # Add package
 - Integration (DRUPAL_INTEGRATION.md, BUILD_PROCESS.md)
 - Reference (API_REFERENCE.md, ARCHITECTURE.md, reference/PATTERNS.md)
 
-**In /research**:
-- External API documentation (DKAN_API.md)
-- Technology overviews (DKAN_FEATURES.md)
-- Standards/specs (DATA_STANDARDS.md)
-- Framework references (external/frameworks/TYPESCRIPT.md)
+**In /docs/external**:
+- External API documentation (platforms/DKAN_API.md)
+- Technology overviews (platforms/DKAN.md)
+- Standards/specs (standards/DATA_STANDARDS.md)
+- Framework references (frameworks/TYPESCRIPT.md, frameworks/REACT_HOOKS.md, frameworks/VUE_COMPOSITION_API.md)
+- Library references (libraries/TANSTACK_QUERY.md)
 
 ### Formatting Standards
 
@@ -470,7 +471,7 @@ import { useDataset } from '@dkan-client-tools/react'
 const { data, isLoading } = useDataset({ identifier: 'abc-123' })
 ```
 
-### When Creating Research Documentation (in /research)
+### When Creating Research Documentation (in /docs/external)
 
 **Purpose**: Document external dependencies, APIs, standards, and technologies
 
@@ -513,7 +514,7 @@ Fetch a single dataset by identifier.
 
 **Documentation Organization**:
 - `/docs` = internal (how dkanClientTools works)
-- `/research` = external (DKAN APIs, third-party libs, standards)
+- `/docs/external` = external (DKAN APIs, third-party libs, standards)
 - Clear boundary - never mix internal and external docs
 
 **Framework Patterns**:
@@ -547,6 +548,6 @@ Fetch a single dataset by identifier.
 
 - **[Documentation Index](docs/README.md)** - Complete docs navigation
 - **[Build Process](docs/BUILD_PROCESS.md)** - Build system details
-- **[DKAN API](research/DKAN_API.md)** - DKAN REST API reference
+- **[DKAN API](docs/external/platforms/DKAN_API.md)** - DKAN REST API reference
 - **[TanStack Query](https://tanstack.com/query)** - Official TanStack Query docs
 - **[DKAN Documentation](https://dkan.readthedocs.io)** - Official DKAN docs

@@ -21,29 +21,29 @@ This directory provides context about third-party systems and technologies:
 
 Platform-specific documentation for external systems.
 
-- **[DKAN Platform](./platforms/DKAN.md)** - DKAN 2 platform overview, features, and capabilities *(Phase 3)*
-- **[DKAN REST API](./platforms/DKAN_API.md)** - Complete DKAN API endpoints and integration guide *(Phase 3)*
-- **[Drupal 10](./platforms/DRUPAL_10.md)** - Drupal 10 platform overview *(Phase 3)*
+- **[DKAN Platform](./platforms/DKAN.md)** - DKAN 2 platform overview, features, and capabilities
+- **[DKAN REST API](./platforms/DKAN_API.md)** - Complete DKAN API endpoints and integration guide
+- **[Drupal 10](./platforms/DRUPAL_10.md)** - Drupal 10 platform overview
 
 ### Frameworks
 
 Framework and language references.
 
 - **[TypeScript](./frameworks/TYPESCRIPT.md)** - TypeScript patterns and type system
-- **[React Hooks](./frameworks/REACT_HOOKS.md)** - React hooks patterns and TanStack Query *(Phase 3)*
-- **[Vue Composition API](./frameworks/VUE_COMPOSITION_API.md)** - Vue 3 composables and reactivity *(Phase 3)*
+- **[React Hooks](./frameworks/REACT_HOOKS.md)** - React hooks patterns and TanStack Query
+- **[Vue Composition API](./frameworks/VUE_COMPOSITION_API.md)** - Vue 3 composables and reactivity
 
 ### Libraries
 
 Third-party library documentation.
 
-- **[TanStack Query](./libraries/TANSTACK_QUERY.md)** - Query caching and state management *(Phase 3)*
+- **[TanStack Query](./libraries/TANSTACK_QUERY.md)** - Query caching and state management
 
 ### Standards
 
 Data standards and specifications.
 
-- **[Data Standards](./standards/DATA_STANDARDS.md)** - DCAT-US and Frictionless Table Schema *(Phase 3)*
+- **[Data Standards](./standards/DATA_STANDARDS.md)** - DCAT-US and Frictionless Table Schema
 
 ---
 
@@ -60,9 +60,3 @@ Data standards and specifications.
 - **[Architecture](../ARCHITECTURE.md)** - How dkanClientTools integrates these technologies
 - **[API Reference](../API_REFERENCE.md)** - dkanClientTools API methods
 - **[Project Patterns](../reference/PATTERNS.md)** - TypeScript patterns used in this project
-
----
-
-## Migration Status
-
-This directory is being populated as part of the documentation consolidation from `/research` to `/docs`. Files marked with *(Phase 3)* will be moved from `/research` in a later phase.
