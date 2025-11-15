@@ -311,7 +311,6 @@ npm run typecheck
 │   └── vue-demo-app/              # Vue example app
 ├── dkan/                          # Local DKAN instance (for testing)
 ├── docs/                          # User documentation
-├── research/                      # API research docs
 ├── package.json                   # Root workspace config
 └── README.md                      # This file
 ```
@@ -358,7 +357,7 @@ The local DKAN instance runs at: `https://dkan.ddev.site`
 
 **Note:** The `/dkan` directory is excluded from git as it's a separate Drupal/DKAN project. Set up your own DKAN instance for testing.
 
-See [DRUPAL_USAGE.md](./docs/DRUPAL_USAGE.md) for DKAN/Drupal integration details.
+See [DRUPAL_INTEGRATION.md](./docs/DRUPAL_INTEGRATION.md) for DKAN/Drupal integration details.
 
 ## Example Applications
 
@@ -412,9 +411,12 @@ Each framework adapter:
 
 Comprehensive documentation is available in the `/docs` directory:
 
-- **[React Standalone App Guide](./docs/REACT_STANDALONE_APP.md)** - Complete guide for building React applications
-- **[Vue Standalone App Guide](./docs/VUE_STANDALONE_APP.md)** - Complete guide for building Vue 3 applications
-- **[Drupal Integration Guide](./docs/DRUPAL_USAGE.md)** - Guide for integrating with Drupal themes and modules
+- **[Installation Guide](./docs/INSTALLATION.md)** - Install packages for React, Vue, or vanilla JavaScript
+- **[Quick Start](./docs/QUICK_START.md)** - Get up and running in 5 minutes
+- **[Drupal Integration](./docs/DRUPAL_INTEGRATION.md)** - Using DKAN Client Tools in Drupal themes and modules
+- **[Build Process](./docs/BUILD_PROCESS.md)** - Understanding the automated build system
+
+See **[docs/README.md](./docs/README.md)** for complete documentation index.
 
 ## License
 

@@ -22,14 +22,12 @@ The repository also includes a local DKAN development environment for testing an
 │   ├── react-demo-app/                # React demo application
 │   └── vue-demo-app/                  # Vue demo application
 ├── dkan/                              # DKAN development site (DDEV)
-├── research/                          # Research and analysis documentation
 ├── docs/                              # User documentation
-│   ├── BUILD_PROCESS.md               # Automated build system guide
-│   ├── BUILD_DOCUMENTATION_INDEX.md   # Index of all build documentation
-│   ├── LIVE_TYPES.md                  # Live types setup guide
-│   ├── REACT_STANDALONE_APP.md        # Guide for creating React apps
-│   ├── VUE_STANDALONE_APP.md          # Guide for creating Vue apps
-│   └── DRUPAL_USAGE.md                # Guide for Drupal integration
+│   ├── README.md                      # Documentation index
+│   ├── INSTALLATION.md                # Installation guide
+│   ├── QUICK_START.md                 # Quick start guide
+│   ├── DRUPAL_INTEGRATION.md          # Drupal integration guide
+│   └── BUILD_PROCESS.md               # Build system guide
 ├── scripts/                           # Build automation scripts
 │   ├── build-orchestrator.js          # Automated build orchestrator
 │   └── build-config.js                # Build configuration
@@ -628,40 +626,31 @@ npm run dev
 
 Comprehensive user documentation is available in the `/docs` directory.
 
-### User Guides
+### Getting Started
 
-- **[React Standalone App Guide](docs/REACT_STANDALONE_APP.md)** - Complete guide for building React apps with DKAN Client Tools
-  - Setting up Vite + React + TypeScript project
-  - DkanClientProvider configuration
-  - Using React hooks for all DKAN APIs
-  - Authentication, CORS, and proxy setup
-  - Testing with Vitest
-  - Performance optimization techniques
-  - Building and deployment
+- **[Installation Guide](docs/INSTALLATION.md)** - Install packages for React, Vue, or vanilla JavaScript
+- **[Quick Start](docs/QUICK_START.md)** - Get up and running in 5 minutes
 
-- **[Vue Standalone App Guide](docs/VUE_STANDALONE_APP.md)** - Complete guide for building Vue 3 apps with DKAN Client Tools
-  - Setting up Vite + Vue + TypeScript project
-  - DkanClientPlugin configuration
-  - Using Vue composables for all DKAN APIs
-  - Reactive parameters with MaybeRefOrGetter
-  - Authentication, CORS, and proxy setup
-  - Testing with Vitest
-  - Performance optimization techniques
-  - Building and deployment
+### Integration & Build
 
-- **[Drupal Integration Guide](docs/DRUPAL_USAGE.md)** - Guide for integrating DKAN Client Tools with Drupal
+- **[Drupal Integration](docs/DRUPAL_INTEGRATION.md)** - Using DKAN Client Tools in Drupal themes and modules
   - IIFE builds for browser/Drupal usage
   - Drupal library definitions
   - Using with Drupal Behaviors
   - React and Vue integration in themes/modules
   - Global variable reference
-  - Build sizes and dependencies
+  - Framework comparison
 
-### API Documentation
+- **[Build Process](docs/BUILD_PROCESS.md)** - Understanding the automated build system
+  - Build workflow and phases
+  - NPM script reference
+  - Package build details
+  - Development workflow
+  - Troubleshooting
 
-- **[DKAN API Research](research/DKAN_API_RESEARCH.md)** - Comprehensive documentation of all DKAN REST APIs
-- **[API Gap Analysis](research/DKAN_API_GAP_ANALYSIS.md)** - Analysis of DKAN API coverage
-- **[Future Features](research/FUTURE_FEATURES.md)** - Planned features and enhancements
+### Documentation Index
+
+See **[docs/README.md](docs/README.md)** for complete navigation and links to all documentation.
 
 ## DKAN Directory Setup
 
