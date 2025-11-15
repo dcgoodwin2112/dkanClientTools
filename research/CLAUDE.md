@@ -6,28 +6,45 @@ This file provides guidance for Claude Code and other AI agents working with doc
 
 ## Purpose
 
-The `/research` directory contains technical documentation that provides AI agents with deep context about the project's architecture, API integrations, and design decisions. These documents serve as:
+The `/research` directory documents **external dependencies and technologies** that the project integrates with or builds upon. These documents provide AI agents with deep context about third-party systems, APIs, standards, and libraries. This directory serves as:
 
-- **Reference material** for understanding technical implementation details
-- **Context** for making informed development decisions
-- **Background** on why certain architectural choices were made
-- **API documentation** for external integrations (e.g., DKAN REST APIs)
+- **Reference material** for external APIs and their capabilities
+- **Context** for understanding third-party technologies the project depends on
+- **Background** on external standards and specifications (DCAT-US, Frictionless, etc.)
+- **Integration guides** for external platforms (DKAN, TanStack Query, etc.)
 
-Files in this directory are intended to be read and referenced by AI agents to better understand the codebase and provide more accurate assistance to developers.
+Files in this directory are intended to be read and referenced by AI agents to better understand external dependencies and provide more accurate integration assistance.
+
+**What belongs here:**
+- External API documentation (DKAN REST APIs, third-party services)
+- Technology overviews (TanStack Query capabilities, DKAN features)
+- Standards and specifications (DCAT-US, Frictionless Table Schema)
+- Third-party library integration patterns
+
+**What does NOT belong here:**
+- Internal project architecture (belongs in `/docs/ARCHITECTURE.md` or root-level docs)
+- Package implementation details (belongs in package READMEs or `/docs`)
+- Internal API documentation (belongs in code comments or API reference docs)
+- Build system documentation (belongs in `/docs`)
 
 ---
 
 ## Document Types
 
-### Architecture Documentation
-Documents explaining system design, architectural patterns, technology choices, and their rationale.
+### External API Documentation
+Comprehensive documentation of third-party APIs the project integrates with.
 
-**Example**: `ARCHITECTURE.md` - Covers TanStack Query integration, package structure, design principles
+**Example**: `DKAN_API.md` - DKAN REST API endpoints, parameters, responses, authentication
 
-### API Reference Documentation
-Comprehensive documentation of external APIs the project integrates with.
+### External Technology Overview
+Documentation of external platforms, libraries, and frameworks used by the project.
 
-**Example**: `DKAN_API.md` - Documents DKAN REST API endpoints, parameters, responses
+**Example**: `DKAN_FEATURES.md` - DKAN 2 platform capabilities, modules, and use cases
+
+### Standards and Specifications
+Technical documentation of data standards, schemas, and specifications the project implements.
+
+**Example**: `DATA_STANDARDS.md` - DCAT-US and Frictionless Table Schema specifications
 
 ---
 
@@ -122,16 +139,18 @@ GET /api/endpoint/123?param1=value
 
 ### Diagrams and Flows
 
-Use ASCII art for dependency flows and architecture diagrams:
+Use ASCII art for external API flows and integration diagrams:
 
 ```markdown
-User Application
+Client Application
     ↓
-@dkan-client-tools/react
+HTTP Request (Authorization: Basic ...)
     ↓
-@dkan-client-tools/core
+DKAN REST API (/api/1/metastore/...)
     ↓
-TanStack Query Core
+DKAN Metastore (Drupal)
+    ↓
+JSON Response (DCAT-US formatted)
 ```
 
 ### Lists
@@ -194,30 +213,31 @@ Prefix important notes with bold labels:
 
 ### Explain "Why" Not Just "What"
 
-Include rationale for architectural decisions:
+Include context for why external technologies are used and how they benefit the project:
 
 ```markdown
-## Why TanStack Query?
+## Why DKAN Uses DCAT-US
 
-We chose TanStack Query because:
-1. Proven solution used by thousands of projects
-2. Built-in caching and deduplication
-3. Framework-agnostic core
+DCAT-US is the federal standard for data catalogs because:
+1. Required for U.S. federal agency compliance
+2. Ensures interoperability across government data portals
+3. Based on W3C DCAT vocabulary for international compatibility
 ```
 
 ### Practical Examples
 
-Include real-world code examples showing actual usage:
+Include real-world code examples showing external API usage and integration patterns:
 
 ```typescript
-// Good - shows real usage
-const { data, isLoading } = useDataset({
-  id: 'abc-123',
-  enabled: true
+// Good - shows actual DKAN API request
+fetch('https://dkan.example.com/api/1/metastore/schemas/dataset/items/abc-123', {
+  headers: {
+    'Authorization': `Basic ${btoa('user:pass')}`
+  }
 })
 
 // Avoid abstract placeholders
-const result = useHook({ param: value })
+fetch('https://api.example.com/endpoint')
 ```
 
 ### Communication Style
@@ -229,27 +249,30 @@ const result = useHook({ param: value })
 
 ### References
 
-Include a references section at the end with external links:
+Include a references section at the end with links to official external documentation:
 
 ```markdown
 ---
 
 ## References
 
+- [DKAN Official Documentation](https://dkan.readthedocs.io/)
+- [DKAN GitHub Repository](https://github.com/GetDKAN/dkan)
+- [DCAT-US Specification](https://resources.data.gov/resources/dcat-us/)
+- [Frictionless Table Schema](https://specs.frictionlessdata.io/table-schema/)
 - [TanStack Query Documentation](https://tanstack.com/query)
-- [DKAN Documentation](https://dkan.readthedocs.io/)
-- [DCAT-US Schema](https://resources.data.gov/schemas/dcat-us/)
 ```
 
 ---
 
 ## File Naming
 
-Use descriptive, uppercase names with underscores:
+Use descriptive, uppercase names with underscores focused on the external technology:
 
-- `ARCHITECTURE.md` - System architecture documentation
-- `DKAN_API.md` - DKAN API reference
-- `INTEGRATION_PATTERNS.md` - Integration pattern documentation
+- `DKAN_API.md` - DKAN REST API reference
+- `DKAN_FEATURES.md` - DKAN 2 platform overview
+- `DATA_STANDARDS.md` - DCAT-US and Frictionless specifications
+- `TANSTACK_QUERY.md` - TanStack Query capabilities and patterns
 - `CLAUDE.md` - AI agent guidelines (this file)
 
 ---
@@ -270,45 +293,52 @@ When updating research documentation:
 ## Example Document Structure
 
 ```markdown
-# Document Title
+# External Technology Name
 
-Brief subtitle or overview statement.
+Brief overview of the external technology and its purpose.
 
 ---
 
 ## Overview
 
-High-level introduction to the topic.
+High-level introduction to the external technology, its ecosystem, and relevance to the project.
 
 ---
 
-## Main Topic One
+## Core Capabilities
 
-### Subtopic
+### Feature Category One
 
-Detailed content with examples.
+Detailed explanation of features with external API examples.
 
-\```typescript
-// Code example
+\```http
+GET /api/endpoint HTTP/1.1
+Host: external-service.com
 \```
 
-**Key Points**:
-- Important detail
-- Another detail
+**Key Capabilities**:
+- Feature description
+- Integration requirements
 
 ---
 
-## Main Topic Two
+## Integration Patterns
 
-### Subtopic
+### Using the External API
 
-More content...
+Code examples showing how to interact with the external technology.
+
+\```typescript
+// Example API call
+\```
 
 ---
 
 ## References
 
-- [External Resource](https://example.com)
+- [Official Documentation](https://external-tech.com/docs)
+- [API Reference](https://external-tech.com/api)
+- [GitHub Repository](https://github.com/org/repo)
 ```
 
 ---
@@ -317,10 +347,13 @@ More content...
 
 When creating or updating research documentation:
 
-1. **Read existing files** to understand current patterns and style
-2. **Match the tone** - technical, direct, developer-focused
-3. **Include examples** - show don't just tell
-4. **Explain rationale** - the "why" behind decisions
-5. **Be accurate** - verify technical details
-6. **Stay consistent** - use established formatting patterns
-7. **Keep it practical** - focus on what developers need to know
+1. **Focus on external technologies** - document third-party APIs, libraries, platforms, and standards
+2. **Read existing files** to understand current patterns and style
+3. **Match the tone** - technical, direct, developer-focused
+4. **Include examples** - show actual external API usage and integration patterns
+5. **Explain context** - why the external technology exists and how it's used
+6. **Be accurate** - verify technical details from official documentation
+7. **Stay consistent** - use established formatting patterns
+8. **Keep it practical** - focus on integration details developers need
+
+**Remember**: This directory is for external dependencies, not internal project architecture. Internal architecture documentation belongs in `/docs` or root-level files.
