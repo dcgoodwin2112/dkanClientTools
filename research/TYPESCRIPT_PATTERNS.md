@@ -2,6 +2,12 @@
 
 Reference documentation for TypeScript patterns and best practices.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [React Hooks](./REACT_HOOKS.md)
+- [Vue Composition API](./VUE_COMPOSITION_API.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+
 ---
 
 ## Overview

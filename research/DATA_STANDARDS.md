@@ -2,6 +2,12 @@
 
 Technical documentation for DCAT-US and Frictionless Table Schema standards as implemented in dkanClientTools.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [DKAN API](./DKAN_API.md)
+- [DKAN Features](./DKAN_FEATURES.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+
 ---
 
 ## Overview

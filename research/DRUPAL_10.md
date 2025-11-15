@@ -2,6 +2,12 @@
 
 Reference documentation for Drupal 10 architecture and development patterns.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [DKAN Features](./DKAN_FEATURES.md)
+- [DKAN API](./DKAN_API.md)
+- [Drupal Integration](../docs/DRUPAL_INTEGRATION.md)
+
 ---
 
 ## Overview

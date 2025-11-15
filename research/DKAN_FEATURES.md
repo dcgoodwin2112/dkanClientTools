@@ -2,6 +2,12 @@
 
 Technical documentation for DKAN 2 open data platform features and architecture.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [DKAN API](./DKAN_API.md)
+- [Data Standards](./DATA_STANDARDS.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+
 ---
 
 ## Overview

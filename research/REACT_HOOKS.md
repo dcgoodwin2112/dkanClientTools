@@ -2,6 +2,12 @@
 
 Reference documentation for React Hooks patterns and capabilities.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [TanStack Query](./TANSTACK_QUERY.md)
+- [Vue Composition API](./VUE_COMPOSITION_API.md) (for comparison)
+- [React Guide](../docs/REACT_GUIDE.md)
+
 ---
 
 ## Overview

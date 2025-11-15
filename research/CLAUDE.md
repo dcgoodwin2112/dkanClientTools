@@ -2,6 +2,10 @@
 
 This file provides guidance for Claude Code and other AI agents working with documentation in the `/research` directory.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [Architecture](../docs/ARCHITECTURE.md)
+
 ---
 
 ## Purpose

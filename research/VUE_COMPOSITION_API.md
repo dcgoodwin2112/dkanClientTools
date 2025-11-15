@@ -2,6 +2,12 @@
 
 Reference documentation for Vue 3 Composition API patterns and capabilities.
 
+**Last Updated**: 2025-11-15
+**Related Documentation**:
+- [TanStack Query](./TANSTACK_QUERY.md)
+- [React Hooks](./REACT_HOOKS.md) (for comparison)
+- [Vue Guide](../docs/VUE_GUIDE.md)
+
 ---
 
 ## Overview
