@@ -27,21 +27,6 @@ These are likely already in your project. If not:
 npm install react react-dom @tanstack/react-query
 ```
 
-### TypeScript Support
-
-Types are included - no additional `@types` packages needed.
-
-For best experience, ensure your `tsconfig.json` has:
-
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "bundler",
-    "types": ["vite/client"]
-  }
-}
-```
-
 ---
 
 ## Vue
@@ -64,21 +49,6 @@ If not already installed:
 npm install vue @tanstack/vue-query
 ```
 
-### TypeScript Support
-
-Types are included - no additional `@types` packages needed.
-
-For best experience, ensure your `tsconfig.json` has:
-
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "bundler",
-    "types": ["vite/client"]
-  }
-}
-```
-
 ---
 
 ## Vanilla JavaScript / Core Only
@@ -89,13 +59,7 @@ For best experience, ensure your `tsconfig.json` has:
 npm install @dkan-client-tools/core
 ```
 
-### Dependencies
-
 The core package includes TanStack Query Core - no additional dependencies needed.
-
-### TypeScript Support
-
-Types are included and work in JavaScript projects with TypeScript language service.
 
 ---
 
@@ -146,6 +110,22 @@ import { DkanClientPlugin, useDatasetSearch } from '@dkan-client-tools/vue'
 
 ```typescript
 import { DkanClient, DkanApiClient } from '@dkan-client-tools/core'
+```
+
+---
+
+## TypeScript
+
+Types are included in all packages - no additional `@types` packages needed.
+
+**Recommended `tsconfig.json`:**
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "types": ["vite/client"]
+  }
+}
 ```
 
 ---
