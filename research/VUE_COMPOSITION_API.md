@@ -8,6 +8,35 @@ Reference documentation for Vue 3 Composition API patterns and capabilities.
 - [React Hooks](./REACT_HOOKS.md) (for comparison)
 - [Vue Guide](../docs/VUE_GUIDE.md)
 
+## Quick Reference
+
+**Core APIs**:
+- `ref()` - Reactive primitive values
+- `reactive()` - Reactive objects
+- `computed()` - Derived state
+- `watch()` - React to state changes
+- `toValue()` - Unwrap refs/getters (Vue 3.3+)
+
+**Setup Patterns**:
+- `setup()` function - Traditional Composition API
+- `<script setup>` - Modern syntax (recommended)
+
+**Common Patterns in This Project**:
+- TanStack Query composables: `useDataset`, `useDatastore`, `useDatasetSearch`
+- `MaybeRefOrGetter<T>` - Accept refs, computed, or plain values
+- Plugin injection: `useDkanClient`
+- Computed query keys for reactivity
+
+**Reactivity Gotchas**:
+- Access `.value` for refs
+- Objects inside `ref()` are deeply reactive
+- Destructuring reactive objects loses reactivity
+- Use `toValue()` to unwrap refs/getters
+
+**Lifecycle Hooks**:
+- `onMounted`, `onUpdated`, `onUnmounted`
+- `onBeforeMount`, `onBeforeUpdate`, `onBeforeUnmount`
+
 ---
 
 ## Table of Contents

@@ -8,6 +8,34 @@ This file provides guidance for Claude Code and other AI agents working with doc
 
 ---
 
+## Quick Reference
+
+**Research Directory Purpose**:
+- Document external dependencies and technologies
+- Provide context for third-party APIs and platforms
+- Reference material for AI agents
+
+**Document Types**:
+- External API documentation (DKAN_API.md)
+- Technology overviews (DKAN_FEATURES.md, TANSTACK_QUERY.md)
+- Standards and specifications (DATA_STANDARDS.md)
+- Framework references (REACT_HOOKS.md, VUE_COMPOSITION_API.md)
+
+**Formatting Standards**:
+- H1: Document title only
+- H2: Major sections
+- H3: Subtopics
+- Code blocks: Always include language tags
+- Horizontal rules: Separate major sections
+
+**Communication Style**:
+- Direct and concise
+- Developer-focused, technical
+- No hype or overselling
+- Objective presentation of facts
+
+---
+
 ## Purpose
 
 The `/research` directory documents **external dependencies and technologies** that the project integrates with or builds upon. These documents provide AI agents with deep context about third-party systems, APIs, standards, and libraries. This directory serves as:

@@ -8,6 +8,28 @@ Technical documentation for DCAT-US and Frictionless Table Schema standards as i
 - [DKAN Features](./DKAN_FEATURES.md)
 - [Architecture](../docs/ARCHITECTURE.md)
 
+## Quick Reference
+
+**DCAT-US Required Fields**:
+- `title` - Dataset name
+- `description` - Human-readable summary
+- `keyword` - Array of tags
+- `modified` - ISO 8601 date
+- `contactPoint` - vcard:Contact object
+
+**Access Levels**:
+- `public` - No restrictions
+- `restricted public` - Registration or approval required
+- `non-public` - Government use only
+
+**Frictionless Data Dictionary**:
+- Schema version: Table Schema v1
+- Field types: string, integer, number, boolean, date, datetime, etc.
+- Constraints: required, unique, min/max, pattern, enum
+- Primary keys and foreign keys supported
+
+**Date Format**: ISO 8601 (`YYYY-MM-DD` or `YYYY-MM-DDTHH:mm:ssZ`)
+
 ---
 
 ## Overview

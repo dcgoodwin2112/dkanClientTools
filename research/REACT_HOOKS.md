@@ -8,6 +8,32 @@ Reference documentation for React Hooks patterns and capabilities.
 - [Vue Composition API](./VUE_COMPOSITION_API.md) (for comparison)
 - [React Guide](../docs/REACT_GUIDE.md)
 
+## Quick Reference
+
+**Core Hooks**:
+- `useState` - Local component state
+- `useEffect` - Side effects and lifecycle
+- `useContext` - Access React context
+- `useRef` - Persist values without re-renders
+- `useMemo` - Memoize expensive computations
+- `useCallback` - Memoize functions
+
+**Rules of Hooks**:
+1. Only call at top level (not in loops/conditions)
+2. Only call from React functions (components or custom hooks)
+3. Custom hooks must start with "use"
+
+**Common Patterns in This Project**:
+- TanStack Query hooks: `useDataset`, `useDatastore`, `useDatasetSearch`
+- Context injection: `useDkanClient`
+- Custom hooks for DKAN API integration
+- TypeScript generics for type safety
+
+**Dependency Arrays**:
+- Empty `[]` - Run once on mount
+- Omitted - Run on every render
+- `[dep1, dep2]` - Run when dependencies change
+
 ---
 
 ## Overview

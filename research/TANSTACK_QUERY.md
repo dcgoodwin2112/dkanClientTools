@@ -8,6 +8,32 @@ Reference documentation for TanStack Query patterns and capabilities.
 - [Vue Composition API](./VUE_COMPOSITION_API.md)
 - [Architecture](../docs/ARCHITECTURE.md)
 
+## Quick Reference
+
+**Default Configuration**:
+- `staleTime`: 0 (data immediately stale)
+- `gcTime`: 5 minutes (cache lifetime when inactive)
+- `retry`: 3 attempts
+- `refetchOnWindowFocus`: true
+
+**Query States**:
+- `isPending` - No data yet (initial load)
+- `isFetching` - Currently fetching (initial or background)
+- `isSuccess` - Query successful with data
+- `isError` - Query failed
+- `isStale` - Data exists but needs refresh
+
+**Common Patterns**:
+- Queries: Read operations, automatic caching
+- Mutations: Write operations, manual invalidation
+- Query keys: Arrays for cache identification
+- Invalidation: Force refetch on related data changes
+
+**Framework Adapters**:
+- React: `@tanstack/react-query` → `useQuery`, `useMutation`
+- Vue: `@tanstack/vue-query` → `useQuery`, `useMutation`
+- Core: `@tanstack/query-core` → `QueryClient`
+
 ---
 
 ## Overview

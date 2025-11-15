@@ -8,6 +8,32 @@ Technical documentation for DKAN 2 open data platform features and architecture.
 - [Data Standards](./DATA_STANDARDS.md)
 - [Architecture](../docs/ARCHITECTURE.md)
 
+## Quick Reference
+
+**Current Version**: DKAN 2.21.2 (October 2025)
+
+**Drupal Support**: 10.2+ and 11.x
+
+**Core Modules**:
+- `metastore` - Dataset metadata (DCAT-US)
+- `datastore` - Data query and SQL
+- `harvest` - External source harvesting
+- `search` - Faceted search with Search API
+
+**Standards**:
+- Metadata: DCAT-US v1.1
+- Data Dictionaries: Frictionless Table Schema v1
+- Format: JSON-LD
+
+**API-First Architecture**:
+- REST APIs at `/api/1/`
+- CKAN-compatible layer at `/api/3/action/`
+- Decoupled frontend support
+
+**Moderation States**:
+- Draft → Published → Archived
+- Revision tracking for all changes
+
 ---
 
 ## Overview

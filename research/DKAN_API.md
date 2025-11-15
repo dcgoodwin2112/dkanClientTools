@@ -8,6 +8,33 @@ Technical documentation about DKAN's REST API endpoints and capabilities.
 - [Data Standards](./DATA_STANDARDS.md)
 - [API Reference](../docs/API_REFERENCE.md)
 
+## Quick Reference
+
+**Base URL**: `/api/1/`
+
+**Authentication**:
+- HTTP Basic Auth (standard): `Authorization: Basic base64(user:pass)`
+- Bearer tokens: Requires additional Drupal modules (NOT default)
+
+**Common Endpoints**:
+- Get dataset: `GET /metastore/schemas/dataset/items/{id}`
+- Search datasets: `GET /search?keyword=term`
+- Query datastore: `POST /datastore/query/{datasetId}/{index}`
+
+**HTTP Methods**:
+- GET - Read operations (no auth required for public data)
+- POST - Create new items (auth required)
+- PUT - Replace entire item (auth required)
+- PATCH - Update specific fields (auth required)
+- DELETE - Remove item (auth required)
+
+**Common Query Parameters**:
+- `show-reference-ids` - Include internal UUIDs
+- `page` - Pagination (default: 1)
+- `pageSize` - Results per page (default: 10, max: 500)
+
+---
+
 ## Overview
 
 DKAN provides RESTful APIs for managing open data catalogs. The APIs follow [DCAT-US and Frictionless standards](./DATA_STANDARDS.md) for metadata and data dictionaries. For more on DKAN platform features, see [DKAN Features](./DKAN_FEATURES.md).

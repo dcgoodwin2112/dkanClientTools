@@ -8,6 +8,35 @@ Reference documentation for Drupal 10 architecture and development patterns.
 - [DKAN API](./DKAN_API.md)
 - [Drupal Integration](../docs/DRUPAL_INTEGRATION.md)
 
+## Quick Reference
+
+**Current Version**: Drupal 10.5.6 (in this project)
+
+**Core Concepts**:
+- Entity API - Data modeling (nodes, users, custom entities)
+- Configuration Management - YAML-based config export/import
+- Service Container - Symfony dependency injection
+- Hook System - Event-driven extensibility
+- Plugin System - Reusable, discoverable components
+
+**Common Drush Commands**:
+- `drush cr` - Clear cache
+- `drush en module_name` - Enable module
+- `drush updb` - Run database updates
+- `drush cex` - Export configuration
+- `drush cim` - Import configuration
+
+**File Structure**:
+- `docroot/core/` - Drupal core
+- `docroot/modules/` - Contributed and custom modules
+- `docroot/themes/` - Themes
+- `docroot/sites/default/` - Site configuration and files
+
+**API Paths**:
+- REST API: `/api/1/` (DKAN)
+- JSON:API: `/jsonapi/` (Drupal core)
+- Admin UI: `/admin/`
+
 ---
 
 ## Table of Contents

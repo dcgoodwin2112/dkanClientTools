@@ -8,6 +8,35 @@ Reference documentation for TypeScript patterns and best practices.
 - [Vue Composition API](./VUE_COMPOSITION_API.md)
 - [Architecture](../docs/ARCHITECTURE.md)
 
+## Quick Reference
+
+**Strict Mode Essentials**:
+- `strict: true` - Enable all strict checks
+- `noImplicitAny` - Require explicit types
+- `strictNullChecks` - null/undefined are distinct types
+
+**Common Type Patterns**:
+- Union: `string | number`
+- Intersection: `TypeA & TypeB`
+- Generic: `Array<T>`, `Promise<T>`
+- Literal: `'success' | 'error'`
+
+**Utility Types**:
+- `Partial<T>` - All properties optional
+- `Required<T>` - All properties required
+- `Pick<T, K>` - Subset of properties
+- `Omit<T, K>` - Exclude properties
+- `Record<K, V>` - Object with key-value types
+
+**Framework Patterns**:
+- React: `FC<Props>`, `ReactNode`, `useState<T>`
+- Vue: `Ref<T>`, `ComputedRef<T>`, `MaybeRefOrGetter<T>`
+
+**Type Guards**:
+- `typeof` - Primitive type checking
+- `instanceof` - Class instance checking
+- Custom predicates: `(x): x is Type`
+
 ---
 
 ## Table of Contents
