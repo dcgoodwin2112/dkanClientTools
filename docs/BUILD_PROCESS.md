@@ -242,105 +242,17 @@ Configures build formats, output extensions, and bundling options.
 
 ## Troubleshooting
 
-### Build Fails in Phase 1
+**Package build errors**: Run `npm run typecheck`, ensure dependencies installed with `npm install`, or clear dist folder with `npm run clean`
 
-**Symptom**: Package build errors
+**Deployment errors**: Verify Phase 1 completed and dist files exist in package directories
 
-**Solutions**:
-- Check TypeScript errors: `npm run typecheck`
-- Ensure dependencies installed: `npm install`
-- Clear dist folder: `npm run clean` then rebuild
+**Example app build errors**: Ensure packages built first with `npm run build:packages`
 
-### Build Fails in Phase 2
+**File size warnings**: Usually safe to ignore unless size drastically changed
 
-**Symptom**: Deployment errors
+**Global variable undefined**: Verify correct IIFE file loaded (`index.global.min.js`) and library dependencies are correct
 
-**Solutions**:
-- Verify Phase 1 completed successfully
-- Check dist files exist in package directories
-- Ensure Drupal module directories exist
-
-### Build Fails in Phase 3
-
-**Symptom**: Example app build errors
-
-**Solutions**:
-- Ensure packages built first: `npm run build:packages`
-- Check example app dependencies: `cd examples/{app} && npm install`
-- Verify Vite config is correct
-
-### Build Fails in Phase 4
-
-**Symptom**: Drupal module build errors
-
-**Solutions**:
-- Check module has node_modules: orchestrator will auto-install if missing
-- Verify package builds completed
-- Check module's package.json for build script
-
-### File Size Warnings
-
-**Symptom**: "File size outside expected range" warnings
-
-**Cause**: Build output larger/smaller than expected
-
-**Action**: Usually safe to ignore unless size drastically changed. May indicate:
-- Added/removed dependencies
-- Minification issues
-- Incorrect build target
-
-### IIFE Builds Missing Global Variable
-
-**Symptom**: `window.DkanClientTools` is undefined in browser
-
-**Solutions**:
-- Verify correct file loaded (`index.global.min.js`)
-- Check browser console for syntax errors
-- Ensure script tag appears before usage
-- Check Drupal library dependencies are correct
-
-### Watch Mode Not Detecting Changes
-
-**Symptom**: Changes don't trigger rebuild in watch mode
-
-**Solutions**:
-- Stop and restart watch: `npm run dev`
-- Check file is within package src directory
-- Verify tsup config includes changed file
-
----
-
-## Build Outputs
-
-### What Gets Committed
-
-**Committed**:
-- Source files (`src/`)
-- Build configuration (`tsup.config.ts`, `package.json`)
-- Example source code
-- Drupal module source
-
-**Not Committed** (`.gitignore`):
-- Package dist folders (`packages/*/dist`)
-- Example build outputs (`examples/*/dist`)
-- Node modules
-- Drupal module build outputs
-
-### Drupal Deployed Files
-
-The following built files are committed to the Drupal codebase:
-
-```
-dkan/docroot/modules/custom/
-├── dkan_client_tools_core_base/js/vendor/
-│   └── dkan-client-tools-core.min.js
-├── dkan_client_tools_react_base/js/vendor/
-│   └── dkan-client-tools-react.min.js
-└── dkan_client_tools_vue_base/js/vendor/
-    └── dkan-client-tools-vue.min.js
-```
-
-These are deployed via `npm run build:deploy` and committed as part of the Drupal codebase.
+**Watch mode not detecting changes**: Restart with `npm run dev`
 
 ---
 
