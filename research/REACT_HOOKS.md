@@ -55,6 +55,90 @@ React Hooks are functions that allow you to use state and other React features i
 - TypeScript-first hook design with strict typing
 - For Vue equivalent patterns, see [Vue Composition API](./VUE_COMPOSITION_API.md)
 
+### React Version Compatibility
+
+**Minimum Version**: React 16.8 (when Hooks were introduced, February 2019)
+
+**This Project Requirements**:
+- React: `^18.0.0 || ^19.0.0` (peer dependency)
+- React DOM: `^18.0.0 || ^19.0.0` (peer dependency)
+
+**Key Features by Version**:
+
+**React 16.8** (February 2019):
+- Hooks introduced (`useState`, `useEffect`, `useContext`, etc.)
+- Custom hooks support
+- Backward compatible with class components
+
+**React 18.0** (March 2022):
+- Automatic batching for state updates
+- Concurrent features (`useTransition`, `useDeferredValue`)
+- Suspense improvements
+- Strict Mode enhancements
+- `useId` hook for SSR-safe IDs
+- New root API (`createRoot`)
+
+**React 19.0** (December 2024):
+- Improved TypeScript types and inference
+- New `use()` hook for reading Promises and Context
+- Enhanced Server Components
+- Action hooks (`useFormStatus`, `useFormState`)
+- Ref as prop (no more `forwardRef` needed)
+- Document metadata support
+- Improved error reporting
+
+**Hooks Added in React 18**:
+- `useId()` - Generate unique IDs for accessibility
+- `useTransition()` - Mark updates as non-urgent
+- `useDeferredValue()` - Defer re-rendering of non-critical parts
+- `useSyncExternalStore()` - Subscribe to external stores
+
+**Breaking Changes**:
+
+**React 17 → 18**:
+- Automatic batching (state updates batched in more scenarios)
+- Strict Mode mounts/unmounts components twice in development
+- `useEffect` cleanup timing changes in Strict Mode
+- Suspense behavior changes
+
+**React 18 → 19**:
+- `ref` as regular prop (breaking for libraries using `forwardRef`)
+- Changes to hydration behavior
+- Deprecation of some legacy APIs
+
+**Best Practices for This Project**:
+
+```typescript
+// Use React 18+ features when available
+import { useId, useTransition } from 'react'
+
+function DatasetForm() {
+  const id = useId() // SSR-safe unique IDs
+  const [isPending, startTransition] = useTransition()
+
+  const handleSubmit = () => {
+    startTransition(() => {
+      // Non-urgent state updates
+      updateDataset(data)
+    })
+  }
+
+  return (
+    <form>
+      <label htmlFor={id}>Title</label>
+      <input id={id} />
+      {isPending && <Spinner />}
+    </form>
+  )
+}
+```
+
+**Compatibility Notes**:
+- This project supports React 18 and 19
+- Older React versions (16.8-17.x) are not supported
+- Use React 18+ concurrent features when beneficial
+- All hooks follow React 18+ best practices
+
 ---
 
 ## Core Hooks
@@ -1604,6 +1688,143 @@ function MyComponent() {
   )
 }
 ```
+
+---
+
+### React ↔ Vue Migration Guide
+
+For developers switching between React and Vue, or maintaining projects in both frameworks. See [Vue Composition API](./VUE_COMPOSITION_API.md) for detailed Vue patterns.
+
+**State Management**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useState(value)` | `ref(value)` | React: returns `[state, setState]`<br>Vue: returns ref object, access via `.value` |
+| `useState({ ... })` | `reactive({ ... })` | React: state setter replaces entire object<br>Vue: properties individually reactive |
+| `const [x, setX] = useState(0)` | `const x = ref(0)` | React: `setX(1)`<br>Vue: `x.value = 1` |
+
+**Derived State**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useMemo(() => fn, deps)` | `computed(() => fn)` | React: manual dependency tracking<br>Vue: automatic dependency tracking |
+| `const double = useMemo(() => count * 2, [count])` | `const double = computed(() => count.value * 2)` | Vue auto-tracks `count` dependency |
+
+**Side Effects**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useEffect(fn, deps)` | `watch(source, fn)` | React: runs after render<br>Vue: runs when source changes |
+| `useEffect(fn, [])` | `onMounted(fn)` | React: mount only via empty deps<br>Vue: explicit mount hook |
+| `useEffect(() => { return cleanup }, deps)` | `onUnmounted(cleanup)` | React: return cleanup function<br>Vue: separate unmount hook |
+| `useEffect(fn)` (no deps) | `watchEffect(fn)` | React: every render<br>Vue: tracks dependencies automatically |
+
+**Refs (DOM Access)**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useRef(null)` | `ref(null)` | Same concept, different usage |
+| `<div ref={myRef}>` | `<div ref="myRef">` | React: assign ref object<br>Vue: string name |
+| `myRef.current` | `myRef.value` | React: `.current`<br>Vue: `.value` |
+
+**Stable References**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useCallback(fn, deps)` | Not needed | Vue functions are stable by default |
+| `useMemo(() => ({ ... }), deps)` | `computed(() => ({ ... }))` | Vue computed values are cached |
+
+**Context / Dependency Injection**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `createContext(default)` | `Symbol('key')` | React: context object<br>Vue: injection key |
+| `<Context.Provider value={val}>` | `provide(key, val)` | React: JSX provider<br>Vue: provide function |
+| `useContext(Context)` | `inject(key)` | React: hook to read context<br>Vue: inject function |
+
+**Lifecycle Hooks**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useEffect(fn, [])` | `onMounted(fn)` | Component mounted |
+| `useEffect(fn)` | `onUpdated(fn)` | After every render/update |
+| `useEffect(() => cleanup, [])` | `onUnmounted(fn)` | Component unmounting |
+| N/A | `onBeforeMount(fn)` | Before mounting (Vue only) |
+| N/A | `onBeforeUpdate(fn)` | Before updates (Vue only) |
+
+**Component Definition**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `function Component(props)` | `<script setup>` | React: function component<br>Vue: script setup syntax |
+| `props.value` | `defineProps<{ value: T }>()` | React: direct access<br>Vue: compiler macro |
+| `const emit = props.onEvent` | `const emit = defineEmits<{ event: [] }>()` | React: props are callbacks<br>Vue: emit system |
+
+**TanStack Query Integration**:
+
+| React | Vue | Notes |
+|-------|-----|-------|
+| `useQuery({ queryKey, queryFn })` | `useQuery({ queryKey, queryFn })` | Same API across frameworks |
+| `queryKey: ['item', id]` | `queryKey: computed(() => ['item', toValue(id)])` | React: static dependencies<br>Vue: reactive with computed |
+| `enabled: !!id` | `enabled: () => !!toValue(id)` | React: boolean<br>Vue: getter function |
+
+**Custom Hooks/Composables**:
+
+**React Hook**:
+```typescript
+function useCounter(initial = 0) {
+  const [count, setCount] = useState(initial)
+  const increment = useCallback(() => setCount(c => c + 1), [])
+  const decrement = useCallback(() => setCount(c => c - 1), [])
+
+  return { count, increment, decrement }
+}
+
+// Usage
+const { count, increment } = useCounter(0)
+```
+
+**Vue Composable**:
+```typescript
+function useCounter(initial = 0) {
+  const count = ref(initial)
+  const increment = () => count.value++
+  const decrement = () => count.value--
+
+  return { count, increment, decrement }
+}
+
+// Usage
+const { count, increment } = useCounter(0)
+```
+
+**Key Differences**:
+
+1. **Reactivity**:
+   - React: Immutable updates, new references trigger re-renders
+   - Vue: Mutable updates via `.value`, proxy-based reactivity
+
+2. **Dependency Tracking**:
+   - React: Manual dependency arrays (`useEffect`, `useMemo`, `useCallback`)
+   - Vue: Automatic dependency tracking (computed, watch)
+
+3. **Function Stability**:
+   - React: Functions recreated every render unless `useCallback`
+   - Vue: Functions are stable by default
+
+4. **Ref Access**:
+   - React: `ref.current` (DOM refs)
+   - Vue: `ref.value` (reactive refs AND DOM refs)
+
+5. **TypeScript**:
+   - React: Generic components via `<T,>` syntax
+   - Vue: `<script setup lang="ts" generic="T">`
+
+**Migration Tips**:
+
+- **React → Vue**: Remove dependency arrays, use `.value` for refs, replace `useMemo` with `computed`
+- **Vue → React**: Add dependency arrays, use state setters instead of `.value`, wrap functions in `useCallback`
+- **Both**: TanStack Query patterns translate directly with minor syntax differences
 
 ---
 

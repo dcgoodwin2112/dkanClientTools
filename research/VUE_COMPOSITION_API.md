@@ -125,6 +125,167 @@ The Vue 3 Composition API is a set of function-based APIs that enable flexible c
 - TypeScript-first composable design with strict typing
 - For React equivalent patterns, see [React Hooks](./REACT_HOOKS.md)
 
+### Vue Version Compatibility
+
+**Minimum Version**: Vue 3.0 (when Composition API was introduced, September 2020)
+
+**This Project Requirements**:
+- Vue: `^3.3.0` (peer dependency)
+
+**Key Features by Version**:
+
+**Vue 3.0** (September 2020):
+- Composition API introduced (`ref`, `reactive`, `computed`, `watch`, etc.)
+- `setup()` function
+- Lifecycle hooks (`onMounted`, `onUnmounted`, etc.)
+- TypeScript support improved significantly
+- Smaller bundle size and better performance
+
+**Vue 3.2** (August 2021):
+- `<script setup>` syntax (recommended approach)
+- Simplified component authoring
+- Better performance with improved reactivity
+- `defineProps`, `defineEmits` compiler macros
+- CSS variable injection (`v-bind` in styles)
+
+**Vue 3.3** (May 2023) - **Required by this project**:
+- `toValue()` utility for unwrapping refs/getters
+- Improved generic component support
+- `defineSlots()` for typed slots
+- Better TypeScript inference
+- More flexible `defineProps` and `defineEmits`
+- Improved reactivity transform
+
+**Vue 3.4** (December 2023):
+- Parser rewrite for better performance
+- Improved reactivity performance
+- Better error messages
+- `defineModel()` macro for v-model
+- Stable reactivity transform
+
+**Critical Features Used in This Project**:
+
+**`toValue()` (Vue 3.3+)**:
+```typescript
+import { toValue, type MaybeRefOrGetter } from 'vue'
+
+// toValue() handles refs, computed, getters, and plain values
+function useDataset(id: MaybeRefOrGetter<string>) {
+  return useQuery({
+    queryKey: computed(() => ['dataset', toValue(id)]),
+    queryFn: () => fetchDataset(toValue(id)),
+  })
+}
+```
+
+**`<script setup>` (Vue 3.2+)**:
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+// No need for setup() function or return statement
+const count = ref(0)
+const doubled = computed(() => count.value * 2)
+
+// Automatically exposed to template
+</script>
+```
+
+**Generic Components (Vue 3.3+)**:
+```vue
+<script setup lang="ts" generic="T">
+defineProps<{
+  items: T[]
+  renderItem: (item: T) => string
+}>()
+</script>
+```
+
+**Breaking Changes**:
+
+**Vue 2 → Vue 3**:
+- Options API still supported but Composition API is recommended
+- Reactivity system rewritten (Proxy-based)
+- Multiple root elements allowed
+- `v-model` behavior changes
+- Filters removed (use computed or methods)
+- `$listeners` merged into `$attrs`
+
+**Vue 3.0 → 3.2**:
+- `<script setup>` syntax introduced (non-breaking addition)
+- Performance improvements may change timing behavior
+
+**Vue 3.2 → 3.3**:
+- `toValue()` added (non-breaking addition)
+- Some TypeScript inference improvements may require code updates
+
+**Best Practices for This Project**:
+
+```vue
+<script setup lang="ts">
+import { ref, computed, toValue, type MaybeRefOrGetter } from 'vue'
+import { useDataset } from '@dkan-client-tools/vue'
+
+// Use MaybeRefOrGetter for flexible parameters
+const datasetId = ref('abc-123')
+
+// Composables handle reactive parameters automatically
+const { data, isPending, isError } = useDataset({ id: datasetId })
+
+// toValue() unwraps refs/computed/getters
+function logId(id: MaybeRefOrGetter<string>) {
+  console.log(toValue(id)) // Works with ref, computed, or plain string
+}
+
+// Computed for derived state
+const title = computed(() => data.value?.title ?? 'Loading...')
+</script>
+```
+
+**Compatibility Notes**:
+- This project requires Vue 3.3+ for `toValue()` support
+- `<script setup>` is the recommended syntax
+- All composables use `MaybeRefOrGetter<T>` for maximum flexibility
+- Older Vue 3 versions (3.0-3.2) are not supported
+- Use `toValue()` instead of manual ref unwrapping
+
+**Migration from Options API**:
+
+If migrating from Options API to Composition API:
+
+```vue
+<!-- Options API (old) -->
+<script>
+export default {
+  data() {
+    return { count: 0 }
+  },
+  computed: {
+    doubled() {
+      return this.count * 2
+    }
+  },
+  methods: {
+    increment() {
+      this.count++
+    }
+  }
+}
+</script>
+
+<!-- Composition API (new) -->
+<script setup>
+import { ref, computed } from 'vue'
+
+const count = ref(0)
+const doubled = computed(() => count.value * 2)
+
+function increment() {
+  count.value++
+}
+</script>
+```
+
 ---
 
 ## Composition API Fundamentals
@@ -2764,6 +2925,143 @@ const count = ref(0)
 const message = ref('Hello')
 const { count, message } = { count, message }  // Refs maintain reactivity
 ```
+
+---
+
+### Vue ↔ React Migration Guide
+
+For developers switching between Vue and React, or maintaining projects in both frameworks. See [React Hooks](./REACT_HOOKS.md) for detailed React patterns.
+
+**State Management**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `ref(value)` | `useState(value)` | Vue: returns ref object, access via `.value`<br>React: returns `[state, setState]` |
+| `reactive({ ... })` | `useState({ ... })` | Vue: properties individually reactive<br>React: state setter replaces entire object |
+| `const x = ref(0)` | `const [x, setX] = useState(0)` | Vue: `x.value = 1`<br>React: `setX(1)` |
+
+**Derived State**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `computed(() => fn)` | `useMemo(() => fn, deps)` | Vue: automatic dependency tracking<br>React: manual dependency tracking |
+| `const double = computed(() => count.value * 2)` | `const double = useMemo(() => count * 2, [count])` | Vue auto-tracks `count` dependency |
+
+**Side Effects**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `watch(source, fn)` | `useEffect(fn, deps)` | Vue: runs when source changes<br>React: runs after render |
+| `onMounted(fn)` | `useEffect(fn, [])` | Vue: explicit mount hook<br>React: mount only via empty deps |
+| `onUnmounted(cleanup)` | `useEffect(() => { return cleanup }, deps)` | Vue: separate unmount hook<br>React: return cleanup function |
+| `watchEffect(fn)` | `useEffect(fn)` (no deps) | Vue: tracks dependencies automatically<br>React: every render |
+
+**Refs (DOM Access)**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `ref(null)` | `useRef(null)` | Same concept, different usage |
+| `<div ref="myRef">` | `<div ref={myRef}>` | Vue: string name<br>React: assign ref object |
+| `myRef.value` | `myRef.current` | Vue: `.value`<br>React: `.current` |
+
+**Stable References**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| Not needed | `useCallback(fn, deps)` | Vue functions are stable by default |
+| `computed(() => ({ ... }))` | `useMemo(() => ({ ... }), deps)` | Vue computed values are cached |
+
+**Context / Dependency Injection**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `Symbol('key')` | `createContext(default)` | Vue: injection key<br>React: context object |
+| `provide(key, val)` | `<Context.Provider value={val}>` | Vue: provide function<br>React: JSX provider |
+| `inject(key)` | `useContext(Context)` | Vue: inject function<br>React: hook to read context |
+
+**Lifecycle Hooks**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `onMounted(fn)` | `useEffect(fn, [])` | Component mounted |
+| `onUpdated(fn)` | `useEffect(fn)` | After every render/update |
+| `onUnmounted(fn)` | `useEffect(() => cleanup, [])` | Component unmounting |
+| `onBeforeMount(fn)` | N/A | Before mounting (Vue only) |
+| `onBeforeUpdate(fn)` | N/A | Before updates (Vue only) |
+
+**Component Definition**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `<script setup>` | `function Component(props)` | Vue: script setup syntax<br>React: function component |
+| `defineProps<{ value: T }>()` | `props.value` | Vue: compiler macro<br>React: direct access |
+| `const emit = defineEmits<{ event: [] }>()` | `const emit = props.onEvent` | Vue: emit system<br>React: props are callbacks |
+
+**TanStack Query Integration**:
+
+| Vue | React | Notes |
+|-----|-------|-------|
+| `useQuery({ queryKey, queryFn })` | `useQuery({ queryKey, queryFn })` | Same API across frameworks |
+| `queryKey: computed(() => ['item', toValue(id)])` | `queryKey: ['item', id]` | Vue: reactive with computed<br>React: static dependencies |
+| `enabled: () => !!toValue(id)` | `enabled: !!id` | Vue: getter function<br>React: boolean |
+
+**Custom Hooks/Composables**:
+
+**Vue Composable**:
+```typescript
+function useCounter(initial = 0) {
+  const count = ref(initial)
+  const increment = () => count.value++
+  const decrement = () => count.value--
+
+  return { count, increment, decrement }
+}
+
+// Usage
+const { count, increment } = useCounter(0)
+```
+
+**React Hook**:
+```typescript
+function useCounter(initial = 0) {
+  const [count, setCount] = useState(initial)
+  const increment = useCallback(() => setCount(c => c + 1), [])
+  const decrement = useCallback(() => setCount(c => c - 1), [])
+
+  return { count, increment, decrement }
+}
+
+// Usage
+const { count, increment } = useCounter(0)
+```
+
+**Key Differences**:
+
+1. **Reactivity**:
+   - Vue: Mutable updates via `.value`, proxy-based reactivity
+   - React: Immutable updates, new references trigger re-renders
+
+2. **Dependency Tracking**:
+   - Vue: Automatic dependency tracking (computed, watch)
+   - React: Manual dependency arrays (`useEffect`, `useMemo`, `useCallback`)
+
+3. **Function Stability**:
+   - Vue: Functions are stable by default
+   - React: Functions recreated every render unless `useCallback`
+
+4. **Ref Access**:
+   - Vue: `ref.value` (reactive refs AND DOM refs)
+   - React: `ref.current` (DOM refs)
+
+5. **TypeScript**:
+   - Vue: `<script setup lang="ts" generic="T">`
+   - React: Generic components via `<T,>` syntax
+
+**Migration Tips**:
+
+- **Vue → React**: Add dependency arrays, use state setters instead of `.value`, wrap functions in `useCallback`
+- **React → Vue**: Remove dependency arrays, use `.value` for refs, replace `useMemo` with `computed`
+- **Both**: TanStack Query patterns translate directly with minor syntax differences
 
 ---
 
