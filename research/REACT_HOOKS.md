@@ -78,7 +78,7 @@ React Hooks are functions that allow you to use state and other React features i
 - `useId` hook for SSR-safe IDs
 - New root API (`createRoot`)
 
-**React 19.0** (Expected 2025):
+**React 19.0** (December 2024):
 - Improved TypeScript types and inference
 - New `use()` hook for reading Promises and Context
 - Enhanced Server Components
