@@ -26,6 +26,8 @@ TanStack Query is an industry-standard data fetching and caching library that pr
 **Architecture:**
 - Framework-agnostic core (`@tanstack/query-core`)
 - Framework-specific adapters (`@tanstack/react-query`, `@tanstack/vue-query`, etc.)
+  - See [React Hooks](./REACT_HOOKS.md) for React implementation patterns
+  - See [Vue Composition API](./VUE_COMPOSITION_API.md) for Vue implementation patterns
 - QueryClient manages all queries and cache
 - Declarative hooks/composables for data fetching
 

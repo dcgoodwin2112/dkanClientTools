@@ -23,10 +23,11 @@ React Hooks are functions that allow you to use state and other React features i
 - Foundation for modern React patterns
 
 **In This Project:**
-- Custom hooks built on TanStack Query (`useDataset`, `useDatastore`, etc.)
+- Custom hooks built on [TanStack Query](./TANSTACK_QUERY.md) (`useDataset`, `useDatastore`, etc.)
 - Context API for dependency injection (`DkanClientProvider`, `useDkanClient`)
 - Hook composition for complex data fetching patterns
 - TypeScript-first hook design with strict typing
+- For Vue equivalent patterns, see [Vue Composition API](./VUE_COMPOSITION_API.md)
 
 ---
 

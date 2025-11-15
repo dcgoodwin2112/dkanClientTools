@@ -1869,6 +1869,8 @@ const buffer: Buffer = Buffer.from('hello')
 
 ## Framework-Specific Typing
 
+TypeScript integration patterns for React and Vue frameworks used in this project. For React-specific typing patterns, see [React Hooks](./REACT_HOOKS.md). For Vue patterns, see [Vue Composition API](./VUE_COMPOSITION_API.md).
+
 ### React Component Types and Props
 
 **Function Component Types:**

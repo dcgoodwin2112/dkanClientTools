@@ -89,11 +89,12 @@ The Vue 3 Composition API is a set of function-based APIs that enable flexible c
 - Foundation for modern Vue patterns
 
 **In This Project:**
-- Custom composables built on TanStack Vue Query (`useDataset`, `useDatastore`, etc.)
+- Custom composables built on [TanStack Vue Query](./TANSTACK_QUERY.md) (`useDataset`, `useDatastore`, etc.)
 - Plugin system with provide/inject (`DkanClientPlugin`, `useDkanClient`)
 - `MaybeRefOrGetter<T>` pattern for flexible reactive parameters
 - Composable composition for complex data fetching
 - TypeScript-first composable design with strict typing
+- For React equivalent patterns, see [React Hooks](./REACT_HOOKS.md)
 
 ---
 

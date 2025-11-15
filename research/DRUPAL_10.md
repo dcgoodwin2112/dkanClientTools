@@ -1017,7 +1017,7 @@ ddev drush generate service
 
 **DKAN Architecture on Drupal:**
 
-DKAN is a suite of Drupal modules that extend Drupal's core functionality to create a data catalog platform.
+DKAN is a suite of Drupal modules that extend Drupal's core functionality to create a data catalog platform. For DKAN-specific APIs and endpoints, see [DKAN API](./DKAN_API.md) and [DKAN Features](./DKAN_FEATURES.md).
 
 **DKAN Modules:**
 

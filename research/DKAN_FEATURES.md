@@ -65,7 +65,7 @@ No backward compatibility exists between versions - migration tools are required
 
 ### Metastore: Dataset Metadata Management
 
-The Metastore manages dataset metadata following DCAT-US v1.1 specification. It provides structured metadata storage with validation and versioning.
+The Metastore manages dataset metadata following [DCAT-US v1.1 specification](./DATA_STANDARDS.md#dcat-us-specification). It provides structured metadata storage with validation and versioning.
 
 **Key Capabilities:**
 - JSON-based metadata storage
@@ -283,7 +283,7 @@ Data dictionaries link to distributions via DCAT-US `describedBy` field:
 
 ### REST API: Complete CRUD Coverage
 
-All DKAN functionality is accessible via REST APIs under `/api/1/` base path.
+All DKAN functionality is accessible via REST APIs under `/api/1/` base path. For complete API documentation, see [DKAN API](./DKAN_API.md).
 
 **API Design Principles:**
 - Consistent JSON request/response format
