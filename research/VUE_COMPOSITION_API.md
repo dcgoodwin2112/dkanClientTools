@@ -3065,6 +3065,952 @@ const { count, increment } = useCounter(0)
 
 ---
 
+## Real-World Usage Examples
+
+Complete, production-ready Vue components demonstrating common DKAN workflows.
+
+### Dataset Catalog with Search and Pagination
+
+Complete component with reactive search, filtering, pagination, and route integration:
+
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useDatasetSearch } from '@dkan-client-tools/vue'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+
+// Reactive state from route query params
+const page = ref(Number(route.query.page) || 1)
+const keyword = ref((route.query.keyword as string) || '')
+const theme = ref((route.query.theme as string) || '')
+const pageSize = 20
+
+// Dataset search query
+const { data, isLoading, isError, error } = useDatasetSearch({
+  fulltext: computed(() => keyword.value || undefined),
+  theme: computed(() => theme.value || undefined),
+  page,
+  pageSize,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+})
+
+// Computed total pages
+const totalPages = computed(() =>
+  Math.ceil((data.value?.total || 0) / pageSize)
+)
+
+// Handle search form submission
+const handleSearch = () => {
+  page.value = 1 // Reset to page 1
+  updateRoute()
+}
+
+// Update URL query params
+const updateRoute = () => {
+  router.push({
+    query: {
+      ...(keyword.value && { keyword: keyword.value }),
+      ...(theme.value && { theme: theme.value }),
+      ...(page.value > 1 && { page: page.value.toString() }),
+    },
+  })
+}
+
+// Navigate to previous page
+const prevPage = () => {
+  if (page.value > 1) {
+    page.value--
+    updateRoute()
+  }
+}
+
+// Navigate to next page
+const nextPage = () => {
+  if (page.value < totalPages.value) {
+    page.value++
+    updateRoute()
+  }
+}
+</script>
+
+<template>
+  <div class="dataset-catalog">
+    <h1>Dataset Catalog</h1>
+
+    <!-- Search Form -->
+    <form @submit.prevent="handleSearch" class="search-form">
+      <input
+        v-model="keyword"
+        type="text"
+        placeholder="Search datasets..."
+        class="search-input"
+      />
+      <select v-model="theme" class="theme-select">
+        <option value="">All Themes</option>
+        <option value="environment">Environment</option>
+        <option value="health">Health</option>
+        <option value="education">Education</option>
+        <option value="transportation">Transportation</option>
+      </select>
+      <button type="submit">Search</button>
+    </form>
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading">Loading datasets...</div>
+
+    <!-- Error State -->
+    <div v-else-if="isError" class="error">
+      Error loading datasets: {{ error?.message }}
+    </div>
+
+    <!-- Results -->
+    <template v-else>
+      <!-- Results Count -->
+      <div class="results-info">
+        Found {{ data?.total || 0 }} datasets
+        <span v-if="keyword"> matching "{{ keyword }}"</span>
+      </div>
+
+      <!-- Dataset List -->
+      <div class="dataset-list">
+        <div
+          v-for="dataset in data?.results"
+          :key="dataset.identifier"
+          class="dataset-card"
+        >
+          <h3>{{ dataset.title }}</h3>
+          <p>{{ dataset.description }}</p>
+          <div class="dataset-meta">
+            <span>Publisher: {{ dataset.publisher?.name }}</span>
+            <span>Modified: {{ dataset.modified }}</span>
+          </div>
+          <div class="dataset-themes">
+            <span
+              v-for="t in dataset.theme"
+              :key="t"
+              class="theme-badge"
+            >
+              {{ t }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="pagination">
+        <button
+          @click="prevPage"
+          :disabled="page === 1"
+        >
+          Previous
+        </button>
+        <span>Page {{ page }} of {{ totalPages }}</span>
+        <button
+          @click="nextPage"
+          :disabled="page === totalPages"
+        >
+          Next
+        </button>
+      </div>
+    </template>
+  </div>
+</template>
+```
+
+---
+
+### Dataset Details with Datastore Preview
+
+Component showing dataset metadata and data preview with tabs:
+
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useDataset, useDatastore } from '@dkan-client-tools/vue'
+
+const route = useRoute()
+const datasetId = computed(() => route.params.id as string)
+const selectedDistribution = ref(0)
+
+// Fetch dataset metadata
+const {
+  data: dataset,
+  isLoading: isLoadingDataset,
+  isError: isDatasetError,
+  error: datasetError,
+} = useDataset({
+  identifier: datasetId,
+  enabled: computed(() => !!datasetId.value),
+  staleTime: 10 * 60 * 1000,
+})
+
+// Fetch datastore preview (first 10 rows)
+const {
+  data: datastoreData,
+  isLoading: isLoadingData,
+  isError: isDataError,
+  error: dataError,
+} = useDatastore({
+  datasetId,
+  index: computed(() => selectedDistribution.value),
+  options: { limit: 10, offset: 0 },
+  enabled: computed(() =>
+    !!(
+      datasetId.value &&
+      dataset.value?.distribution?.[selectedDistribution.value]
+    )
+  ),
+  staleTime: 5 * 60 * 1000,
+})
+
+// Get current distribution
+const currentDistribution = computed(() =>
+  dataset.value?.distribution?.[selectedDistribution.value]
+)
+</script>
+
+<template>
+  <div class="dataset-details">
+    <!-- Loading State -->
+    <div v-if="isLoadingDataset" class="loading">
+      Loading dataset...
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="isDatasetError" class="error">
+      Error: {{ datasetError?.message }}
+    </div>
+
+    <!-- Not Found -->
+    <div v-else-if="!dataset" class="not-found">
+      Dataset not found
+    </div>
+
+    <!-- Dataset Content -->
+    <template v-else>
+      <!-- Metadata Section -->
+      <section class="metadata">
+        <h1>{{ dataset.title }}</h1>
+        <p>{{ dataset.description }}</p>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <strong>Publisher:</strong>
+            <span>{{ dataset.publisher?.name }}</span>
+          </div>
+          <div class="meta-item">
+            <strong>Contact:</strong>
+            <span>{{ dataset.contactPoint?.fn }}</span>
+          </div>
+          <div class="meta-item">
+            <strong>Modified:</strong>
+            <span>{{ dataset.modified }}</span>
+          </div>
+          <div class="meta-item">
+            <strong>Access Level:</strong>
+            <span>{{ dataset.accessLevel }}</span>
+          </div>
+        </div>
+
+        <div v-if="dataset.keyword?.length" class="keywords">
+          <strong>Keywords:</strong>
+          <span
+            v-for="kw in dataset.keyword"
+            :key="kw"
+            class="keyword-badge"
+          >
+            {{ kw }}
+          </span>
+        </div>
+      </section>
+
+      <!-- Distributions Section -->
+      <section class="distributions">
+        <h2>Data Distributions</h2>
+
+        <template v-if="dataset.distribution?.length">
+          <!-- Distribution Tabs -->
+          <div class="distribution-tabs">
+            <button
+              v-for="(dist, index) in dataset.distribution"
+              :key="dist.identifier || index"
+              @click="selectedDistribution = index"
+              :class="{ active: index === selectedDistribution }"
+            >
+              {{ dist.title || `Distribution ${index + 1}` }}
+              <span v-if="dist.format">({{ dist.format }})</span>
+            </button>
+          </div>
+
+          <!-- Data Preview -->
+          <div class="data-preview">
+            <h3>Data Preview (First 10 Rows)</h3>
+
+            <div v-if="isLoadingData">Loading data...</div>
+
+            <div v-else-if="isDataError" class="error">
+              Error loading data: {{ dataError?.message }}
+            </div>
+
+            <div v-else-if="datastoreData" class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th
+                      v-for="field in datastoreData.schema?.fields"
+                      :key="field.name"
+                    >
+                      {{ field.name }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, index) in datastoreData.results"
+                    :key="index"
+                  >
+                    <td
+                      v-for="field in datastoreData.schema?.fields"
+                      :key="field.name"
+                    >
+                      {{ row[field.name]?.toString() }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="row-count">
+                Showing {{ datastoreData.results?.length || 0 }} of
+                {{ datastoreData.count || 0 }} total rows
+              </div>
+            </div>
+
+            <!-- Download Link -->
+            <a
+              v-if="currentDistribution"
+              :href="currentDistribution.downloadURL"
+              download
+              class="download-button"
+            >
+              Download Full Dataset
+            </a>
+          </div>
+        </template>
+
+        <p v-else>No distributions available for this dataset.</p>
+      </section>
+    </template>
+  </div>
+</template>
+```
+
+---
+
+### Dataset CRUD Operations
+
+#### Create Dataset Form
+
+```vue
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCreateDataset } from '@dkan-client-tools/vue'
+
+const router = useRouter()
+
+// Form state
+const formData = reactive({
+  title: '',
+  description: '',
+  contactName: '',
+  contactEmail: '',
+  publisherName: '',
+  keywords: '',
+  theme: [] as string[],
+})
+
+// Theme options
+const themeOptions = ['environment', 'health', 'education', 'transportation']
+
+// Create dataset mutation
+const createDataset = useCreateDataset({
+  onSuccess: (data) => {
+    alert(`Dataset created: ${data.identifier}`)
+    router.push(`/datasets/${data.identifier}`)
+  },
+  onError: (error) => {
+    alert(`Error: ${error.message}`)
+  },
+})
+
+// Toggle theme selection
+const toggleTheme = (theme: string) => {
+  const index = formData.theme.indexOf(theme)
+  if (index > -1) {
+    formData.theme.splice(index, 1)
+  } else {
+    formData.theme.push(theme)
+  }
+}
+
+// Handle form submission
+const handleSubmit = () => {
+  // Validate form
+  if (!formData.title || formData.title.length < 3) {
+    alert('Title must be at least 3 characters')
+    return
+  }
+
+  // Build dataset object
+  const dataset = {
+    title: formData.title,
+    description: formData.description,
+    contactPoint: {
+      fn: formData.contactName,
+      hasEmail: formData.contactEmail,
+    },
+    publisher: {
+      name: formData.publisherName,
+    },
+    accessLevel: 'public' as const,
+    modified: new Date().toISOString().split('T')[0],
+    keyword: formData.keywords
+      .split(',')
+      .map(k => k.trim())
+      .filter(Boolean),
+    theme: formData.theme,
+  }
+
+  createDataset.mutate(dataset)
+}
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit" class="create-dataset-form">
+    <h1>Create New Dataset</h1>
+
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input
+        id="title"
+        v-model="formData.title"
+        type="text"
+        required
+        minlength="3"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description *</label>
+      <textarea
+        id="description"
+        v-model="formData.description"
+        required
+        rows="5"
+      />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="contactName">Contact Name *</label>
+        <input
+          id="contactName"
+          v-model="formData.contactName"
+          type="text"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="contactEmail">Contact Email *</label>
+        <input
+          id="contactEmail"
+          v-model="formData.contactEmail"
+          type="email"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="publisherName">Publisher Name *</label>
+      <input
+        id="publisherName"
+        v-model="formData.publisherName"
+        type="text"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="keywords">Keywords (comma-separated)</label>
+      <input
+        id="keywords"
+        v-model="formData.keywords"
+        type="text"
+        placeholder="climate, temperature, environment"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Themes</label>
+      <div class="checkbox-group">
+        <label
+          v-for="themeOption in themeOptions"
+          :key="themeOption"
+          class="checkbox-label"
+        >
+          <input
+            type="checkbox"
+            :checked="formData.theme.includes(themeOption)"
+            @change="toggleTheme(themeOption)"
+          />
+          {{ themeOption }}
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="submit"
+        :disabled="createDataset.isPending.value"
+        class="submit-button"
+      >
+        {{ createDataset.isPending.value ? 'Creating...' : 'Create Dataset' }}
+      </button>
+      <button
+        type="button"
+        @click="router.push('/datasets')"
+        class="cancel-button"
+      >
+        Cancel
+      </button>
+    </div>
+
+    <div v-if="createDataset.isError.value" class="error-message">
+      Error: {{ createDataset.error.value?.message }}
+    </div>
+  </form>
+</template>
+```
+
+#### Edit Dataset Component
+
+```vue
+<script setup lang="ts">
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useDataset, useUpdateDataset } from '@dkan-client-tools/vue'
+
+const route = useRoute()
+const router = useRouter()
+const datasetId = computed(() => route.params.id as string)
+const isDirty = ref(false)
+
+// Fetch dataset
+const { data: dataset, isLoading } = useDataset({
+  identifier: datasetId,
+  enabled: computed(() => !!datasetId.value),
+})
+
+// Form state
+const formData = ref({
+  title: '',
+  description: '',
+  keywords: '',
+})
+
+// Populate form when dataset loads
+watch(dataset, (newDataset) => {
+  if (newDataset) {
+    formData.value = {
+      title: newDataset.title || '',
+      description: newDataset.description || '',
+      keywords: newDataset.keyword?.join(', ') || '',
+    }
+  }
+}, { immediate: true })
+
+// Update dataset mutation
+const updateDataset = useUpdateDataset({
+  onSuccess: () => {
+    alert('Dataset updated successfully')
+    isDirty.value = false
+    router.push(`/datasets/${datasetId.value}`)
+  },
+  onError: (error) => {
+    alert(`Error updating dataset: ${error.message}`)
+  },
+})
+
+// Handle form submission
+const handleSubmit = () => {
+  if (!datasetId.value) return
+
+  const updates = {
+    title: formData.value.title,
+    description: formData.value.description,
+    keyword: formData.value.keywords
+      .split(',')
+      .map(k => k.trim())
+      .filter(Boolean),
+    modified: new Date().toISOString().split('T')[0],
+  }
+
+  updateDataset.mutate({ identifier: datasetId.value, data: updates })
+}
+
+// Warn before leaving if form is dirty
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  if (isDirty.value) {
+    e.preventDefault()
+    e.returnValue = ''
+  }
+}
+
+// Add event listener
+window.addEventListener('beforeunload', handleBeforeUnload)
+
+// Clean up
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+
+// Router guard for navigation
+onBeforeRouteLeave((to, from, next) => {
+  if (isDirty.value && !confirm('Discard unsaved changes?')) {
+    next(false)
+  } else {
+    next()
+  }
+})
+</script>
+
+<template>
+  <div v-if="isLoading" class="loading">Loading dataset...</div>
+
+  <div v-else-if="!dataset" class="error">Dataset not found</div>
+
+  <form
+    v-else
+    @submit.prevent="handleSubmit"
+    @input="isDirty = true"
+    class="edit-dataset-form"
+  >
+    <h1>Edit Dataset</h1>
+
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input
+        id="title"
+        v-model="formData.title"
+        type="text"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        v-model="formData.description"
+        rows="5"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="keywords">Keywords</label>
+      <input
+        id="keywords"
+        v-model="formData.keywords"
+        type="text"
+      />
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="submit"
+        :disabled="updateDataset.isPending.value || !isDirty"
+        class="submit-button"
+      >
+        {{ updateDataset.isPending.value ? 'Saving...' : 'Save Changes' }}
+      </button>
+      <button
+        type="button"
+        @click="router.push(`/datasets/${datasetId}`)"
+        class="cancel-button"
+      >
+        Cancel
+      </button>
+    </div>
+
+    <div v-if="isDirty" class="info-message">
+      You have unsaved changes
+    </div>
+  </form>
+</template>
+```
+
+---
+
+### Workflow State Management
+
+Component for changing dataset moderation state:
+
+```vue
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useDataset, useChangeDatasetState } from '@dkan-client-tools/vue'
+
+const props = defineProps<{
+  datasetId: string
+}>()
+
+// Fetch dataset
+const { data: dataset } = useDataset({
+  identifier: computed(() => props.datasetId),
+  enabled: computed(() => !!props.datasetId),
+})
+
+// Change state mutation
+const changeState = useChangeDatasetState({
+  onSuccess: (_, variables) => {
+    alert(`Dataset state changed to: ${variables.state}`)
+  },
+  onError: (error) => {
+    alert(`Error: ${error.message}`)
+  },
+})
+
+// Handle state change
+const handleStateChange = (newState: 'draft' | 'published' | 'archived') => {
+  if (!confirm(`Change state to "${newState}"?`)) {
+    return
+  }
+
+  changeState.mutate({
+    identifier: props.datasetId,
+    state: newState,
+  })
+}
+</script>
+
+<template>
+  <div v-if="dataset" class="workflow-manager">
+    <h3>Moderation State</h3>
+
+    <div class="current-state">
+      Current State: <strong>{{ dataset.moderationState || 'draft' }}</strong>
+    </div>
+
+    <div class="state-actions">
+      <button
+        @click="handleStateChange('draft')"
+        :disabled="changeState.isPending.value"
+        class="state-button draft"
+      >
+        Set to Draft
+      </button>
+      <button
+        @click="handleStateChange('published')"
+        :disabled="changeState.isPending.value"
+        class="state-button published"
+      >
+        Publish
+      </button>
+      <button
+        @click="handleStateChange('archived')"
+        :disabled="changeState.isPending.value"
+        class="state-button archived"
+      >
+        Archive
+      </button>
+    </div>
+
+    <div v-if="changeState.isPending.value" class="loading">
+      Updating state...
+    </div>
+  </div>
+</template>
+```
+
+---
+
+### Authentication Integration
+
+Complete authentication example with Vue Router guards:
+
+```vue
+<!-- AuthProvider.vue -->
+<script setup lang="ts">
+import { ref, provide, readonly } from 'vue'
+import { DkanClient } from '@dkan-client-tools/core'
+import { DkanClientPlugin } from '@dkan-client-tools/vue'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+
+// Auth state
+const credentials = ref<string | null>(
+  sessionStorage.getItem('dkan_credentials')
+)
+
+// Create query client
+const queryClient = new QueryClient()
+
+// Create DKAN client
+const createClient = () => {
+  return new DkanClient({
+    baseUrl: 'https://dkan.example.com',
+    auth: credentials.value
+      ? { type: 'basic', credentials: credentials.value }
+      : undefined,
+  })
+}
+
+const client = ref(createClient())
+
+// Auth methods
+const isAuthenticated = readonly(computed(() => !!credentials.value))
+
+const login = async (username: string, password: string): Promise<boolean> => {
+  const creds = btoa(`${username}:${password}`)
+
+  // Test credentials
+  const testClient = new DkanClient({
+    baseUrl: 'https://dkan.example.com',
+    auth: { type: 'basic', credentials: creds },
+  })
+
+  try {
+    await testClient.getAllDatasets({ limit: 1 })
+    sessionStorage.setItem('dkan_credentials', creds)
+    credentials.value = creds
+    client.value = createClient()
+    return true
+  } catch {
+    return false
+  }
+}
+
+const logout = () => {
+  sessionStorage.removeItem('dkan_credentials')
+  credentials.value = null
+  client.value = createClient()
+}
+
+// Provide auth context
+provide('auth', {
+  isAuthenticated,
+  login,
+  logout,
+})
+</script>
+
+<template>
+  <VueQueryPlugin :queryClient="queryClient">
+    <DkanClientPlugin :client="client">
+      <slot />
+    </DkanClientPlugin>
+  </VueQueryPlugin>
+</template>
+
+<!-- LoginForm.vue -->
+<script setup lang="ts">
+import { ref, inject } from 'vue'
+
+const auth = inject('auth') as {
+  login: (username: string, password: string) => Promise<boolean>
+}
+
+const username = ref('')
+const password = ref('')
+const error = ref('')
+const isLoading = ref(false)
+
+const handleSubmit = async () => {
+  error.value = ''
+  isLoading.value = true
+
+  try {
+    const success = await auth.login(username.value, password.value)
+    if (!success) {
+      error.value = 'Invalid username or password'
+    }
+  } catch {
+    error.value = 'Login failed - please try again'
+  } finally {
+    isLoading.value = false
+  }
+}
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit" class="login-form">
+    <h2>Login</h2>
+
+    <div v-if="error" class="error">{{ error }}</div>
+
+    <input
+      v-model="username"
+      type="text"
+      placeholder="Username"
+      required
+    />
+
+    <input
+      v-model="password"
+      type="password"
+      placeholder="Password"
+      required
+    />
+
+    <button type="submit" :disabled="isLoading">
+      {{ isLoading ? 'Logging in...' : 'Login' }}
+    </button>
+  </form>
+</template>
+
+<!-- Router setup with guards -->
+<script lang="ts">
+// router/index.ts
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/login',
+      component: () => import('@/views/LoginView.vue'),
+    },
+    {
+      path: '/datasets/create',
+      component: () => import('@/views/CreateDataset.vue'),
+      meta: { requiresAuth: true },
+    },
+    // ... other routes
+  ],
+})
+
+// Navigation guard
+router.beforeEach((to, from, next) => {
+  const credentials = sessionStorage.getItem('dkan_credentials')
+  const isAuthenticated = !!credentials
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next({ path: '/login', query: { redirect: to.fullPath } })
+  } else {
+    next()
+  }
+})
+
+export default router
+</script>
+```
+
+---
+
 ## References
 
 - [Vue 3 Composition API Documentation](https://vuejs.org/guide/extras/composition-api-faq.html) - Official Composition API guide
