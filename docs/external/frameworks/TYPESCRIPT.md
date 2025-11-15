@@ -1,19 +1,15 @@
 # TypeScript Patterns Reference
 
-> **DEPRECATED**: This file has been split into two separate documents for better organization:
->
-> - **General TypeScript Reference**: `/docs/external/frameworks/TYPESCRIPT.md` - TypeScript patterns, type system, best practices
-> - **Project-Specific Patterns**: `/docs/reference/PATTERNS.md` - dkanClientTools TypeScript conventions
->
-> Please update your references to use the new locations. This file will be removed in Phase 4 of the documentation consolidation.
-
 Reference documentation for TypeScript patterns and best practices.
 
 **Last Updated**: 2025-11-15
 **Related Documentation**:
-- [React Hooks](./REACT_HOOKS.md)
-- [Vue Composition API](./VUE_COMPOSITION_API.md)
-- [Architecture](../docs/ARCHITECTURE.md)
+- [React Hooks](./REACT_HOOKS.md) *(Phase 3)*
+- [Vue Composition API](./VUE_COMPOSITION_API.md) *(Phase 3)*
+- [Project TypeScript Patterns](../../reference/PATTERNS.md)
+- [Architecture](../../ARCHITECTURE.md)
+
+---
 
 ## Quick Reference
 
@@ -97,13 +93,6 @@ Reference documentation for TypeScript patterns and best practices.
   - [Strict Null Checking](#strict-null-checking)
   - [Error Handling with Typed Errors](#error-handling-with-typed-errors)
   - [Never Type for Exhaustive Checks](#never-type-for-exhaustive-checks)
-- [Patterns Used in This Project](#patterns-used-in-this-project)
-  - [DCAT-US Schema Type Definitions](#dcat-us-schema-type-definitions)
-  - [Frictionless Table Schema Types](#frictionless-table-schema-types)
-  - [API Response Typing](#api-response-typing)
-  - [Generic Hook/Composable Signatures](#generic-hookcomposable-signatures)
-  - [Type-Safe Query Keys](#type-safe-query-keys)
-  - [MaybeRefOrGetter Pattern (Vue)](#maybereforgetter-pattern-vue)
 - [Common Patterns](#common-patterns)
   - [Builder Pattern with Types](#builder-pattern-with-types)
   - [Factory Functions with Generics](#factory-functions-with-generics)
@@ -426,7 +415,6 @@ function infiniteLoop(): never {
 
 **String Literals:**
 ```typescript
-// From this project - DkanDataset interface
 type AccessLevel = 'public' | 'restricted public' | 'non-public'
 
 const level: AccessLevel = 'public'  // ✅ OK
@@ -549,7 +537,7 @@ printId('abc')  // ✅ OK
 printId(123)    // ✅ OK
 ```
 
-**Union with Literals (from this project):**
+**Union with Literals:**
 ```typescript
 interface DkanDataset {
   identifier: string
@@ -760,7 +748,7 @@ function example(x: string | number, y: string | boolean) {
 
 **Tagged Union Pattern:**
 ```typescript
-// Common in this project for async state
+// Common for async state
 interface Idle {
   status: 'idle'
 }
@@ -827,7 +815,7 @@ function identity<T>(value: T): T {
 const num = identity(42)        // T is number
 const str = identity('hello')   // T is string
 
-// Generic interface (from this project)
+// Generic interface
 interface DkanApiResponse<T> {
   data: T
   status?: number
@@ -1403,7 +1391,7 @@ interface ManagedDataset extends Identifiable, Timestamped {
 }
 ```
 
-**From This Project:**
+**Nested Types:**
 ```typescript
 interface Publisher {
   name: string
@@ -1457,7 +1445,7 @@ const map: StringMap = {
 map.newKey = 'value'  // ✅ OK - any string key allowed
 ```
 
-**From This Project (DkanDataset):**
+**Allow Custom Fields:**
 ```typescript
 export interface DkanDataset {
   identifier: string
@@ -2682,254 +2670,6 @@ function handleStatus(status: Status) {
 
 ---
 
-## Patterns Used in This Project
-
-### DCAT-US Schema Type Definitions
-
-**From @dkan-client-tools/core/src/types.ts:**
-```typescript
-export interface DkanDataset {
-  identifier: string
-  title: string
-  description: string
-  accessLevel: 'public' | 'restricted public' | 'non-public'
-  modified: string
-  keyword: string[]
-  publisher: Publisher
-  contactPoint: ContactPoint
-  distribution?: Distribution[]
-  theme?: string[]
-  spatial?: string
-  temporal?: string
-  license?: string
-  landingPage?: string
-  [key: string]: any  // Allow custom fields
-}
-
-export interface Publisher {
-  name: string
-  '@type'?: string
-  subOrganizationOf?: Publisher  // Recursive type
-}
-
-export interface ContactPoint {
-  '@type': string
-  fn: string
-  hasEmail: string
-}
-
-export interface Distribution {
-  '@type': string
-  identifier?: string
-  title?: string
-  format?: string
-  mediaType?: string
-  downloadURL?: string
-  accessURL?: string
-  data?: DistributionData
-}
-```
-
-**Key Patterns:**
-- Union literal types for enums (`accessLevel`)
-- Optional properties (`distribution?`, `theme?`)
-- Index signature for extensibility (`[key: string]: any`)
-- Recursive types (`Publisher.subOrganizationOf`)
-- Required nested objects (`publisher`, `contactPoint`)
-
----
-
-### Frictionless Table Schema Types
-
-**Schema Types:**
-```typescript
-export interface DatastoreSchema {
-  fields: SchemaField[]
-  primaryKey?: string | string[]
-  foreignKeys?: ForeignKey[]
-}
-
-export interface SchemaField {
-  name: string
-  title?: string
-  type: FieldType
-  format?: string
-  constraints?: FieldConstraints
-}
-
-export type FieldType =
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'boolean'
-  | 'object'
-  | 'array'
-  | 'date'
-  | 'time'
-  | 'datetime'
-  | 'year'
-  | 'yearmonth'
-  | 'duration'
-  | 'geopoint'
-  | 'geojson'
-  | 'any'
-
-export interface FieldConstraints {
-  required?: boolean
-  unique?: boolean
-  minimum?: number | string
-  maximum?: number | string
-  pattern?: string
-  enum?: any[]
-}
-```
-
----
-
-### API Response Typing
-
-**Generic Response Wrapper:**
-```typescript
-export interface DkanApiResponse<T> {
-  data: T
-  status?: number
-  statusText?: string
-}
-
-// Usage
-async function getDataset(id: string): Promise<DkanApiResponse<Dataset>> {
-  const response = await fetch(`/api/datasets/${id}`)
-  return {
-    data: await response.json(),
-    status: response.status,
-    statusText: response.statusText
-  }
-}
-```
-
-**Search Response:**
-```typescript
-export interface DkanSearchResponse {
-  total: number
-  results: DkanDataset[]
-  facets?: Record<string, any>
-}
-
-// Typed search function
-async function searchDatasets(keyword: string): Promise<DkanSearchResponse> {
-  // ...
-}
-```
-
----
-
-### Generic Hook/Composable Signatures
-
-**React Hook Pattern:**
-```typescript
-export interface UseDatasetOptions {
-  identifier: string
-  enabled?: boolean
-  staleTime?: number
-  gcTime?: number
-}
-
-export function useDataset(options: UseDatasetOptions) {
-  const dkanClient = useDkanClient()
-
-  return useQuery({
-    queryKey: ['dataset', options.identifier],
-    queryFn: () => dkanClient.getDataset(options.identifier),
-    enabled: options.enabled !== false && !!options.identifier,
-    staleTime: options.staleTime ?? 5 * 60 * 1000,
-    gcTime: options.gcTime ?? 5 * 60 * 1000
-  })
-}
-```
-
-**Vue Composable Pattern:**
-```typescript
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
-
-export interface UseDatasetOptions {
-  identifier: MaybeRefOrGetter<string>  // Flexible reactive parameter
-  enabled?: MaybeRefOrGetter<boolean>
-  staleTime?: number
-}
-
-export function useDataset(options: UseDatasetOptions) {
-  const client = useDkanClient()
-
-  return useQuery({
-    queryKey: computed(() => ['dataset', toValue(options.identifier)]),
-    queryFn: () => client.getDataset(toValue(options.identifier)),
-    enabled: () => toValue(options.enabled) ?? true
-  })
-}
-```
-
----
-
-### Type-Safe Query Keys
-
-**Query Key Pattern:**
-```typescript
-// Hierarchical query keys for TanStack Query
-type QueryKey =
-  | ['dataset', string]
-  | ['datasets']
-  | ['datastore', string, number]
-  | ['search', SearchParams]
-
-// Type-safe query key factory
-const queryKeys = {
-  dataset: (id: string) => ['dataset', id] as const,
-  datasets: () => ['datasets'] as const,
-  datastore: (datasetId: string, index: number) => ['datastore', datasetId, index] as const,
-  search: (params: SearchParams) => ['search', params] as const
-}
-
-// Usage
-useQuery({
-  queryKey: queryKeys.dataset('abc-123'),
-  queryFn: () => fetchDataset('abc-123')
-})
-```
-
-**Const Assertion for Readonly Tuples:**
-```typescript
-const key = ['dataset', 'abc'] as const
-// Type: readonly ['dataset', 'abc']
-// Not: (string | 'dataset')[]
-```
-
----
-
-### MaybeRefOrGetter Pattern (Vue)
-
-**Flexible Reactive Parameters:**
-```typescript
-import { type MaybeRefOrGetter, toValue } from 'vue'
-
-type MaybeRefOrGetter<T> = T | Ref<T> | ComputedRef<T> | (() => T)
-
-// Composable accepts any reactive form
-export function useDataset(id: MaybeRefOrGetter<string>) {
-  return useQuery({
-    queryKey: computed(() => ['dataset', toValue(id)]),
-    queryFn: () => client.getDataset(toValue(id))
-  })
-}
-
-// All of these work:
-useDataset('abc-123')                    // Plain string
-useDataset(ref('abc-123'))               // Ref
-useDataset(computed(() => route.params.id))  // Computed
-useDataset(() => route.params.id)        // Getter function
-```
-
----
-
 ## Common Patterns
 
 ### Builder Pattern with Types
@@ -3048,79 +2788,6 @@ const uId = userId('user-456')
 getDataset(dsId)  // ✅ OK
 // getDataset(uId)  // ❌ Error - wrong type
 // getDataset('abc-123')  // ❌ Error - need DatasetId
-```
-
----
-
-### Type Predicates
-
-**Custom Predicates:**
-```typescript
-function hasProperty<K extends PropertyKey>(
-  obj: unknown,
-  key: K
-): obj is Record<K, unknown> {
-  return typeof obj === 'object' && obj !== null && key in obj
-}
-
-// Usage
-function processData(data: unknown) {
-  if (hasProperty(data, 'identifier')) {
-    console.log(data.identifier)  // Type-safe
-  }
-}
-```
-
-**Array Filter with Predicate:**
-```typescript
-function isDefined<T>(value: T | null | undefined): value is T {
-  return value !== null && value !== undefined
-}
-
-const items: (Dataset | null)[] = [dataset1, null, dataset2, undefined]
-const defined: Dataset[] = items.filter(isDefined)
-```
-
----
-
-### Const Assertions
-
-**Literal Types from Values:**
-```typescript
-// Without const assertion
-const colors = ['red', 'green', 'blue']
-// Type: string[]
-
-// With const assertion
-const colors = ['red', 'green', 'blue'] as const
-// Type: readonly ['red', 'green', 'blue']
-
-// Extract literal type
-type Color = typeof colors[number]
-// Type: 'red' | 'green' | 'blue'
-```
-
-**Readonly Objects:**
-```typescript
-const config = {
-  apiUrl: 'https://api.example.com',
-  timeout: 5000
-} as const
-// Type: { readonly apiUrl: 'https://api.example.com'; readonly timeout: 5000 }
-
-// config.apiUrl = 'new'  // ❌ Error - readonly
-```
-
-**Query Keys (from this project):**
-```typescript
-const queryKeys = {
-  dataset: (id: string) => ['dataset', id] as const,
-  datasets: () => ['datasets'] as const
-}
-
-// Each key is a readonly tuple
-const key = queryKeys.dataset('abc')
-// Type: readonly ['dataset', string]
 ```
 
 ---

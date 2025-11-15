@@ -18,6 +18,12 @@ Developer-focused guides for building applications with DKAN Client Tools.
 
 ### Reference
 - **[API Reference](./API_REFERENCE.md)** - Complete API method documentation
+- **[Project Patterns](./reference/PATTERNS.md)** - TypeScript patterns used in this project
+
+### External Dependencies
+- **[External Technologies Overview](./external/README.md)** - DKAN, TanStack Query, and standards
+
+---
 
 ## Package Documentation
 
