@@ -608,25 +608,12 @@ export class DkanApiClient {
     return facets
   }
 
-  /**
-   * Get the base URL
-   *
-   * Returns the configured DKAN base URL without trailing slash.
-   *
-   * @returns Base URL (e.g., 'https://data.example.com')
-   */
+  /** Base URL without trailing slash */
   getBaseUrl(): string {
     return this.baseUrl
   }
 
-  /**
-   * Get default options
-   *
-   * Returns a copy of the configured default options for retries,
-   * delays, stale time, and cache time.
-   *
-   * @returns Default options object with retry, retryDelay, staleTime, and cacheTime
-   */
+  /** Configured default options */
   getDefaultOptions() {
     return { ...this.defaultOptions }
   }

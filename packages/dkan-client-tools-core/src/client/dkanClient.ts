@@ -77,56 +77,18 @@ export class DkanClient {
     this.queryClient = options.queryClient
   }
 
-  /**
-   * Gets the underlying DkanApiClient for direct HTTP operations.
-   *
-   * The ApiClient provides low-level access to DKAN REST APIs without caching.
-   * Use this when you need direct control over HTTP requests or when implementing
-   * custom integrations that don't use TanStack Query.
-   *
-   * @returns The DkanApiClient instance
-   *
-   * @example
-   * ```typescript
-   * const apiClient = dkanClient.getApiClient()
-   * const dataset = await apiClient.getDataset('abc-123')
-   * ```
-   */
+  /** Underlying DkanApiClient for direct HTTP operations */
   getApiClient(): DkanApiClient {
     return this.apiClient
   }
 
-  /**
-   * Gets the underlying TanStack QueryClient for advanced cache operations.
-   *
-   * Provides direct access to the QueryClient for advanced use cases like:
-   * - Custom query invalidation strategies
-   * - Direct cache manipulation
-   * - Subscribing to cache changes
-   * - Advanced query filters
-   *
-   * @returns The TanStack QueryClient instance
-   *
-   * @example
-   * ```typescript
-   * const queryClient = dkanClient.getQueryClient()
-   * // Get query cache stats
-   * const cache = queryClient.getQueryCache()
-   * console.log(`Cached queries: ${cache.getAll().length}`)
-   * ```
-   */
+  /** TanStack QueryClient for advanced cache operations */
   getQueryClient(): QueryClient {
     return this.queryClient
   }
 
   /**
-   * Mounts the client (tracks component lifecycle).
-   *
-   * Called automatically by framework providers when the first component mounts.
-   * Increments the mount counter and mounts the QueryClient on first mount.
-   *
-   * **Note**: You typically don't need to call this manually - the framework
-   * providers handle it automatically.
+   * Mount client (tracks lifecycle). Called automatically by framework providers.
    */
   mount(): void {
     this.mountCount++
@@ -136,14 +98,7 @@ export class DkanClient {
   }
 
   /**
-   * Unmounts the client (tracks component lifecycle).
-   *
-   * Called automatically by framework providers when components unmount.
-   * Decrements the mount counter and unmounts the QueryClient when no
-   * components are using it.
-   *
-   * **Note**: You typically don't need to call this manually - the framework
-   * providers handle it automatically.
+   * Unmount client (tracks lifecycle). Called automatically by framework providers.
    */
   unmount(): void {
     this.mountCount--
@@ -152,11 +107,7 @@ export class DkanClient {
     }
   }
 
-  /**
-   * Checks if the client is currently mounted.
-   *
-   * @returns True if at least one component is using the client
-   */
+  /** Check if client is currently mounted */
   isMounted(): boolean {
     return this.mountCount > 0
   }
@@ -497,17 +448,7 @@ export class DkanClient {
   }
 
   /**
-   * Clears all cached data and removes all queries from memory.
-   *
-   * **Warning**: This is a destructive operation that removes all cached data.
-   * Queries will need to refetch from scratch. Use {@link invalidateQueries}
-   * instead if you want to keep the cache structure but mark data as stale.
-   *
-   * @example
-   * ```typescript
-   * // Clear everything (e.g., on logout)
-   * dkanClient.clear()
-   * ```
+   * Clear all cached data. Use invalidateQueries() to mark stale instead.
    */
   clear(): void {
     this.queryClient.clear()
@@ -537,25 +478,7 @@ export class DkanClient {
     })
   }
 
-  /**
-   * Gets the QueryCache instance for advanced cache inspection.
-   *
-   * Provides access to all cached queries and their metadata. Useful for
-   * debugging, monitoring, or building custom cache visualizations.
-   *
-   * @returns The QueryCache instance
-   *
-   * @example
-   * ```typescript
-   * const cache = dkanClient.getQueryCache()
-   * const allQueries = cache.getAll()
-   * console.log(`Total cached queries: ${allQueries.length}`)
-   *
-   * // Find queries by key
-   * const datasetQueries = cache.findAll({ queryKey: ['datasets'] })
-   * console.log(`Cached datasets: ${datasetQueries.length}`)
-   * ```
-   */
+  /** QueryCache instance for cache inspection */
   getQueryCache() {
     return this.queryClient.getQueryCache()
   }
