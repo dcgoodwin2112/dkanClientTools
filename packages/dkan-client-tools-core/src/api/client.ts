@@ -851,14 +851,12 @@ export class DkanApiClient {
    *
    * Requires authentication with dataset delete permissions.
    *
-   * @param identifier - Dataset identifier
    * @returns Confirmation message
    * @throws {DkanApiError} If dataset not found or authentication fails
    *
    * @example
    * ```typescript
-   * await client.deleteDataset('water-quality-2025');
-   * console.log('Dataset deleted successfully');
+   * await client.deleteDataset('water-quality-2025')
    * ```
    */
   async deleteDataset(identifier: string): Promise<{ message: string }> {
@@ -1450,7 +1448,6 @@ export class DkanApiClient {
    *
    * Requires authentication with data dictionary delete permissions.
    *
-   * @param identifier - Data dictionary identifier (UUID or custom ID)
    * @returns Confirmation message
    * @throws {DkanApiError} If data dictionary not found, authentication fails, or request fails
    */
