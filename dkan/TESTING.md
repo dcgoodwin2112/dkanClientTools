@@ -247,7 +247,7 @@ To execute all tests sequentially:
 
 ```bash
 # 1. Fresh install
-ddev delete -O && cd dkan && ddev start && ddev drush si --account-pass=admin -y && ddev start
+ddev delete -O && cd dkan && ddev start && ddev drush si --account-pass=admin -y
 
 # 2. Manual execution
 ddev exec bash scripts/setup-site.sh

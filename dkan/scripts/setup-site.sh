@@ -24,7 +24,9 @@ ERROR="${RED}✗${NC}"
 ENV_FILE="../.env"
 if [ -f "$ENV_FILE" ]; then
   echo -e "${CHECK} Loading environment variables from $ENV_FILE"
-  export $(cat "$ENV_FILE" | grep -v '^#' | xargs)
+  set -a
+  source "$ENV_FILE"
+  set +a
 fi
 
 echo ""
@@ -87,6 +89,7 @@ fi
 # Step 6: Import sample content (49 datasets)
 echo -e "${CHECK} Step 6/10: Importing sample datasets..."
 # Check if sample content already exists
+# Note: We expect 49 datasets but use threshold of 40 to allow for import flexibility
 DATASET_COUNT=$(drush dkan:dataset-list --format=list 2>/dev/null | wc -l | tr -d ' ')
 if [ "$DATASET_COUNT" -ge "40" ]; then
   echo -e "  ${CHECK} Sample datasets already exist (${DATASET_COUNT} datasets)"
