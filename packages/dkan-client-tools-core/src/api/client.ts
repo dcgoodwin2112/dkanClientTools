@@ -171,16 +171,13 @@ export class DkanApiClient {
   /**
    * Fetch a single dataset by identifier
    *
-   * @param identifier - Dataset identifier
-   * @param options - Optional parameters
    * @param options.showReferenceIds - Include internal reference IDs (distribution identifiers)
    * @returns Dataset metadata
    *
    * @example
    * ```typescript
-   * // Get dataset with distribution identifiers
    * const dataset = await client.getDataset('abc-123', { showReferenceIds: true })
-   * console.log(dataset.distribution[0].identifier) // Distribution UUID
+   * console.log(dataset.distribution[0].identifier)
    * ```
    */
   async getDataset(
@@ -227,8 +224,6 @@ export class DkanApiClient {
   /**
    * Search datasets with filters
    *
-   *
-   * @param options - Search options for filtering and pagination
    * @param options.keyword - Filter by keyword/tag
    * @param options.theme - Filter by theme category
    * @param options.fulltext - Full-text search across all fields
@@ -237,7 +232,6 @@ export class DkanApiClient {
    * @param options.page - Page number for pagination (0-based)
    * @param options.page-size - Number of results per page
    * @returns Search results with total count, dataset array, and facets
-   * @throws {DkanApiError} If request fails
    */
   async searchDatasets(options: DatasetQueryOptions = {}): Promise<DkanSearchResponse> {
     const params = new URLSearchParams()
@@ -282,10 +276,7 @@ export class DkanApiClient {
   /**
    * Query datastore for a specific dataset resource
    *
-   *
-   * @param datasetId - Dataset identifier (UUID or custom ID)
    * @param index - Resource index in dataset.distribution array (default: 0)
-   * @param options - Query options for filtering, sorting, pagination
    * @param options.conditions - Filter conditions (property, value, operator)
    * @param options.limit - Maximum number of records to return
    * @param options.offset - Number of records to skip for pagination
@@ -294,7 +285,6 @@ export class DkanApiClient {
    * @param options.joins - Join configuration for multi-resource queries
    * @param method - HTTP method: POST (default) or GET
    * @returns Query results including schema and result rows
-   * @throws {DkanApiError} If resource not found or request fails
    */
   async queryDatastore(
     datasetId: string,
@@ -427,9 +417,7 @@ export class DkanApiClient {
    * Retrieves a single data dictionary by its unique identifier.
    * Data dictionaries define column schemas and constraints for distributions.
    *
-   * @param identifier - Data dictionary identifier (UUID or custom ID)
    * @returns Data dictionary object with schema and field definitions
-   * @throws {DkanApiError} If data dictionary not found or request fails
    */
   async getDataDictionary(identifier: string): Promise<DataDictionary> {
     const response = await this.request<DataDictionary>(
@@ -447,7 +435,6 @@ export class DkanApiClient {
    *
    * @param url - Full URL to the data dictionary JSON file
    * @returns Data dictionary object from the remote URL
-   * @throws {DkanApiError} If URL cannot be fetched or request fails
    */
   async getDataDictionaryFromUrl(url: string): Promise<DataDictionary> {
     try {
@@ -476,7 +463,6 @@ export class DkanApiClient {
    * Use listDatasets() for just the identifiers, or searchDatasets() for filtered results.
    *
    * @returns Array of complete dataset metadata objects
-   * @throws {DkanApiError} If request fails
    */
   async listAllDatasets(): Promise<DkanDataset[]> {
     const response = await this.request<any>(
@@ -518,14 +504,12 @@ export class DkanApiClient {
   /**
    * Get a specific schema definition
    *
-   *
    * Retrieves the JSON Schema definition for a specific metastore schema type.
    * The schema defines the structure, validation rules, and allowed properties
    * for items of that type.
    *
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
    * @returns JSON Schema definition with properties and validation rules
-   * @throws {DkanApiError} If schema not found or request fails
    */
   async getSchema(schemaId: string): Promise<JsonSchema> {
     const response = await this.request<JsonSchema>(
@@ -541,14 +525,11 @@ export class DkanApiClient {
    * For example, all datasets, all data dictionaries, or all distributions.
    *
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param options - Optional parameters
    * @param options.showReferenceIds - Include internal reference IDs for nested items
    * @returns Array of items matching the schema type
-   * @throws {DkanApiError} If schema not found or request fails
    *
    * @example
    * ```typescript
-   * // Get all datasets with distribution identifiers
    * const datasets = await client.getSchemaItems('dataset', { showReferenceIds: true })
    * ```
    */
@@ -577,7 +558,6 @@ export class DkanApiClient {
    * across all datasets. Useful for building filter UIs.
    *
    * @returns Object containing arrays of unique theme, keyword, and publisher values
-   * @throws {DkanApiError} If request fails
    */
   async getDatasetFacets(): Promise<{
     theme: string[]
@@ -662,9 +642,7 @@ export class DkanApiClient {
    *
    * Retrieves the configuration for a registered harvest plan.
    *
-   * @param planId - Harvest plan identifier
    * @returns Harvest plan configuration with source and extract settings
-   * @throws {DkanApiError} If harvest plan not found or request fails
    */
   async getHarvestPlan(planId: string): Promise<HarvestPlan> {
     const response = await this.request<HarvestPlan>(
@@ -679,9 +657,7 @@ export class DkanApiClient {
    * Returns an array of harvest run identifiers for the given plan.
    * Use getHarvestRun() with a specific run ID to get full run details.
    *
-   * @param planId - Harvest plan identifier
    * @returns Array of harvest run identifiers (strings)
-   * @throws {DkanApiError} If harvest plan not found or request fails
    */
   async listHarvestRuns(planId: string): Promise<string[]> {
     const response = await this.request<string[]>(
@@ -696,10 +672,8 @@ export class DkanApiClient {
    * Retrieves detailed information about a single harvest run execution,
    * including status, counts, error messages, and timestamps.
    *
-   * @param runId - Harvest run identifier
    * @param planId - Harvest plan identifier (required by DKAN API)
    * @returns Harvest run details with execution status and statistics
-   * @throws {DkanApiError} If harvest run not found or request fails
    */
   async getHarvestRun(runId: string, planId: string): Promise<HarvestRun> {
     const response = await this.request<HarvestRun>(
