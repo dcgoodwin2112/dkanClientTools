@@ -204,18 +204,15 @@ export interface DkanClientConfig {
 }
 
 /**
- * Authentication configuration for DKAN API client
+ * Authentication configuration for DKAN API client.
  *
- * **DKAN 2.x Authentication Support:**
- * - Basic Auth (username/password) works out-of-the-box
- * - Bearer token requires additional Drupal modules (e.g., Simple OAuth)
+ * Basic Auth works out-of-the-box with DKAN 2.x. Bearer tokens require additional Drupal modules.
+ *
+ * @see ../../README.md#authentication for setup details
  */
 export interface DkanAuth {
-  /** Username for HTTP Basic Authentication - Works with DKAN 2.x out-of-the-box */
   username?: string
-  /** Password for HTTP Basic Authentication - Works with DKAN 2.x out-of-the-box */
   password?: string
-  /** Bearer token - Requires additional Drupal modules, NOT supported by default in DKAN 2.x */
   token?: string
 }
 

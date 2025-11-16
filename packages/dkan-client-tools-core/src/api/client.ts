@@ -18,6 +18,7 @@
  * ```
  *
  * @see DkanClient for caching wrapper with TanStack Query
+ * @see ../../README.md#authentication for authentication setup
  */
 
 import type {
