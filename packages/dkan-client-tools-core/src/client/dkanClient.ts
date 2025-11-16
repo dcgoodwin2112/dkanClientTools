@@ -113,80 +113,27 @@ export class DkanClient {
   }
 
   /**
-   * Fetch a single dataset by identifier.
+   * @inheritdoc DkanApiClient.getDataset
    *
-   * Retrieves complete dataset metadata from the metastore. Returns a DCAT-US
-   * compliant dataset object with title, description, distributions, and more.
-   *
-   * **Note**: This method bypasses caching. For automatic caching in React/Vue,
-   * use the `useDataset` hook/composable instead.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
-   * @returns Complete dataset metadata
-   * @throws {DkanApiError} If dataset not found or request fails
-   *
-   * @example
-   * ```typescript
-   * const dataset = await dkanClient.fetchDataset('abc-123')
-   * console.log(dataset.title)
-   * console.log(dataset.distribution) // Array of distributions
-   * ```
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async fetchDataset(identifier: string) {
     return this.apiClient.getDataset(identifier)
   }
 
   /**
-   * Search datasets with filters and pagination.
+   * @inheritdoc DkanApiClient.searchDatasets
    *
-   * Searches the dataset catalog with optional filters for keyword, theme, fulltext,
-   * sorting, and pagination. Returns matching datasets with total count and facets.
-   *
-   * **Note**: This method bypasses caching. For automatic caching in React/Vue,
-   * use the `useDatasetSearch` hook/composable instead.
-   *
-   * @param options - Search options for filtering and pagination
-   * @returns Search results with total count, dataset array, and facets
-   * @throws {DkanApiError} If request fails
-   *
-   * @example
-   * ```typescript
-   * const results = await dkanClient.searchDatasets({
-   *   keyword: 'health',
-   *   theme: 'Healthcare',
-   *   'page-size': 20
-   * })
-   * console.log(`Found ${results.total} datasets`)
-   * ```
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async searchDatasets(options: Parameters<DkanApiClient['searchDatasets']>[0]) {
     return this.apiClient.searchDatasets(options)
   }
 
   /**
-   * Query datastore records with filtering, sorting, and pagination.
+   * @inheritdoc DkanApiClient.queryDatastore
    *
-   * Executes a query against a distribution's imported data. Supports SQL-like
-   * filtering conditions, sorting, pagination, and column selection.
-   *
-   * **Note**: This method bypasses caching. For automatic caching in React/Vue,
-   * use the `useDatastore` hook/composable instead.
-   *
-   * @param datasetId - Dataset identifier (UUID or custom ID)
-   * @param index - Resource index in dataset.distribution array (default: 0)
-   * @param options - Query options for filtering, sorting, pagination
-   * @returns Query results including schema and result rows
-   * @throws {DkanApiError} If resource not found or request fails
-   *
-   * @example
-   * ```typescript
-   * const data = await dkanClient.queryDatastore('abc-123', 0, {
-   *   limit: 100,
-   *   offset: 0,
-   *   conditions: [{ property: 'age', value: 25, operator: '>' }],
-   *   sort: { property: 'name', order: 'asc' }
-   * })
-   * ```
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async queryDatastore(
     datasetId: string,
@@ -197,147 +144,99 @@ export class DkanClient {
   }
 
   /**
-   * Get datastore schema with data dictionary.
+   * @inheritdoc DkanApiClient.getDatastoreSchema
    *
-   * Returns the table schema for a distribution, including column definitions
-   * and data dictionary metadata if available.
-   *
-   * @param datasetId - Dataset identifier (UUID or custom ID)
-   * @param index - Resource index in dataset.distribution array (default: 0)
-   * @returns Query response containing schema information
-   * @throws {DkanApiError} If resource not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getDatastoreSchema(datasetId: string, index?: number) {
     return this.apiClient.getDatastoreSchema(datasetId, index)
   }
 
   /**
-   * List all data dictionaries.
+   * @inheritdoc DkanApiClient.listDataDictionaries
    *
-   * Retrieves all data dictionary definitions from the metastore.
-   * Data dictionaries follow the Frictionless Table Schema specification.
-   *
-   * @returns Array of data dictionary objects
-   * @throws {DkanApiError} If request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async listDataDictionaries() {
     return this.apiClient.listDataDictionaries()
   }
 
   /**
-   * Get a specific data dictionary by identifier.
+   * @inheritdoc DkanApiClient.getDataDictionary
    *
-   * Retrieves a single data dictionary with its field definitions.
-   *
-   * @param identifier - Data dictionary identifier (UUID or custom ID)
-   * @returns Data dictionary object with schema and field definitions
-   * @throws {DkanApiError} If data dictionary not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getDataDictionary(identifier: string) {
     return this.apiClient.getDataDictionary(identifier)
   }
 
   /**
-   * Get data dictionary from a remote URL.
+   * @inheritdoc DkanApiClient.getDataDictionaryFromUrl
    *
-   * Fetches a data dictionary from a distribution's describedBy URL.
-   *
-   * @param url - Full URL to the data dictionary JSON file
-   * @returns Data dictionary object from the remote URL
-   * @throws {DkanApiError} If URL cannot be fetched or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getDataDictionaryFromUrl(url: string) {
     return this.apiClient.getDataDictionaryFromUrl(url)
   }
 
   /**
-   * List all datasets (full metadata objects).
+   * @inheritdoc DkanApiClient.listAllDatasets
    *
-   * Returns complete metadata for all datasets in the catalog.
-   * For a lightweight alternative, use the Search API with minimal parameters.
-   *
-   * @returns Array of complete dataset metadata objects
-   * @throws {DkanApiError} If request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async listAllDatasets() {
     return this.apiClient.listAllDatasets()
   }
 
   /**
-   * List available metastore schemas.
+   * @inheritdoc DkanApiClient.listSchemas
    *
-   * Returns schema types available in the metastore.
-   * Common schemas: 'dataset', 'data-dictionary', 'distribution'.
-   *
-   * @returns Array of schema type identifiers
-   * @throws {DkanApiError} If request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async listSchemas() {
     return this.apiClient.listSchemas()
   }
 
   /**
-   * Get items for a specific schema type.
+   * @inheritdoc DkanApiClient.getSchemaItems
    *
-   * Retrieves all items of a given schema type from the metastore.
-   *
-   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @returns Array of items matching the schema type
-   * @throws {DkanApiError} If schema not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getSchemaItems(schemaId: string) {
     return this.apiClient.getSchemaItems(schemaId)
   }
 
   /**
-   * Get dataset facets (themes, keywords, publishers).
+   * @inheritdoc DkanApiClient.getDatasetFacets
    *
-   * Retrieves all unique values for faceted search across all datasets.
-   * Useful for building filter UIs.
-   *
-   * @returns Object containing arrays of unique theme, keyword, and publisher values
-   * @throws {DkanApiError} If request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getDatasetFacets() {
     return this.apiClient.getDatasetFacets()
   }
 
   /**
-   * Get a specific metastore schema definition.
+   * @inheritdoc DkanApiClient.getSchema
    *
-   * Retrieves the JSON Schema definition for a schema type.
-   *
-   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @returns JSON Schema definition
-   * @throws {DkanApiError} If schema not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getSchema(schemaId: string) {
     return this.apiClient.getSchema(schemaId)
   }
 
   /**
-   * Get datastore statistics for a resource.
+   * @inheritdoc DkanApiClient.getDatastoreStatistics
    *
-   * Retrieves metadata about the datastore including row count,
-   * column count, and column definitions.
-   *
-   * @param identifier - Resource identifier
-   * @returns Datastore statistics
-   * @throws {DkanApiError} If datastore not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getDatastoreStatistics(identifier: string) {
     return this.apiClient.getDatastoreStatistics(identifier)
   }
 
   /**
-   * Query multiple datastore resources with JOINs.
+   * @inheritdoc DkanApiClient.queryDatastoreMulti
    *
-   * Advanced datastore querying for multi-resource queries.
-   *
-   * @param options - Query options including resources, joins, conditions, etc.
-   * @param method - HTTP method ('GET' or 'POST')
-   * @returns Query results
-   * @throws {DkanApiError} If query fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async queryDatastoreMulti(
     options: DatastoreQueryOptions,
@@ -486,87 +385,54 @@ export class DkanClient {
   // ==================== HARVEST API ====================
 
   /**
-   * List all harvest plan identifiers.
+   * @inheritdoc DkanApiClient.listHarvestPlans
    *
-   * Returns an array of identifiers for all registered harvest plans.
-   * Harvest plans define how to fetch datasets from external sources.
-   *
-   * @returns Array of harvest plan identifiers
-   * @throws {DkanApiError} If request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async listHarvestPlans() {
     return this.apiClient.listHarvestPlans()
   }
 
   /**
-   * Register a new harvest plan.
+   * @inheritdoc DkanApiClient.registerHarvestPlan
    *
-   * Creates a new harvest plan in the system. Harvest plans define source URLs,
-   * extraction methods, and filters for importing datasets from external catalogs.
-   *
-   * Requires authentication with harvest plan create permissions.
-   *
-   * @param plan - Harvest plan configuration with identifier, source, and extract options
-   * @returns Write response containing the plan identifier and endpoint
-   * @throws {DkanApiError} If authentication fails, validation fails, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async registerHarvestPlan(plan: Parameters<typeof DkanApiClient.prototype.registerHarvestPlan>[0]) {
     return this.apiClient.registerHarvestPlan(plan)
   }
 
   /**
-   * Get a specific harvest plan.
+   * @inheritdoc DkanApiClient.getHarvestPlan
    *
-   * Retrieves the configuration for a registered harvest plan.
-   *
-   * @param planId - Harvest plan identifier
-   * @returns Harvest plan configuration with source and extract settings
-   * @throws {DkanApiError} If harvest plan not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getHarvestPlan(planId: string) {
     return this.apiClient.getHarvestPlan(planId)
   }
 
   /**
-   * List harvest runs for a specific plan.
+   * @inheritdoc DkanApiClient.listHarvestRuns
    *
-   * Returns an array of harvest run identifiers for the given plan.
-   * Use getHarvestRun() with a specific run ID to get full run details.
-   *
-   * @param planId - Harvest plan identifier
-   * @returns Array of harvest run identifiers (strings)
-   * @throws {DkanApiError} If harvest plan not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async listHarvestRuns(planId: string) {
     return this.apiClient.listHarvestRuns(planId)
   }
 
   /**
-   * Get information about a specific harvest run.
+   * @inheritdoc DkanApiClient.getHarvestRun
    *
-   * Retrieves detailed information about a single harvest run execution,
-   * including status, counts, error messages, and timestamps.
-   *
-   * @param runId - Harvest run identifier
-   * @param planId - Harvest plan identifier (required by DKAN API)
-   * @returns Harvest run details with execution status and statistics
-   * @throws {DkanApiError} If harvest run not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getHarvestRun(runId: string, planId: string) {
     return this.apiClient.getHarvestRun(runId, planId)
   }
 
   /**
-   * Execute a harvest run.
+   * @inheritdoc DkanApiClient.runHarvest
    *
-   * Triggers a harvest operation for a specific plan. The harvest fetches
-   * datasets from the configured source and imports them into DKAN.
-   *
-   * Requires authentication with harvest run permissions.
-   *
-   * @param options - Harvest run options with plan ID and optional filters
-   * @returns Harvest run record with initial status
-   * @throws {DkanApiError} If authentication fails, harvest plan not found, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async runHarvest(options: Parameters<typeof DkanApiClient.prototype.runHarvest>[0]) {
     return this.apiClient.runHarvest(options)
@@ -575,65 +441,36 @@ export class DkanClient {
   // ==================== DATASET CRUD ====================
 
   /**
-   * Create a new dataset.
+   * @inheritdoc DkanApiClient.createDataset
    *
-   * Creates a new dataset in the metastore with DCAT-US metadata.
-   * The dataset must include at least a title and identifier.
-   *
-   * Requires authentication with dataset create permissions.
-   *
-   * @param dataset - Complete dataset metadata (DCAT-US format)
-   * @returns Write response containing the dataset identifier and endpoint
-   * @throws {DkanApiError} If authentication fails, validation fails, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async createDataset(dataset: Parameters<typeof DkanApiClient.prototype.createDataset>[0]) {
     return this.apiClient.createDataset(dataset)
   }
 
   /**
-   * Update an existing dataset (full replacement).
+   * @inheritdoc DkanApiClient.updateDataset
    *
-   * Replaces an entire dataset with new metadata. All fields must be provided.
-   * Use patchDataset() for partial updates.
-   *
-   * Requires authentication with dataset update permissions.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
-   * @param dataset - Complete replacement dataset metadata
-   * @returns Write response containing the updated identifier
-   * @throws {DkanApiError} If dataset not found, authentication fails, or validation fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async updateDataset(identifier: string, dataset: Parameters<typeof DkanApiClient.prototype.updateDataset>[1]) {
     return this.apiClient.updateDataset(identifier, dataset)
   }
 
   /**
-   * Partially update a dataset.
+   * @inheritdoc DkanApiClient.patchDataset
    *
-   * Updates only specified fields of a dataset, leaving other fields unchanged.
-   * Use this for targeted updates instead of full replacement.
-   *
-   * Requires authentication with dataset update permissions.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
-   * @param partialDataset - Partial dataset metadata with only fields to update
-   * @returns Write response containing the updated identifier
-   * @throws {DkanApiError} If dataset not found, authentication fails, or validation fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async patchDataset(identifier: string, partialDataset: Parameters<typeof DkanApiClient.prototype.patchDataset>[1]) {
     return this.apiClient.patchDataset(identifier, partialDataset)
   }
 
   /**
-   * Delete a dataset.
+   * @inheritdoc DkanApiClient.deleteDataset
    *
-   * Permanently removes a dataset and its associated data from the system.
-   *
-   * Requires authentication with dataset delete permissions.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
-   * @returns Confirmation message
-   * @throws {DkanApiError} If dataset not found, authentication fails, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async deleteDataset(identifier: string) {
     return this.apiClient.deleteDataset(identifier)
@@ -642,46 +479,27 @@ export class DkanClient {
   // ==================== DATASTORE IMPORTS ====================
 
   /**
-   * List all datastore imports.
+   * @inheritdoc DkanApiClient.listDatastoreImports
    *
-   * Returns import status for all distributions that have been imported
-   * into the datastore. Includes import state, timestamps, and statistics.
-   *
-   * @returns Object mapping distribution identifiers to import records
-   * @throws {DkanApiError} If request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async listDatastoreImports() {
     return this.apiClient.listDatastoreImports()
   }
 
   /**
-   * Trigger a datastore import.
+   * @inheritdoc DkanApiClient.triggerDatastoreImport
    *
-   * Initiates import of a distribution's data into the datastore.
-   * The data is downloaded from the distribution's downloadURL and
-   * loaded into a queryable database table.
-   *
-   * Requires authentication with datastore import permissions.
-   *
-   * @param options - Import options with resource identifier
-   * @returns Import record with initial status
-   * @throws {DkanApiError} If authentication fails, resource not found, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async triggerDatastoreImport(options: Parameters<typeof DkanApiClient.prototype.triggerDatastoreImport>[0]) {
     return this.apiClient.triggerDatastoreImport(options)
   }
 
   /**
-   * Delete a datastore (resource or all resources for a dataset).
+   * @inheritdoc DkanApiClient.deleteDatastore
    *
-   * Removes imported data from the datastore for a specific distribution
-   * or all distributions in a dataset. Does not delete the metadata.
-   *
-   * Requires authentication with datastore delete permissions.
-   *
-   * @param identifier - Distribution identifier or dataset identifier
-   * @returns Confirmation message
-   * @throws {DkanApiError} If resource not found, authentication fails, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async deleteDatastore(identifier: string) {
     return this.apiClient.deleteDatastore(identifier)
@@ -690,49 +508,27 @@ export class DkanClient {
   // ==================== REVISIONS / MODERATION ====================
 
   /**
-   * Get all revisions for an item in a schema.
+   * @inheritdoc DkanApiClient.getRevisions
    *
-   * Returns the revision history for a specific item, showing all
-   * workflow state changes and modifications over time.
-   *
-   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param identifier - Item identifier (UUID or custom ID)
-   * @returns Array of revision records with timestamps and state information
-   * @throws {DkanApiError} If item not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getRevisions(schemaId: string, identifier: string) {
     return this.apiClient.getRevisions(schemaId, identifier)
   }
 
   /**
-   * Get a specific revision.
+   * @inheritdoc DkanApiClient.getRevision
    *
-   * Retrieves details for a single revision, including the full item
-   * data as it existed at that point in time.
-   *
-   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param identifier - Item identifier (UUID or custom ID)
-   * @param revisionId - Revision identifier or number
-   * @returns Revision record with complete item data and metadata
-   * @throws {DkanApiError} If item or revision not found, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async getRevision(schemaId: string, identifier: string, revisionId: string) {
     return this.apiClient.getRevision(schemaId, identifier, revisionId)
   }
 
   /**
-   * Create a new revision (change workflow state).
+   * @inheritdoc DkanApiClient.createRevision
    *
-   * Creates a new revision by changing the workflow state of an item.
-   * Common states: 'draft', 'published', 'archived'.
-   *
-   * Requires authentication with moderation permissions.
-   *
-   * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param identifier - Item identifier (UUID or custom ID)
-   * @param revision - Revision data with new state and optional message
-   * @returns Write response containing the revision identifier
-   * @throws {DkanApiError} If authentication fails, item not found, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async createRevision(
     schemaId: string,
@@ -743,17 +539,9 @@ export class DkanClient {
   }
 
   /**
-   * Convenience method to change dataset workflow state.
+   * @inheritdoc DkanApiClient.changeDatasetState
    *
-   * Shortcut for creating a revision to change a dataset's workflow state.
-   *
-   * Requires authentication with moderation permissions.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
-   * @param state - New workflow state ('draft', 'published', 'archived')
-   * @param message - Optional message describing the state change
-   * @returns Write response containing the revision identifier
-   * @throws {DkanApiError} If authentication fails, dataset not found, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async changeDatasetState(identifier: string, state: Parameters<typeof DkanApiClient.prototype.changeDatasetState>[1], message?: string) {
     return this.apiClient.changeDatasetState(identifier, state, message)
@@ -762,16 +550,9 @@ export class DkanClient {
   // ==================== QUERY DOWNLOAD ====================
 
   /**
-   * Download datastore query results as CSV or JSON.
+   * @inheritdoc DkanApiClient.downloadQuery
    *
-   * Executes a datastore query and returns the results as a downloadable file.
-   * Supports filtering, sorting, and pagination like queryDatastore().
-   *
-   * @param datasetId - Dataset identifier (UUID or custom ID)
-   * @param index - Resource index in dataset.distribution array
-   * @param options - Query and download options
-   * @returns Blob containing the file data for download
-   * @throws {DkanApiError} If resource not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async downloadQuery(
     datasetId: string,
@@ -782,15 +563,9 @@ export class DkanClient {
   }
 
   /**
-   * Download datastore query results by distribution ID.
+   * @inheritdoc DkanApiClient.downloadQueryByDistribution
    *
-   * Similar to downloadQuery() but uses distribution identifier directly
-   * instead of dataset ID and index.
-   *
-   * @param distributionId - Distribution identifier (UUID)
-   * @param options - Query and download options
-   * @returns Blob containing the file data for download
-   * @throws {DkanApiError} If distribution not found or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async downloadQueryByDistribution(
     distributionId: string,
@@ -802,16 +577,9 @@ export class DkanClient {
   // ==================== SQL QUERY ====================
 
   /**
-   * Execute a SQL query against the datastore.
+   * @inheritdoc DkanApiClient.querySql
    *
-   * Runs a SQL SELECT statement against datastore tables. Supports JOINs,
-   * WHERE clauses, ORDER BY, and LIMIT. Table names use distribution identifiers.
-   *
-   * **Note**: This is an advanced feature requiring knowledge of the datastore schema.
-   *
-   * @param options - SQL query options
-   * @returns Query results including schema and result rows
-   * @throws {DkanApiError} If SQL is invalid or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async querySql(options: Parameters<typeof DkanApiClient.prototype.querySql>[0]) {
     return this.apiClient.querySql(options)
@@ -820,48 +588,27 @@ export class DkanClient {
   // ==================== DATA DICTIONARY CRUD ====================
 
   /**
-   * Create a new data dictionary.
+   * @inheritdoc DkanApiClient.createDataDictionary
    *
-   * Creates a new data dictionary in the metastore following the
-   * Frictionless Table Schema specification.
-   *
-   * Requires authentication with data dictionary create permissions.
-   *
-   * @param dictionary - Data dictionary object with fields and schema
-   * @returns Write response containing the dictionary identifier and endpoint
-   * @throws {DkanApiError} If authentication fails, validation fails, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async createDataDictionary(dictionary: Parameters<typeof DkanApiClient.prototype.createDataDictionary>[0]) {
     return this.apiClient.createDataDictionary(dictionary)
   }
 
   /**
-   * Update an existing data dictionary.
+   * @inheritdoc DkanApiClient.updateDataDictionary
    *
-   * Replaces an entire data dictionary with new field definitions.
-   *
-   * Requires authentication with data dictionary update permissions.
-   *
-   * @param identifier - Data dictionary identifier (UUID or custom ID)
-   * @param dictionary - Complete replacement data dictionary object
-   * @returns Write response containing the updated identifier
-   * @throws {DkanApiError} If data dictionary not found, authentication fails, or validation fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async updateDataDictionary(identifier: string, dictionary: Parameters<typeof DkanApiClient.prototype.updateDataDictionary>[1]) {
     return this.apiClient.updateDataDictionary(identifier, dictionary)
   }
 
   /**
-   * Delete a data dictionary.
+   * @inheritdoc DkanApiClient.deleteDataDictionary
    *
-   * Permanently removes a data dictionary from the metastore.
-   * This does not affect the data in the datastore, only the schema definition.
-   *
-   * Requires authentication with data dictionary delete permissions.
-   *
-   * @param identifier - Data dictionary identifier (UUID or custom ID)
-   * @returns Confirmation message
-   * @throws {DkanApiError} If data dictionary not found, authentication fails, or request fails
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   async deleteDataDictionary(identifier: string) {
     return this.apiClient.deleteDataDictionary(identifier)
@@ -870,12 +617,9 @@ export class DkanClient {
   // ==================== OPENAPI DOCUMENTATION ====================
 
   /**
-   * Get OpenAPI specification URL
+   * @inheritdoc DkanApiClient.getOpenApiDocsUrl
    *
-   * Returns the URL to the machine-readable OpenAPI 3.0 specification in JSON format.
-   * This can be used with documentation tools like Swagger UI, Redoc, or Postman.
-   *
-   * @returns URL to the OpenAPI specification (e.g., 'https://dkan.example.com/api/1')
+   * **Note**: Bypasses caching. Use framework hooks for automatic caching.
    */
   getOpenApiDocsUrl() {
     return this.apiClient.getOpenApiDocsUrl()
