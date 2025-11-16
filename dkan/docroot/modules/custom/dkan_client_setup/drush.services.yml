@@ -1,6 +1,11 @@
 services:
   dkan_client_setup.commands:
     class: Drupal\dkan_client_setup\Commands\DkanClientSetupCommands
-    arguments: ['@entity_type.manager']
+    arguments:
+      - '@entity_type.manager'
+      - '@dkan.datastore.service'
+      - '@dkan.metastore.service'
+      - '@dkan.metastore.storage'
+      - '@dkan.metastore.data_dictionary_discovery'
     tags:
       - { name: drush.command }

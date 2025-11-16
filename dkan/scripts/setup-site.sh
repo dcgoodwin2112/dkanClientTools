@@ -114,15 +114,8 @@ echo -e "  ${CHECK} Blocks placed"
 
 # Step 9: Generate data dictionaries
 echo -e "${CHECK} Step 9/10: Generating data dictionaries..."
-# Check if create-data-dictionaries.ts script exists
-DICT_SCRIPT="../../scripts/create-data-dictionaries.ts"
-if [ -f "$DICT_SCRIPT" ]; then
-  (cd ../.. && npx tsx scripts/create-data-dictionaries.ts)
-  echo -e "  ${CHECK} Data dictionaries generated"
-else
-  echo -e "  ${WARN} Data dictionary script not found at $DICT_SCRIPT"
-  echo -e "  ${WARN} Skipping data dictionary generation"
-fi
+drush dkan-client:create-data-dictionaries
+echo -e "  ${CHECK} Data dictionaries generated"
 
 # Step 10: Clear cache
 echo -e "${CHECK} Step 10/10: Clearing cache..."

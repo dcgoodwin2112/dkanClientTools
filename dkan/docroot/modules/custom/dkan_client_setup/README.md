@@ -13,6 +13,8 @@ This module automates the creation and configuration of demo pages for DKAN Clie
 - Node module
 - Block module
 - Path module
+- Datastore module (DKAN)
+- Metastore module (DKAN)
 
 ## Installation
 
@@ -52,9 +54,26 @@ ddev drush dkan-client:place-blocks
 
 **Idempotent:** Safe to run multiple times. Skips existing blocks.
 
+### Create Data Dictionaries
+
+Creates data dictionaries for all datastore resources by analyzing table schemas:
+
+```bash
+ddev drush dkan-client:create-data-dictionaries
+```
+
+**Process:**
+- Queries all distributions in metastore
+- Finds distributions with datastore tables
+- Retrieves table schema from datastore
+- Maps field types from Drupal schema to Frictionless format
+- Creates data dictionary metadata
+
+**Idempotent:** Safe to run multiple times. Skips existing dictionaries.
+
 ### Complete Setup
 
-Runs both commands in sequence:
+Runs all commands in sequence:
 
 ```bash
 ddev drush dkan-client:setup
@@ -64,6 +83,7 @@ Equivalent to:
 ```bash
 ddev drush dkan-client:create-demo-pages
 ddev drush dkan-client:place-blocks
+ddev drush dkan-client:create-data-dictionaries
 ```
 
 **Idempotent:** Safe to run multiple times.
@@ -73,6 +93,7 @@ ddev drush dkan-client:place-blocks
 Short aliases available:
 - `dkan-client-pages` → `dkan-client:create-demo-pages`
 - `dkan-client-blocks` → `dkan-client:place-blocks`
+- `dkan-client-dictionaries` → `dkan-client:create-data-dictionaries`
 - `dkan-client-demo-setup` → `dkan-client:setup`
 
 ## Usage Example
