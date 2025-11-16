@@ -52,6 +52,20 @@ class DkanClientSetupCommands extends DrushCommands {
   protected $dictionaryDiscovery;
 
   /**
+   * JSONPath for extracting resource ID from distribution reference.
+   *
+   * Used when downloadURL is a %Ref:downloadURL reference to a resource.
+   */
+  const JSONPATH_REF_DOWNLOAD_URL = '$[data]["%Ref:downloadURL"][0][data][identifier]';
+
+  /**
+   * JSONPath for extracting resource ID from direct downloadURL field.
+   *
+   * Used when downloadURL is a direct string URL (non-referenced resources).
+   */
+  const JSONPATH_DIRECT_DOWNLOAD_URL = '$.data.downloadURL';
+
+  /**
    * Constructs a DkanClientSetupCommands object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -237,7 +251,13 @@ class DkanClientSetupCommands extends DrushCommands {
 
     try {
       // Get all distributions from metastore.
-      $distributions = $this->metastoreService->getAll('distribution');
+      try {
+        $distributions = $this->metastoreService->getAll('distribution');
+      }
+      catch (\Exception $e) {
+        $this->logger()->error('Failed to retrieve distributions from metastore: ' . $e->getMessage());
+        return;
+      }
 
       if (empty($distributions)) {
         $this->logger()->warning('No distributions found in metastore.');
@@ -245,6 +265,9 @@ class DkanClientSetupCommands extends DrushCommands {
       }
 
       $this->logger()->notice('Found ' . count($distributions) . ' distributions to process.');
+
+      // Get data dictionary storage instance once (reused in loop).
+      $dict_storage = $this->dataFactory->getInstance('data-dictionary');
 
       foreach ($distributions as $distribution) {
         // Distribution is a RootedJsonData object.
@@ -258,10 +281,10 @@ class DkanClientSetupCommands extends DrushCommands {
 
         // Get resource UUID from downloadURL reference.
         // downloadURL can be a string URL or a %Ref:downloadURL reference.
-        $resource_id = $distribution->get('$[data]["%Ref:downloadURL"][0][data][identifier]');
+        $resource_id = $distribution->get(self::JSONPATH_REF_DOWNLOAD_URL);
         if (!$resource_id) {
           // Try direct downloadURL field (for non-referenced resources).
-          $resource_id = $distribution->get('$.data.downloadURL');
+          $resource_id = $distribution->get(self::JSONPATH_DIRECT_DOWNLOAD_URL);
         }
 
         if (!$resource_id) {
@@ -276,7 +299,8 @@ class DkanClientSetupCommands extends DrushCommands {
           }
         }
         catch (\Exception $e) {
-          // No datastore for this resource, skip silently.
+          // No datastore for this resource, skip, but log for debugging.
+          $this->logger()->debug('  No datastore for resource: ' . $resource_id . ' (' . $dist_title . '): ' . $e->getMessage());
           continue;
         }
 
@@ -296,7 +320,6 @@ class DkanClientSetupCommands extends DrushCommands {
           $dict_id = $dist_id . '-dict';
 
           // Check if dictionary already exists.
-          $dict_storage = $this->dataFactory->getInstance('data-dictionary');
           try {
             $existing = $dict_storage->retrieve($dict_id);
             if ($existing) {
@@ -315,7 +338,7 @@ class DkanClientSetupCommands extends DrushCommands {
           ];
 
           // Store via DataFactory.
-          $dict_storage->store(json_encode(['data' => $dict_data]), $dict_id);
+          $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
 
           $this->logger()->success('  Created dictionary for: ' . $dist_title);
           $created++;
