@@ -338,7 +338,14 @@ class DkanClientSetupCommands extends DrushCommands {
           ];
 
           // Store via DataFactory.
-          $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
+          try {
+            $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
+          }
+          catch (\JsonException $je) {
+            $this->logger()->error('  JSON encoding failed for dictionary "' . $dist_title . '": ' . $je->getMessage());
+            $errors++;
+            continue;
+          }
 
           $this->logger()->success('  Created dictionary for: ' . $dist_title);
           $created++;
