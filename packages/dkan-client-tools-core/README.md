@@ -81,62 +81,19 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 
 ## API Methods
 
-### Dataset Operations
+The DkanApiClient provides comprehensive coverage of DKAN REST APIs across 7 categories:
 
-- `getDataset(identifier)` - Get a single dataset
-- `searchDatasets(options)` - Search for datasets
-- `listAllDatasets()` - Get all datasets
-- `createDataset(dataset)` - Create a new dataset
-- `updateDataset(identifier, dataset)` - Update a dataset
-- `patchDataset(identifier, partialDataset)` - Partially update a dataset
-- `deleteDataset(identifier)` - Delete a dataset
+- **Dataset Operations** (7 methods) - CRUD operations for DCAT-US datasets
+- **Datastore Operations** (4 methods) - Query and download tabular data
+- **Data Dictionary Operations** (6 methods) - Manage Frictionless table schemas
+- **Harvest Operations** (6 methods) - External data source harvesting
+- **Metastore Operations** (4 methods) - Schema definitions and faceted search
+- **Datastore Import Operations** (3 methods) - Import management and statistics
+- **Revision/Moderation Operations** (4 methods) - Content workflow state management
 
-### Datastore Operations
+For complete method signatures, parameters, and examples, see [API Reference](../../docs/API_REFERENCE.md).
 
-- `queryDatastore(datasetId, index, options)` - Query datastore data
-- `downloadQuery(datasetId, index, options)` - Download query results
-- `downloadQueryByDistribution(distributionId, options)` - Download by distribution
-- `querySql(options)` - Execute SQL query
-
-### Data Dictionary Operations
-
-- `getDataDictionary(options)` - Get a data dictionary
-- `listDataDictionaries()` - List all data dictionaries
-- `getDatastoreSchema(identifier, index)` - Get datastore schema
-- `createDataDictionary(dictionary)` - Create data dictionary
-- `updateDataDictionary(identifier, dictionary)` - Update data dictionary
-- `deleteDataDictionary(identifier)` - Delete data dictionary
-
-### Harvest Operations
-
-- `listHarvestPlans()` - List harvest plans
-- `getHarvestPlan(planId)` - Get a harvest plan
-- `registerHarvestPlan(plan)` - Register a new harvest plan
-- `runHarvest(options)` - Run a harvest
-- `listHarvestRuns(planId)` - List harvest runs
-- `getHarvestRun(runId)` - Get harvest run status
-
-### Metastore Operations
-
-- `listSchemas()` - List available schemas
-- `getSchemaItems(schemaId)` - Get items for a schema
-- `getDatasetFacets()` - Get dataset facets
-- `getSchema(schemaId)` - Get schema definition
-
-**Note**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the endpoints return 404.
-
-### Datastore Import Operations
-
-- `listDatastoreImports()` - List datastore imports
-- `triggerDatastoreImport(options)` - Trigger a datastore import
-- `deleteDatastore(identifier)` - Delete a datastore
-
-### Revision/Moderation Operations
-
-- `getRevisions(schemaId, identifier)` - Get all revisions
-- `getRevision(schemaId, identifier, revisionId)` - Get a specific revision
-- `createRevision(schemaId, identifier, revision)` - Create a new revision
-- `changeDatasetState(identifier, state, message)` - Change dataset workflow state
+**Note**: Dataset Properties API (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) is not available in DKAN 2.x.
 
 ## Architecture
 
@@ -217,146 +174,16 @@ try {
 
 ## API Response Recording
 
-This package includes a script to record real API responses from a DKAN instance for testing and documentation purposes.
+This package includes a script to record real API responses from a DKAN instance for testing purposes. Responses are saved to `src/__tests__/fixtures/` as JSON files.
 
-### Recording API Responses
-
-#### Setup (Recommended)
-
-Create a `.env` file in the core package directory:
-
-```bash
-cd packages/dkan-client-tools-core
-cp .env.example .env
-```
-
-Edit `.env` with your DKAN instance details:
-
-```env
-DKAN_URL=http://dkan.ddev.site
-DKAN_USER=admin
-DKAN_PASS=admin
-READ_ONLY=true
-```
-
-Then run:
+**Quick Start**:
 
 ```bash
 # From project root
 npm run record:api:readonly
-
-# Or from core package directory
-cd packages/dkan-client-tools-core
-npm run record:api:readonly
 ```
 
-#### Without .env File
-
-You can also pass credentials as environment variables:
-
-From the project root:
-
-```bash
-# Read-only mode (recommended for production sites)
-npm run record:api:readonly
-
-# With authentication (for harvest plans, revisions, etc.)
-DKAN_URL=http://dkan.ddev.site \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api:readonly
-
-# From a different DKAN site
-DKAN_URL=https://demo.getdkan.org \
-DKAN_USER=your-username \
-DKAN_PASS=your-password \
-npm run record:api:readonly
-```
-
-From the core package directory:
-
-```bash
-cd packages/dkan-client-tools-core
-
-# Read-only mode without authentication
-npm run record:api:readonly
-
-# With authentication to access protected endpoints
-DKAN_URL=http://dkan.ddev.site \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api:readonly
-
-# Full mode (includes mutations - use with caution!)
-DKAN_URL=http://dkan.ddev.site \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api
-```
-
-### What Gets Recorded
-
-The script systematically calls all DKAN API methods and saves responses to JSON files in `src/__tests__/fixtures/`:
-
-- **Read operations** - Always recorded
-  - Dataset operations: get, search, list
-  - Datastore queries and downloads
-  - Data dictionaries
-  - Harvest plans and runs
-  - Metastore schemas and facets
-  - Revisions
-
-- **Write operations** - Skipped in read-only mode
-  - Dataset create/update/delete (with automatic cleanup)
-  - Data dictionary create/update/delete (with automatic cleanup)
-  - Revision operations: createRevision, changeDatasetState
-  - Harvest/datastore mutations (skipped - complex side effects)
-
-### Cleanup & Safety
-
-The script includes robust cleanup to prevent test data accumulation:
-
-- **Pre-cleanup** - Removes orphaned test resources from previous failed runs
-- **Post-cleanup** - Verifies all created resources were deleted
-- **Unique IDs** - Uses UUIDs (not timestamps) to avoid collisions
-- **Error recovery** - Cleanup runs even if the script crashes
-- **Cleanup report** - Shows created/deleted/failed counts
-
-Test resources use predictable prefixes:
-- Datasets: `test-recorder-{uuid}`
-- Data dictionaries: `test-dict-{uuid}`
-
-#### Manual Cleanup
-
-If test resources are orphaned, clean them up manually:
-
-```bash
-# Clean up orphaned test resources only (no recording)
-CLEANUP_ONLY=true DKAN_USER=admin DKAN_PASS=admin npm run record:api
-```
-
-This mode finds all test resources (matching prefixes above), attempts to delete each one, and reports success/failure.
-
-### Output Files
-
-- `summary.json` - Complete recording summary with metadata
-- `dataset-operations.json` - Dataset CRUD responses
-- `datastore-operations.json` - Datastore query responses
-- `data-dictionary.json` - Data dictionary responses
-- `harvest.json` - Harvest plan/run responses
-- `metastore.json` - Metastore schema responses
-- `revisions.json` - Revision/moderation responses
-- `openapi.json` - OpenAPI documentation responses
-
-### Using Fixtures in Tests
-
-```typescript
-import datasetFixtures from '@dkan-client-tools/core/src/__tests__/fixtures/dataset-operations.json'
-
-// Find specific response
-const getDatasetResponse = datasetFixtures.find(f => f.method === 'getDataset')
-expect(actualResponse).toEqual(getDatasetResponse.response)
-```
+For complete documentation including setup, environment variables, cleanup procedures, output files, and usage examples, see [Fixtures Documentation](src/__tests__/fixtures/README.md).
 
 ## License
 
