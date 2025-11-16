@@ -7,3 +7,5 @@ dependencies:
   - drupal:node
   - drupal:block
   - drupal:path
+  - dkan:datastore
+  - dkan:metastore
