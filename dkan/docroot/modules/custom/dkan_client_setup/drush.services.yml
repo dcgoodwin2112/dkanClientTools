@@ -1,0 +1,6 @@
+services:
+  dkan_client_setup.commands:
+    class: Drupal\dkan_client_setup\Commands\DkanClientSetupCommands
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: drush.command }

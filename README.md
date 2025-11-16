@@ -260,6 +260,56 @@ npm run dev
 
 The example apps demonstrate dataset search, datastore querying, data dictionary management, harvest operations, and more.
 
+## DKAN Development Environment
+
+The `/dkan` directory contains a complete Drupal 10 + DKAN 2.x development environment with automated setup.
+
+### Quick Setup
+
+```bash
+cd dkan
+
+# Install Drupal
+ddev drush si --account-pass=admin -y
+
+# Start DDEV (automated setup runs automatically)
+ddev start
+```
+
+The automated setup:
+- Enables all required DKAN modules
+- Imports 49 sample datasets
+- Creates demo pages at `/vanilla-demo`, `/react-demo`, `/vue-demo`
+- Places demo blocks
+- Generates data dictionaries
+
+Access: https://dkan.ddev.site (admin/admin)
+
+### Manual Setup Scripts
+
+```bash
+# Run setup script manually
+ddev exec bash scripts/setup-site.sh
+
+# Complete rebuild (destroys database)
+ddev exec bash scripts/rebuild-site.sh
+```
+
+### Drush Commands
+
+```bash
+# Create demo pages
+ddev drush dkan-client:create-demo-pages
+
+# Place demo blocks
+ddev drush dkan-client:place-blocks
+
+# Complete setup
+ddev drush dkan-client:setup
+```
+
+See [dkan/README.md](./dkan/README.md) for detailed documentation.
+
 ## Documentation
 
 Comprehensive documentation is available in the `/docs` directory:

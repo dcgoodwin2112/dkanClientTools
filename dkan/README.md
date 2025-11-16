@@ -1,11 +1,11 @@
 # DKAN Development Environment
 
-This directory contains a complete Drupal 11 + DKAN development environment for testing and developing the DKAN Client Tools packages.
+This directory contains a complete Drupal 10 + DKAN development environment for testing and developing the DKAN Client Tools packages.
 
 ## What's Included
 
 ### Drupal Installation
-- **Drupal**: 11.2.7
+- **Drupal**: 10.5.6
 - **DKAN**: 2.21.2
 - **PHP**: 8.3
 - **Database**: MariaDB 10.11
@@ -34,12 +34,26 @@ This directory contains a complete Drupal 11 + DKAN development environment for 
 - [DDEV](https://ddev.readthedocs.io/) installed and running
 - Docker or Colima
 
-### Start the Environment
+### Automated Setup (Recommended)
+
+For a fresh installation:
 
 ```bash
 cd dkan
+
+# Install Drupal
+ddev drush si --account-pass=admin -y
+
+# Start DDEV (automated setup runs on post-start hook)
 ddev start
 ```
+
+The automated setup will:
+1. Enable DKAN core and all required modules
+2. Import 49 sample datasets
+3. Create demo pages (/vanilla-demo, /react-demo, /vue-demo)
+4. Place demo blocks
+5. Generate data dictionaries
 
 Access the site at: https://dkan.ddev.site
 
@@ -47,15 +61,104 @@ Access the site at: https://dkan.ddev.site
 - Username: `admin`
 - Password: `admin`
 
+**Demo Pages:**
+- Vanilla JS: https://dkan.ddev.site/vanilla-demo
+- React: https://dkan.ddev.site/react-demo
+- Vue: https://dkan.ddev.site/vue-demo
+
+### Manual Setup Script
+
+To run setup manually at any time:
+
+```bash
+ddev exec bash scripts/setup-site.sh
+```
+
+### Complete Rebuild
+
+To destroy the database and rebuild from scratch:
+
+```bash
+ddev exec bash scripts/rebuild-site.sh
+```
+
 ### Stop the Environment
 
 ```bash
 ddev stop
 ```
 
-## Initial Setup (First Time)
+## Configuration
 
-If this is a fresh checkout or the environment hasn't been set up yet:
+### Environment Variables
+
+The DKAN environment uses three environment variables for API access:
+
+- `DKAN_URL` - DKAN site URL (default: `https://dkan.ddev.site`)
+- `DKAN_USER` - Admin username (default: `admin`)
+- `DKAN_PASS` - Admin password (default: `admin`)
+
+These variables are defined in `.ddev/config.yaml` under `web_environment` and are automatically available in the DDEV web container.
+
+### Optional Overrides
+
+To override the default values, create a `.env` file in the project root:
+
+```bash
+# /dkanClientTools/.env
+DKAN_URL=https://dkan.ddev.site
+DKAN_USER=myuser
+DKAN_PASS=mypassword
+```
+
+**Note:** `.env` files are gitignored to prevent credential leaks.
+
+### Verifying Environment Variables
+
+To check that environment variables are accessible:
+
+```bash
+ddev exec echo "\$DKAN_URL"
+ddev exec echo "\$DKAN_USER"
+```
+
+## Automation Commands
+
+The `dkan_client_setup` module provides Drush commands for automated setup:
+
+### Create Demo Pages
+
+Creates three demo pages with URL aliases:
+
+```bash
+ddev drush dkan-client:create-demo-pages
+```
+
+- `/vanilla-demo` - Vanilla JavaScript Demo
+- `/react-demo` - React Demo
+- `/vue-demo` - Vue Demo
+
+### Place Demo Blocks
+
+Places dataset search blocks on each demo page:
+
+```bash
+ddev drush dkan-client:place-blocks
+```
+
+### Complete Demo Setup
+
+Runs both commands (create pages + place blocks):
+
+```bash
+ddev drush dkan-client:setup
+```
+
+All commands are idempotent - safe to run multiple times.
+
+## Advanced Manual Setup
+
+For manual control over the installation process:
 
 ```bash
 cd dkan
@@ -66,17 +169,29 @@ ddev start
 # Install Composer dependencies
 ddev composer install
 
-# Import database or install Drupal
+# Install Drupal
 ddev drush si --account-pass=admin -y
 
-# Enable DKAN modules
-ddev drush en dkan metastore metastore_admin metastore_search harvest sample_content -y
+# Enable DKAN core modules
+ddev drush en dkan metastore metastore_admin metastore_search harvest -y
+
+# Enable base library modules
+ddev drush en dkan_client_tools_core_base dkan_client_tools_react_base dkan_client_tools_vue_base -y
+
+# Enable demo modules
+ddev drush en dkan_client_demo_vanilla dkan_client_demo_react dkan_client_demo_vue -y
+
+# Enable setup module
+ddev drush en dkan_client_setup -y
 
 # Generate sample data
 ddev drush dkan:sample-content:create
 
+# Create demo pages and place blocks
+ddev drush dkan-client:setup
+
 # Clear cache
-ddev cr
+ddev drush cr
 ```
 
 ## Common Commands
@@ -269,6 +384,55 @@ ddev drush cr
 ddev drush pm-uninstall dkan_client_demo_vanilla -y
 ddev drush en dkan_client_demo_vanilla -y
 ddev drush cr
+```
+
+### Setup Script Issues
+
+#### Setup Script Not Running on DDEV Start
+
+```bash
+# Verify Drupal is installed
+ddev drush status
+
+# Manually run setup script
+ddev exec bash scripts/setup-site.sh
+```
+
+#### Demo Pages Not Found (404)
+
+```bash
+# Clear cache and rebuild routes
+ddev drush cr
+
+# Verify pages exist
+ddev drush sql-query "SELECT nid, title FROM node_field_data WHERE type='page'"
+
+# Recreate pages
+ddev drush dkan-client:create-demo-pages
+```
+
+#### Blocks Not Visible on Demo Pages
+
+```bash
+# Verify demo modules are enabled
+ddev drush pml --filter=dkan_client_demo
+
+# If not enabled, enable them
+ddev drush en dkan_client_demo_vanilla dkan_client_demo_react dkan_client_demo_vue -y
+
+# Rebuild blocks
+ddev drush dkan-client:place-blocks
+ddev drush cr
+```
+
+#### Data Dictionary Creation Fails
+
+```bash
+# Check if script exists
+ls -la ../../scripts/create-data-dictionaries.ts
+
+# Run from project root
+cd ../.. && npx tsx scripts/create-data-dictionaries.ts
 ```
 
 ## Testing Demo Modules

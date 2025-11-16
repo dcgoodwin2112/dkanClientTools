@@ -253,9 +253,9 @@ The repository includes complete demo applications:
 
 ### DKAN Local Development Environment
 
-The `/dkan` directory contains a fully configured Drupal 11 + DKAN 2.x development environment:
+The `/dkan` directory contains a fully configured Drupal 10 + DKAN 2.x development environment:
 
-**Setup**: DDEV-based with Drupal 11, DKAN 2.x, PHP 8.3, MariaDB, nginx-fpm
+**Setup**: DDEV-based with Drupal 10, DKAN 2.x, PHP 8.3, MariaDB, nginx-fpm
 
 **Access**:
 - Site URL: https://dkan.ddev.site
