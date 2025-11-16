@@ -433,20 +433,7 @@ describe('NewFeature', () => {
 
 ## Recording API Fixtures
 
-To update or add new fixtures from a live DKAN instance:
-
-```bash
-# Record from local DKAN instance (read-only mode)
-npm run record:api:readonly
-
-# Record with authentication for protected endpoints
-DKAN_URL=http://dkan.ddev.site \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api:readonly
-```
-
-See the main README.md for complete fixture recording documentation.
+See [Fixtures Documentation](src/__tests__/fixtures/README.md) for complete recording instructions, cleanup procedures, and fixture usage.
 
 ## Continuous Integration
 
