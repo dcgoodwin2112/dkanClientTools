@@ -563,6 +563,10 @@ Fetch a single dataset by identifier.
 - Create feature branches for work
 - Concise commit messages - no hype
 - Follow conventional commit format when applicable
+- Include Claude Code attribution in commit messages and PR descriptions:
+  - Commit: Add at end of commit body (not subject line)
+  - PR: Add at bottom of description with separator line
+  - Format: `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
 
 **Important Notes**:
 - Dataset Properties API endpoints return 404 in DKAN 2.x (not available)
