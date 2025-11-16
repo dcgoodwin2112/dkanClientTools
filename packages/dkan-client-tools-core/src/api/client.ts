@@ -180,6 +180,8 @@ export class DkanApiClient {
    * const dataset = await client.getDataset('abc-123', { showReferenceIds: true })
    * console.log(dataset.distribution[0].identifier)
    * ```
+   *
+   * @see searchDatasets for discovering datasets when identifier is unknown
    */
   async getDataset(
     identifier: string,
@@ -233,6 +235,8 @@ export class DkanApiClient {
    * @param options.page - Page number for pagination (0-based)
    * @param options.page-size - Number of results per page
    * @returns Search results with total count, dataset array, and facets
+   *
+   * @see getDatasetFacets for available filter values
    */
   async searchDatasets(options: DatasetQueryOptions = {}): Promise<DkanSearchResponse> {
     const params = new URLSearchParams()
@@ -286,6 +290,8 @@ export class DkanApiClient {
    * @param options.joins - Join configuration for multi-resource queries
    * @param method - HTTP method: POST (default) or GET
    * @returns Query results including schema and result rows
+   *
+   * @see querySql for SQL-based queries with joins and aggregations
    */
   async queryDatastore(
     datasetId: string,
@@ -340,6 +346,9 @@ export class DkanApiClient {
    *   conditions: [{ property: 'r1.name', value: 'Test' }],
    *   limit: 100
    * });
+   *
+   * @see queryDatastore for single-resource queries
+   * @see querySql for SQL-based multi-table queries
    */
   async queryDatastoreMulti(
     options: DatastoreQueryOptions,
