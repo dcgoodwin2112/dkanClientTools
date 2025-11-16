@@ -81,62 +81,19 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 
 ## API Methods
 
-### Dataset Operations
+The DkanApiClient provides comprehensive coverage of DKAN REST APIs across 7 categories:
 
-- `getDataset(identifier)` - Get a single dataset
-- `searchDatasets(options)` - Search for datasets
-- `listAllDatasets()` - Get all datasets
-- `createDataset(dataset)` - Create a new dataset
-- `updateDataset(identifier, dataset)` - Update a dataset
-- `patchDataset(identifier, partialDataset)` - Partially update a dataset
-- `deleteDataset(identifier)` - Delete a dataset
+- **Dataset Operations** (7 methods) - CRUD operations for DCAT-US datasets
+- **Datastore Operations** (4 methods) - Query and download tabular data
+- **Data Dictionary Operations** (6 methods) - Manage Frictionless table schemas
+- **Harvest Operations** (6 methods) - External data source harvesting
+- **Metastore Operations** (4 methods) - Schema definitions and faceted search
+- **Datastore Import Operations** (3 methods) - Import management and statistics
+- **Revision/Moderation Operations** (4 methods) - Content workflow state management
 
-### Datastore Operations
+For complete method signatures, parameters, and examples, see [API Reference](../../docs/API_REFERENCE.md).
 
-- `queryDatastore(datasetId, index, options)` - Query datastore data
-- `downloadQuery(datasetId, index, options)` - Download query results
-- `downloadQueryByDistribution(distributionId, options)` - Download by distribution
-- `querySql(options)` - Execute SQL query
-
-### Data Dictionary Operations
-
-- `getDataDictionary(options)` - Get a data dictionary
-- `listDataDictionaries()` - List all data dictionaries
-- `getDatastoreSchema(identifier, index)` - Get datastore schema
-- `createDataDictionary(dictionary)` - Create data dictionary
-- `updateDataDictionary(identifier, dictionary)` - Update data dictionary
-- `deleteDataDictionary(identifier)` - Delete data dictionary
-
-### Harvest Operations
-
-- `listHarvestPlans()` - List harvest plans
-- `getHarvestPlan(planId)` - Get a harvest plan
-- `registerHarvestPlan(plan)` - Register a new harvest plan
-- `runHarvest(options)` - Run a harvest
-- `listHarvestRuns(planId)` - List harvest runs
-- `getHarvestRun(runId)` - Get harvest run status
-
-### Metastore Operations
-
-- `listSchemas()` - List available schemas
-- `getSchemaItems(schemaId)` - Get items for a schema
-- `getDatasetFacets()` - Get dataset facets
-- `getSchema(schemaId)` - Get schema definition
-
-**Note**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the endpoints return 404.
-
-### Datastore Import Operations
-
-- `listDatastoreImports()` - List datastore imports
-- `triggerDatastoreImport(options)` - Trigger a datastore import
-- `deleteDatastore(identifier)` - Delete a datastore
-
-### Revision/Moderation Operations
-
-- `getRevisions(schemaId, identifier)` - Get all revisions
-- `getRevision(schemaId, identifier, revisionId)` - Get a specific revision
-- `createRevision(schemaId, identifier, revision)` - Create a new revision
-- `changeDatasetState(identifier, state, message)` - Change dataset workflow state
+**Note**: Dataset Properties API (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) is not available in DKAN 2.x.
 
 ## Architecture
 
