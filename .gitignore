@@ -73,6 +73,7 @@ dkan/docroot/modules/custom/*
 !dkan/docroot/modules/custom/dkan_client_demo_vanilla/
 !dkan/docroot/modules/custom/dkan_client_demo_react/
 !dkan/docroot/modules/custom/dkan_client_demo_vue/
+!dkan/docroot/modules/custom/dkan_client_setup/
 
 # Ignore node_modules in custom modules
 dkan/docroot/modules/custom/*/node_modules/
@@ -81,8 +82,12 @@ dkan/docroot/modules/custom/*/node_modules/
 !dkan/composer.json
 !dkan/composer.lock
 
-# Keep README for setup instructions
+# Keep README and documentation
 !dkan/README.md
+!dkan/TESTING.md
+
+# Keep setup scripts
+!dkan/scripts/
 
 # Claude Code local settings
 .claude/

@@ -1,0 +1,9 @@
+name: 'DKAN Client Setup'
+core_version_requirement: ^10 || ^11
+type: module
+description: 'Provides Drush commands for automated DKAN client tools demo setup'
+package: 'DKAN Client Tools'
+dependencies:
+  - drupal:node
+  - drupal:block
+  - drupal:path

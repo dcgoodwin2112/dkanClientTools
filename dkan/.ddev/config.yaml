@@ -11,8 +11,23 @@ database:
     version: "10.11"
 use_dns_when_possible: true
 composer_version: "2"
-web_environment: []
+web_environment:
+    - DKAN_URL=https://dkan.ddev.site
+    - DKAN_USER=admin
+    - DKAN_PASS=admin
 corepack_enable: false
+
+# Hooks for automated setup
+hooks:
+  post-start:
+    - exec: |
+        if drush status --field=bootstrap 2>/dev/null | grep -q "Successful"; then
+          echo "Drupal is installed. Running automated setup..."
+          cd /var/www/html && bash scripts/setup-site.sh
+        else
+          echo "Drupal not installed. Skipping automated setup."
+          echo "Run 'ddev drush si --account-pass=admin -y' to install Drupal."
+        fi
 
 # Key features of DDEV's config.yaml:
 

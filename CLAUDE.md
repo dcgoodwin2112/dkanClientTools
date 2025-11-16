@@ -261,32 +261,61 @@ export function useMyMutation() {
 
 ## DKAN Development Environment
 
-The `/dkan` directory contains a Drupal 11 + DKAN 2.x site managed by DDEV.
+The `/dkan` directory contains a Drupal 10 + DKAN 2.x site with automated setup.
 
 **Access**: https://dkan.ddev.site (admin/admin)
+
+**Demo Pages**:
+- Vanilla JS: https://dkan.ddev.site/vanilla-demo
+- React: https://dkan.ddev.site/react-demo
+- Vue: https://dkan.ddev.site/vue-demo
+
+**Automated Setup**:
+```bash
+# Fresh install
+cd dkan
+ddev drush si --account-pass=admin -y
+ddev start  # Automated setup runs on post-start hook
+
+# Manual setup script
+ddev exec bash scripts/setup-site.sh
+
+# Complete rebuild (destroys database)
+ddev exec bash scripts/rebuild-site.sh
+```
+
+**Automation Drush Commands**:
+```bash
+ddev drush dkan-client:create-demo-pages  # Create demo pages
+ddev drush dkan-client:place-blocks       # Place demo blocks
+ddev drush dkan-client:setup              # Complete setup (pages + blocks)
+```
 
 **Common Commands**:
 ```bash
 # DDEV
-ddev start                                      # Start environment
-ddev stop                                       # Stop environment
-ddev ssh                                        # SSH into container
+ddev start                                # Start environment
+ddev stop                                 # Stop environment
+ddev restart                              # Restart environment
+ddev ssh                                  # SSH into container
 
 # Drush
-ddev drush cr                                   # Clear cache
-ddev drush dkan:sample-content:create           # Create sample datasets
-ddev drush dkan:harvest:list                    # List harvest plans
-ddev drush dkan:dataset-info [uuid]             # Show dataset info
+ddev drush cr                             # Clear cache
+ddev drush status                         # Check Drupal status
+ddev drush dkan:sample-content:create     # Create 49 sample datasets
+ddev drush dkan:harvest:list              # List harvest plans
+ddev drush dkan:dataset-info [uuid]       # Show dataset info
 
 # Composer
-ddev composer require [package]                 # Add package
+ddev composer require [package]           # Add package
+ddev composer install                     # Install dependencies
 ```
 
 **Development Workflow**:
-1. `ddev start`
-2. Make changes in `dkan/docroot/`
+1. `ddev start` (automated setup runs if Drupal is installed)
+2. Make changes in `dkan/docroot/modules/custom/`
 3. `ddev drush cr` to clear cache
-4. Test changes
+4. Test changes at demo pages
 
 **Important**: Drupal web root is `docroot/` (not `web/`). All commands must be prefixed with `ddev`.
 
@@ -534,6 +563,10 @@ Fetch a single dataset by identifier.
 - Create feature branches for work
 - Concise commit messages - no hype
 - Follow conventional commit format when applicable
+- Include Claude Code attribution in commit messages and PR descriptions:
+  - Commit: Add at end of commit body (not subject line)
+  - PR: Add at bottom of description with separator line
+  - Format: `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
 
 **Important Notes**:
 - Dataset Properties API endpoints return 404 in DKAN 2.x (not available)
