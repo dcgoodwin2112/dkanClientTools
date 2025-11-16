@@ -800,31 +800,20 @@ export class DkanApiClient {
   /**
    * Partially update a dataset (PATCH)
    *
-   * Updates only the specified properties, leaving others unchanged.
+   * Updates only specified properties, leaving others unchanged.
    * More efficient than updateDataset() when modifying a few fields.
    *
-   * Requires authentication with dataset update permissions.
-   *
-   * @param identifier - Dataset identifier
    * @param partialDataset - Partial dataset with only fields to update
-   * @returns Write response containing the updated identifier
-   * @throws {DkanApiError} If dataset not found or authentication fails
+   * @returns Write response with updated identifier
+   * @throws {DkanApiError} Requires authentication with update permissions
    *
    * @example
    * ```typescript
-   * // Update only the description and modified date
-   * await client.patchDataset('water-quality-2025', {
+   * await client.patchDataset('dataset-id', {
    *   description: 'Updated description',
+   *   keyword: ['water', 'quality'],
    *   modified: new Date().toISOString()
-   * });
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // Add keywords to existing dataset
-   * await client.patchDataset('water-quality-2025', {
-   *   keyword: ['water', 'environment', 'quality', 'monitoring']
-   * });
+   * })
    * ```
    *
    * @see updateDataset for full replacement
@@ -1182,108 +1171,23 @@ export class DkanApiClient {
   // ==================== SQL QUERY ====================
 
   /**
-   * Execute a SQL query against the datastore using DKAN's bracket syntax.
+   * Execute SQL query using DKAN bracket syntax.
    *
-   * **IMPORTANT**: DKAN uses a custom SQL syntax with brackets, NOT standard SQL!
+   * Format: `[SELECT cols FROM dist-id][WHERE cond][ORDER BY field ASC][LIMIT n];`
    *
-   * ## Bracket Syntax Requirements
-   *
-   * Each SQL clause must be wrapped in brackets:
-   * - `[SELECT columns FROM distribution-id]`
-   * - `[WHERE conditions]`
-   * - `[ORDER BY fields ASC|DESC]`
-   * - `[LIMIT n OFFSET m]`
-   * - Query must end with `;`
-   *
-   * ## Getting the Distribution Identifier
-   *
-   * Use the `showReferenceIds` option to get distribution identifiers:
-   *
-   * ```typescript
-   * const dataset = await client.getDataset('dataset-id', { showReferenceIds: true });
-   * const distributionId = dataset.distribution[0].identifier;
-   * ```
-   *
-   * ## Syntax Rules
-   *
-   * 1. **No spaces after commas** in SELECT: `[SELECT a,b,c FROM id]` ✓ not `[SELECT a, b, c FROM id]` ✗
-   * 2. **Double quotes for strings**: `[WHERE status = "active"]` ✓
-   * 3. **ORDER BY requires ASC or DESC**: `[ORDER BY name ASC]` ✓
-   * 4. **AND is the only boolean operator**: `[WHERE a = "1" AND b = "2"]` ✓
-   * 5. **End with semicolon**: `[SELECT * FROM id];` ✓
-   *
-   * ## Pagination
-   *
-   * DKAN has a default 500 record limit. Use LIMIT and OFFSET for pagination:
-   *
-   * ```typescript
-   * // First page
-   * await client.querySql({
-   *   query: '[SELECT * FROM dist-id][LIMIT 500 OFFSET 0];'
-   * });
-   *
-   * // Second page
-   * await client.querySql({
-   *   query: '[SELECT * FROM dist-id][LIMIT 500 OFFSET 500];'
-   * });
-   * ```
-   *
-   * ## Using show_db_columns
-   *
-   * Returns database column names instead of human-readable headers.
-   * Useful when column descriptions are very long:
-   *
-   * ```typescript
-   * const result = await client.querySql({
-   *   query: '[SELECT * FROM dist-id][LIMIT 10];',
-   *   show_db_columns: true
-   * });
-   * ```
-   *
-   * @param options - Query options
-   * @param options.query - SQL query in bracket syntax
+   * @param options.query - SQL in bracket syntax
    * @param options.show_db_columns - Return DB column names instead of descriptions
-   * @param options.method - HTTP method (GET or POST). Defaults to GET.
-   * @returns Array of row objects
+   * @param options.method - HTTP method (GET or POST, default: GET)
+   * @returns Query results
    *
    * @example
-   * Simple query:
    * ```typescript
    * const results = await client.querySql({
-   *   query: '[SELECT * FROM 6ca7e14e-8f28-5337-84f9-1086c4a0b820][LIMIT 10];'
-   * });
+   *   query: '[SELECT * FROM dist-123][LIMIT 10];'
+   * })
    * ```
    *
-   * @example
-   * Query with WHERE and ORDER BY:
-   * ```typescript
-   * const results = await client.querySql({
-   *   query: '[SELECT name,status FROM dist-id][WHERE status = "active"][ORDER BY name ASC][LIMIT 100];'
-   * });
-   * ```
-   *
-   * @example
-   * COUNT query:
-   * ```typescript
-   * const results = await client.querySql({
-   *   query: '[SELECT COUNT(*) FROM dist-id];'
-   * });
-   * console.log(results[0].expression); // Total count
-   * ```
-   *
-   * @example
-   * Using POST method for complex queries:
-   * ```typescript
-   * const results = await client.querySql({
-   *   query: '[SELECT * FROM dist-id][WHERE field = "value with spaces"][LIMIT 100];',
-   *   method: 'POST'
-   * });
-   * ```
-   *
-   * @throws {DkanApiError} If query syntax is invalid or distribution not found
-   *
-   * @see https://dkan.readthedocs.io/en/latest/user-guide/guide_api.html - DKAN API documentation
-   * @see https://github.com/GetDKAN/dkan - DKAN project on GitHub
+   * @see {@link ../../docs/external/platforms/DKAN_API.md#sql-queries-bracket-notation---complete-guide | Complete SQL Query Guide}
    */
   async querySql(options: SqlQueryOptions): Promise<SqlQueryResult> {
     const method = options.method || 'GET'
@@ -1321,63 +1225,24 @@ export class DkanApiClient {
   // ==================== DATA DICTIONARY CRUD ====================
 
   /**
-   * Create a new data dictionary
+   * Create a new data dictionary.
    *
-   * Creates a new data dictionary in the metastore. Data dictionaries follow
-   * the Frictionless Table Schema specification and define column schemas,
-   * types, constraints, and descriptions for distributions.
-   *
-   * Requires authentication with data dictionary create permissions.
-   *
-   * @param dictionary - Data dictionary object with fields and schema
-   * @returns Write response containing the dictionary identifier and endpoint
-   * @throws {DkanApiError} If authentication fails, validation fails, or request fails
+   * @param dictionary.identifier - Unique identifier for the dictionary
+   * @param dictionary.data - Frictionless table schema
+   * @returns Metastore write response with identifier
+   * @throws {DkanApiError} Requires authentication with create permissions
    *
    * @example
    * ```typescript
-   * const dictionary = {
-   *   identifier: 'dict-water-quality',
-   *   version: '1.0',
+   * await client.createDataDictionary({
+   *   identifier: 'dict-id',
    *   data: {
-   *     title: 'Water Quality Data Dictionary',
-   *     fields: [
-   *       {
-   *         name: 'station_id',
-   *         title: 'Station Identifier',
-   *         type: 'string',
-   *         description: 'Unique identifier for the monitoring station',
-   *         constraints: {
-   *           required: true,
-   *           unique: true
-   *         }
-   *       },
-   *       {
-   *         name: 'temperature',
-   *         title: 'Water Temperature',
-   *         type: 'number',
-   *         description: 'Water temperature in degrees Celsius',
-   *         constraints: {
-   *           minimum: 0,
-   *           maximum: 40
-   *         }
-   *       },
-   *       {
-   *         name: 'ph_level',
-   *         title: 'pH Level',
-   *         type: 'number',
-   *         description: 'pH measurement',
-   *         constraints: {
-   *           minimum: 0,
-   *           maximum: 14
-   *         }
-   *       }
-   *     ]
+   *     fields: [{ name: 'temperature', type: 'number', title: 'Water Temperature' }]
    *   }
-   * };
-   *
-   * const response = await client.createDataDictionary(dictionary);
-   * console.log(`Created dictionary: ${response.identifier}`);
+   * })
    * ```
+   *
+   * @see {@link ../../docs/external/standards/DATA_STANDARDS.md#creating-and-updating-data-dictionaries | Data Dictionary Guide}
    */
   async createDataDictionary(
     dictionary: DataDictionary
@@ -1393,38 +1258,22 @@ export class DkanApiClient {
   }
 
   /**
-   * Update an existing data dictionary (full replacement)
+   * Update an existing data dictionary (full replacement).
    *
-   * Replaces an entire data dictionary with new field definitions.
    * All fields must be provided - use PATCH for partial updates.
    *
-   * Requires authentication with data dictionary update permissions.
-   *
-   * @param identifier - Data dictionary identifier (UUID or custom ID)
    * @param dictionary - Complete replacement data dictionary object
-   * @returns Write response containing the updated identifier
-   * @throws {DkanApiError} If data dictionary not found, authentication fails, or validation fails
+   * @returns Metastore write response with identifier
+   * @throws {DkanApiError} Requires authentication with update permissions
    *
    * @example
    * ```typescript
-   * // Get existing dictionary
-   * const existing = await client.getDataDictionary('dict-water-quality');
-   *
-   * // Add a new field
-   * existing.data.fields.push({
-   *   name: 'dissolved_oxygen',
-   *   title: 'Dissolved Oxygen',
-   *   type: 'number',
-   *   description: 'Dissolved oxygen in mg/L',
-   *   constraints: {
-   *     minimum: 0,
-   *     maximum: 20
-   *   }
-   * });
-   *
-   * // Update the dictionary
-   * await client.updateDataDictionary('dict-water-quality', existing);
+   * const existing = await client.getDataDictionary('dict-id')
+   * existing.data.fields.push({ name: 'new_field', type: 'string' })
+   * await client.updateDataDictionary('dict-id', existing)
    * ```
+   *
+   * @see {@link ../../docs/external/standards/DATA_STANDARDS.md#creating-and-updating-data-dictionaries | Data Dictionary Guide}
    */
   async updateDataDictionary(
     identifier: string,
@@ -1466,28 +1315,14 @@ export class DkanApiClient {
   /**
    * Get OpenAPI specification URL
    *
-   * Returns the URL to the machine-readable OpenAPI 3.0 specification in JSON format.
-   * This document can be consumed by API documentation tools like Swagger UI, Redoc,
-   * or Postman to provide interactive API documentation.
+   * Returns URL to OpenAPI 3.0 spec for use with Swagger UI, Redoc, or Postman.
    *
-   * @returns URL to the OpenAPI specification (e.g., 'https://dkan.example.com/api/1')
+   * @returns URL to OpenAPI specification
    *
    * @example
-   * View in Swagger UI:
    * ```typescript
    * const specUrl = client.getOpenApiDocsUrl()
-   * // Open in Swagger UI hosted online
    * window.open(`https://petstore.swagger.io/?url=${encodeURIComponent(specUrl)}`)
-   * ```
-   *
-   * @example
-   * Fetch and inspect the spec:
-   * ```typescript
-   * const specUrl = client.getOpenApiDocsUrl()
-   * const response = await fetch(specUrl)
-   * const openApiSpec = await response.json()
-   * console.log(`API Version: ${openApiSpec.info.version}`)
-   * console.log(`Available paths: ${Object.keys(openApiSpec.paths).length}`)
    * ```
    */
   getOpenApiDocsUrl(): string {

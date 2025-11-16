@@ -537,6 +537,174 @@ Not currently in dkanClientTools types, but part of Frictionless spec:
 }
 ```
 
+### Creating and Updating Data Dictionaries
+
+Data dictionaries in DKAN use the Frictionless Data Table Schema format to define column schemas and constraints for dataset distributions.
+
+#### Schema Structure
+
+```typescript
+interface DataDictionary {
+  identifier: string          // Unique ID for the dictionary
+  version?: string            // Version string
+  data: {
+    title?: string           // Dictionary title
+    fields: SchemaField[]    // Array of field definitions
+    missingValues?: string[] // Values to treat as null
+    primaryKey?: string[]    // Primary key field(s)
+    foreignKeys?: ForeignKey[] // Foreign key relationships
+  }
+}
+```
+
+#### Field Types
+
+Supported types from Frictionless spec:
+
+- `string` - Text data
+- `number` - Numeric (integer or decimal)
+- `integer` - Whole numbers only
+- `boolean` - true/false
+- `date` - ISO 8601 date (YYYY-MM-DD)
+- `datetime` - ISO 8601 datetime
+- `time` - ISO 8601 time
+- `year` - Four-digit year
+- `yearmonth` - YYYY-MM format
+- `duration` - ISO 8601 duration
+- `geopoint` - Lat/long coordinates
+- `geojson` - GeoJSON geometry
+- `object` - JSON object
+- `array` - JSON array
+- `any` - No type constraint
+
+#### Field Constraints
+
+```typescript
+interface SchemaField {
+  name: string              // Database column name (required)
+  title?: string           // Human-readable label
+  type?: string            // Field type (default: 'string')
+  format?: string          // Format specification
+  description?: string     // Field description
+  constraints?: {
+    required?: boolean     // Cannot be null/missing
+    unique?: boolean       // Values must be unique
+    enum?: string[]        // Allowed values only
+    minimum?: number       // Min value (numbers)
+    maximum?: number       // Max value (numbers)
+    minLength?: number     // Min length (strings)
+    maxLength?: number     // Max length (strings)
+    pattern?: string       // Regex pattern (strings)
+  }
+}
+```
+
+#### Complete Example: Water Quality Monitoring
+
+```typescript
+const dictionary = {
+  identifier: 'dict-water-quality',
+  version: '1.0',
+  data: {
+    title: 'Water Quality Data Dictionary',
+    fields: [
+      {
+        name: 'station_id',
+        title: 'Station Identifier',
+        type: 'string',
+        description: 'Unique identifier for the monitoring station',
+        constraints: {
+          required: true,
+          unique: true
+        }
+      },
+      {
+        name: 'temperature',
+        title: 'Water Temperature',
+        type: 'number',
+        description: 'Water temperature in degrees Celsius',
+        constraints: {
+          minimum: 0,
+          maximum: 40
+        }
+      },
+      {
+        name: 'ph_level',
+        title: 'pH Level',
+        type: 'number',
+        description: 'pH measurement',
+        constraints: {
+          minimum: 0,
+          maximum: 14
+        }
+      }
+    ]
+  }
+}
+
+const response = await client.createDataDictionary(dictionary)
+console.log(`Created dictionary: ${response.identifier}`)
+```
+
+#### Updating Data Dictionaries
+
+Updates use PUT (full replacement). All fields must be provided:
+
+```typescript
+// Get existing dictionary
+const existing = await client.getDataDictionary('dict-water-quality')
+
+// Add a new field
+existing.data.fields.push({
+  name: 'dissolved_oxygen',
+  title: 'Dissolved Oxygen',
+  type: 'number',
+  description: 'Dissolved oxygen in mg/L',
+  constraints: {
+    minimum: 0,
+    maximum: 20
+  }
+})
+
+// Update the dictionary (full replacement)
+await client.updateDataDictionary('dict-water-quality', existing)
+```
+
+**Common update patterns:**
+- Add new fields to fields array
+- Modify constraints on existing fields
+- Update field titles/descriptions
+- Change field types (with caution - may affect existing data)
+
+#### Best Practices
+
+1. **Field Names**: Use lowercase with underscores (snake_case)
+2. **Required Fields**: Mark essential fields as required
+3. **Constraints**: Add appropriate constraints for data validation
+4. **Descriptions**: Provide clear descriptions for all fields
+5. **Types**: Choose specific types over generic 'string' when possible
+6. **Updates**: Test dictionary changes on sample data first
+7. **Primary Keys**: Define primary keys for unique record identification
+
+#### Integration with Distributions
+
+Data dictionaries are linked to distributions via the `describedBy` property:
+
+```typescript
+{
+  distribution: [{
+    "@type": "dcat:Distribution",
+    "identifier": "dist-123",
+    "describedBy": "https://data.example.com/api/1/metastore/schemas/data-dictionary/items/dict-water-quality"
+  }]
+}
+```
+
+When a distribution has a `describedBy`, DKAN uses that dictionary for:
+- Column headers in datastore queries
+- Data validation during imports
+- API response formatting
+
 ---
 
 ## Implementation Patterns

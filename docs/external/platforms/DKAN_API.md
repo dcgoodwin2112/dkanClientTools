@@ -1251,38 +1251,16 @@ GET /api/1/datastore/query/{dataset_id}/{index}?schema=true
 
 Returns schema without data rows.
 
-### SQL Queries
+### SQL Queries (Bracket Notation) - Complete Guide
 
 **IMPORTANT:** DKAN uses custom bracket syntax, NOT standard SQL!
+
+#### API Endpoints
 
 ```http
 GET /api/1/datastore/sql?query=[SELECT * FROM dist-id][LIMIT 10];
 ```
 
-**Bracket Syntax Rules:**
-1. Each clause wrapped in brackets: `[SELECT ...]`
-2. No spaces after commas: `SELECT a,b,c`
-3. Double quotes for strings: `WHERE status = "active"`
-4. ORDER BY requires ASC/DESC: `ORDER BY name ASC`
-5. AND is only boolean operator
-6. End with semicolon
-
-**Examples:**
-```sql
--- Simple query
-[SELECT * FROM {distribution-id}][LIMIT 10];
-
--- With filters
-[SELECT name,status FROM {dist-id}][WHERE status = "active"][ORDER BY name ASC][LIMIT 100];
-
--- Count query
-[SELECT COUNT(*) FROM {dist-id}];
-
--- Pagination
-[SELECT * FROM {dist-id}][LIMIT 500 OFFSET 1000];
-```
-
-**POST Method:**
 ```http
 POST /api/1/datastore/sql
 Content-Type: application/json
@@ -1292,6 +1270,123 @@ Content-Type: application/json
   "show_db_columns": false
 }
 ```
+
+#### Bracket Syntax Format
+
+Each SQL clause must be wrapped in brackets:
+
+```
+[SELECT columns FROM distribution-id][WHERE conditions][ORDER BY fields ASC|DESC][LIMIT n OFFSET m];
+```
+
+**Key Requirements:**
+- Each clause wrapped in brackets: `[SELECT ...]`, `[WHERE ...]`, `[ORDER BY ...]`
+- Query must end with semicolon (`;`)
+- Distribution ID can use UUID or placeholder
+
+#### Getting Distribution Identifiers
+
+Distribution identifiers are UUIDs that reference specific datastore tables. Get them using:
+
+**Method 1: From dataset metadata with showReferenceIds**
+```typescript
+const dataset = await client.getDataset('dataset-id', { showReferenceIds: true })
+const distributionId = dataset.distribution[0].identifier
+```
+
+**Method 2: From datastore query response**
+```typescript
+const result = await client.queryDatastore('dataset-id', 0)
+const distributionId = result.schema.identifier
+```
+
+#### Syntax Rules
+
+1. **No spaces after commas** in SELECT: `[SELECT a,b,c FROM id]` ✓ not `[SELECT a, b, c FROM id]` ✗
+2. **Double quotes for strings**: `[WHERE status = "active"]` ✓
+3. **ORDER BY requires ASC or DESC**: `[ORDER BY name ASC]` ✓
+4. **AND is the only boolean operator**: `[WHERE a = "1" AND b = "2"]` ✓
+5. **End with semicolon**: `[SELECT * FROM id];` ✓
+
+#### Pagination
+
+DKAN has a default 500 record limit. Use LIMIT and OFFSET for pagination:
+
+```sql
+-- First page (records 1-500)
+[SELECT * FROM {dist-id}][LIMIT 500 OFFSET 0];
+
+-- Second page (records 501-1000)
+[SELECT * FROM {dist-id}][LIMIT 500 OFFSET 500];
+
+-- Third page (records 1001-1500)
+[SELECT * FROM {dist-id}][LIMIT 500 OFFSET 1000];
+```
+
+#### show_db_columns Parameter
+
+Controls column header format in responses:
+
+- `show_db_columns: false` (default) - Returns human-readable field titles from data dictionary
+- `show_db_columns: true` - Returns database column names (e.g., `field_1`, `field_2`)
+
+**When to use `show_db_columns: true`:**
+- Field descriptions are very long
+- Working with raw database columns
+- Debugging schema issues
+
+#### Query Examples
+
+**Simple Query:**
+```sql
+[SELECT * FROM {6ca7e14e-8f28-5337-84f9-1086c4a0b820}][LIMIT 10];
+```
+
+**Query with WHERE and ORDER BY:**
+```sql
+[SELECT name,status FROM {dist-id}][WHERE status = "active"][ORDER BY name ASC][LIMIT 100];
+```
+
+**COUNT Query:**
+```sql
+[SELECT COUNT(*) FROM {dist-id}];
+```
+
+**Note:** COUNT results appear in `expression` field:
+```typescript
+const results = await client.querySql({
+  query: '[SELECT COUNT(*) FROM {dist-id}];'
+})
+console.log(results[0].expression) // Total count
+```
+
+**Using POST Method:**
+
+Use POST for complex queries with special characters or long query strings:
+
+```typescript
+const results = await client.querySql({
+  query: '[SELECT * FROM {dist-id}][WHERE field = "value with spaces"][LIMIT 100];',
+  method: 'POST'
+})
+```
+
+**With show_db_columns:**
+```typescript
+const result = await client.querySql({
+  query: '[SELECT * FROM {dist-id}][LIMIT 10];',
+  show_db_columns: true
+})
+```
+
+#### Error Handling
+
+Common errors and solutions:
+
+- **Invalid syntax**: Check for missing semicolon, spaces in brackets
+- **Distribution not found**: Verify distribution ID is correct
+- **Invalid column names**: Check field names match schema
+- **Query too complex**: Try POST method instead of GET
 
 ### Download Data
 
