@@ -62,217 +62,34 @@ npm test -- src/__tests__/integration
 
 ### 1. Unit Tests (187 tests)
 
-#### DkanApiClient (`api/client.test.ts` - 18 tests)
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| `api/client.test.ts` | 18 | HTTP client core: config, auth, retry logic, request handling |
+| `api/dataset.test.ts` | 16 | Dataset operations: get, search, list, create, update, patch, delete |
+| `api/datastore-query.test.ts` | 14 | Datastore queries: filters, conditions, sorting, pagination, multi-resource |
+| `api/data-dictionary.test.ts` | 12 | Data dictionary CRUD operations and schema retrieval |
+| `api/metastore.test.ts` | 12 | Metastore schemas, facets, and OpenAPI documentation |
+| `api/edge-cases.test.ts` | 35 | Large pagination, Unicode/special chars, malformed responses, network errors, boundary values |
+| `api/harvest.test.ts` | 6 | Harvest plan and run operations |
+| `api/datastore-downloads.test.ts` | 4 | CSV download operations |
+| `api/revisions.test.ts` | 4 | Revision and moderation workflows |
+| `api/datastore-imports.test.ts` | 4 | Datastore import operations |
+| `api/sql-queries.test.ts` | 3 | SQL bracket syntax queries |
+| `client/dkanClient.test.ts` | 21 | DkanClient coordinator: setup, mount/unmount, API delegation, cache operations |
+| `types.test.ts` | 6 | DkanApiError class functionality |
 
-Tests for HTTP API client core functionality:
-
-**Constructor & Configuration:**
-- Basic client creation
-- Trailing slash handling in baseUrl
-- Custom default options
-- Token authentication
-- Basic authentication (username/password)
-
-**Dataset Operations:**
-- Fetch single dataset by identifier
-- Bearer token authorization header
-- Basic auth authorization header
-- HTTP error handling (404, etc.)
-
-**Search Operations:**
-- Search with no filters
-- Search with keyword filter
-- Search with multiple filters (pagination, sorting)
-- Results object → array transformation
-- Total count parsing (string to number)
-
-**Datastore Queries:**
-- POST request with query options
-- Complex query conditions, filters, sorts
-
-**Retry Logic:**
-- Retry on network failures with backoff
-- Max retries handling
-- No retry on HTTP errors (404, etc.)
-
-#### Dataset Operations (`api/dataset.test.ts` - 16 tests)
-
-- Get single dataset
-- Search datasets with filters
-- List all datasets
-- Create dataset (POST)
-- Update dataset (PUT)
-- Patch dataset (PATCH)
-- Delete dataset (DELETE)
-- Error handling for all operations
-
-#### Datastore Query (`api/datastore-query.test.ts` - 14 tests)
-
-- Query datastore with filters
-- Complex conditions and operators
-- Sorting and pagination
-- Multi-resource queries
-- GET/POST method switching
-- Schema retrieval
-
-#### Data Dictionary (`api/data-dictionary.test.ts` - 12 tests)
-
-- Get dictionary by dataset/index
-- Get dictionary from URL
-- List all dictionaries
-- Get datastore schema
-- Create dictionary
-- Update dictionary
-- Delete dictionary
-
-#### Metastore (`api/metastore.test.ts` - 12 tests)
-
-- List schemas
-- Get schema items
-- Get dataset facets
-- Get schema definition
-- OpenAPI documentation
-
-#### Edge Cases (`api/edge-cases.test.ts` - 35 tests)
-
-Tests for edge cases and boundary conditions:
-
-**Large Pagination:**
-- Very large offset values (page 1000+)
-- Offset beyond available results
-- Maximum page size (1000+)
-- Datastore queries with large limits (10,000+)
-- Offset exceeding available rows
-
-**Unicode and Special Characters:**
-- Unicode in dataset identifiers (Chinese, emojis)
-- Unicode in search queries (French, Japanese, Arabic, Greek, Russian)
-- Special characters in datastore queries (apostrophes, ampersands)
-- Unicode in dataset titles and descriptions
-- Emoji support in metadata
-
-**Malformed Responses:**
-- Malformed JSON in error responses
-- Empty response bodies
-- Missing required fields
-- Unexpected JSON structure
-- JSON parsing errors
-- Partial JSON responses
-
-**Empty and Null Values:**
-- Empty string identifiers
-- Null values in dataset fields
-- Empty search results
-- Empty condition arrays
-- Undefined optional parameters
-
-**Network and Timeout:**
-- Network timeout scenarios
-- Connection refused errors
-- DNS resolution failures
-- Abort signals
-
-**Boundary Values:**
-- Zero as page size
-- Negative offsets (API rejection)
-- Very long identifiers (500+ chars)
-- Very long search queries
-- Maximum safe integer values
-
-**Special Query Conditions:**
-- Wildcard characters with LIKE operator
-- Regex patterns with match operator
-- Multiple conditions with different operators
-- Multi-field sorting edge cases
-
-#### Other API Tests
-
-- Harvest operations (6 tests)
-- Datastore downloads (4 tests)
-- Revisions/moderation (4 tests)
-- Datastore imports (4 tests)
-- SQL queries (3 tests)
-
-#### DkanClient (`client/dkanClient.test.ts` - 21 tests)
-
-Tests for main client coordinator:
-
-**Constructor & Setup:**
-- Basic client creation
-- Custom QueryClient injection
-- QueryClient with default options
-- Sensible defaults when no options provided
-
-**Mount/Unmount:**
-- Mount count tracking
-- Single QueryClient mount on first component
-- Unmount only when count reaches zero
-- isMounted() status checking
-
-**API Delegation:**
-- fetchDataset delegation to API client
-- searchDatasets delegation with options
-- queryDatastore delegation with parameters
-
-**Query Cache Operations:**
-- Prefetch queries
-- Get cached query data
-- Set query data manually
-- Invalidate queries
-- Clear all caches
-- Remove specific queries
-- Access query cache
-
-**Integration:**
-- End-to-end with real QueryClient
-- Multiple concurrent operations
-- Error propagation from API client
-
-#### Type Utilities (`types.test.ts` - 6 tests)
-
-Tests for the custom error class:
-- Error creation with message only
-- Error with status code
-- Error with status code and response data
-- Prototype chain verification
-- Error catching and instanceof checks
-- Stack trace preservation
+**Key Coverage Areas**: Configuration and authentication, all DKAN API operations, error handling, retry logic with exponential backoff, edge cases (Unicode, pagination, malformed data, network failures), TanStack Query integration.
 
 ### 2. Integration Tests (38 tests)
 
-Integration tests use real API responses recorded from a live DKAN 2.21.2 instance as fixtures.
+| Test File | Tests | Purpose |
+|-----------|-------|---------|
+| `dataset.integration.test.ts` | 17 | DCAT-US schema validation with real API responses |
+| `data-dictionary.integration.test.ts` | 12 | Frictionless table schema compliance |
+| `metastore.integration.test.ts` | 10 | Schema definitions and OpenAPI docs |
+| `fixture-stability.test.ts` | 11 | Fixture age monitoring and API coverage tracking |
 
-#### Dataset Integration (`dataset.integration.test.ts` - 17 tests)
-
-- Validates fixture structure against DCAT-US schema
-- Tests all dataset operations with real responses
-- Verifies pagination and search filters
-- Validates error responses
-
-#### Data Dictionary Integration (`data-dictionary.integration.test.ts` - 12 tests)
-
-- Validates Frictionless table schema compliance
-- Tests dictionary operations with real data
-- Verifies field definitions and constraints
-
-#### Metastore Integration (`metastore.integration.test.ts` - 10 tests)
-
-- Validates schema definitions
-- Tests facet responses
-- Verifies OpenAPI documentation structure
-
-#### Fixture Stability (`fixture-stability.test.ts` - 11 tests)
-
-- Monitors fixture age (warns if > 30 days old)
-- Validates fixture structure consistency
-- Ensures DCAT-US schema compliance
-- Tracks API coverage (35/38 methods have fixtures = 92%)
-
-**Fixture Coverage:**
-- 35 out of 38 API methods have recorded fixtures
-- Fixtures include success and error scenarios
-- Real data from DKAN 2.21.2 instance
-- Located in `src/__tests__/fixtures/`
+**Fixture Coverage**: 35/38 API methods (92%) with real responses from DKAN 2.21.2 instance. See [Fixtures Documentation](src/__tests__/fixtures/README.md) for details.
 
 ## Mock Strategy
 
@@ -314,63 +131,50 @@ expect(actualResponse).toMatchObject(getDatasetResponse.response)
 
 ## Test Patterns
 
-### Testing Async Operations
+### Async Operations
 
 ```typescript
 it('should fetch dataset', async () => {
   mockFetch.mockResolvedValueOnce({ /* response */ })
-
   const result = await client.getDataset('test-id')
-
   expect(result).toEqual(expectedData)
 })
 ```
 
-### Testing Error Handling
+### Error Handling
 
 ```typescript
 it('should throw DkanApiError', async () => {
-  mockFetch.mockResolvedValueOnce({
-    ok: false,
-    status: 404,
-    text: async () => 'Not found',
-  })
-
+  mockFetch.mockResolvedValueOnce({ ok: false, status: 404, text: async () => 'Not found' })
   await expect(client.getDataset('invalid')).rejects.toThrow(DkanApiError)
 })
 ```
 
-### Testing Retry Logic with Fake Timers
+### Retry Logic with Fake Timers
 
 ```typescript
 it('should retry on failure', async () => {
   vi.useFakeTimers()
-
-  mockFetch
-    .mockRejectedValueOnce(new Error('Network error'))
-    .mockResolvedValueOnce({ ok: true, /* ... */ })
+  mockFetch.mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce({ ok: true })
 
   const promise = client.getDataset('test')
   await vi.advanceTimersByTimeAsync(1000)
 
-  const result = await promise
+  expect(await promise).toBeDefined()
   expect(mockFetch).toHaveBeenCalledTimes(2)
-
   vi.useRealTimers()
 })
 ```
 
-### Testing with Fixtures
+### Fixture Validation
 
 ```typescript
 import fixtures from './fixtures/dataset-operations.json'
 
-it('should match real API response structure', () => {
+it('should match real API structure', () => {
   const fixture = fixtures.find(f => f.method === 'getDataset')
-
   expect(fixture.response).toMatchObject({
     identifier: expect.any(String),
-    title: expect.any(String),
     '@type': 'dcat:Dataset'
   })
 })
