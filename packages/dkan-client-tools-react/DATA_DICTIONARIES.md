@@ -15,149 +15,41 @@ Data dictionaries ensure proper data typing when CSV data imports into the datas
 
 ## React Hooks
 
-### useDataDictionary
-
-Fetch a specific data dictionary by identifier.
-
 ```tsx
-import { useDataDictionary } from '@dkan-client-tools/react'
+import {
+  useDataDictionary,
+  useDataDictionaryList,
+  useDataDictionaryFromUrl,
+  useDatastoreSchema
+} from '@dkan-client-tools/react'
 
-function DataDictionaryViewer({ dictionaryId }: { dictionaryId: string }) {
-  const { data, isLoading, error } = useDataDictionary({
-    identifier: dictionaryId
-  })
+// Get specific dictionary
+const { data } = useDataDictionary({ identifier: 'dict-id' })
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
-  if (!data) return null
+// List all dictionaries
+const { data: dictionaries } = useDataDictionaryList()
 
-  return (
-    <div>
-      <h2>{data.data.title}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Field</th>
-            <th>Type</th>
-            <th>Format</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.data.fields.map(field => (
-            <tr key={field.name}>
-              <td>{field.title || field.name}</td>
-              <td>{field.type}</td>
-              <td>{field.format || 'N/A'}</td>
-              <td>{field.description || ''}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+// Fetch from URL (e.g., distribution.describedBy)
+const { data: dict } = useDataDictionaryFromUrl({ url: 'https://...' })
+
+// Get datastore schema
+const { data: schema } = useDatastoreSchema({ datasetId: 'id', index: 0 })
 ```
 
-### useDataDictionaryList
-
-Fetch all data dictionaries available in the DKAN instance.
-
+**Example: Display fields**
 ```tsx
-import { useDataDictionaryList } from '@dkan-client-tools/react'
-
-function DataDictionaryList() {
-  const { data, isLoading, error } = useDataDictionaryList()
-
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
-  if (!data) return null
+function FieldList({ dictionaryId }: { dictionaryId: string }) {
+  const { data } = useDataDictionary({ identifier: dictionaryId })
 
   return (
     <ul>
-      {data.map(dict => (
-        <li key={dict.identifier}>
-          <a href={`/dictionary/${dict.identifier}`}>
-            {dict.data.title || dict.identifier}
-          </a>
+      {data?.data.fields.map(field => (
+        <li key={field.name}>
+          {field.title || field.name} ({field.type})
+          {field.description && <p>{field.description}</p>}
         </li>
       ))}
     </ul>
-  )
-}
-```
-
-### useDataDictionaryFromUrl
-
-Fetch a data dictionary from a URL (useful for distributions with `describedBy` field).
-
-```tsx
-import { useDataset, useDataDictionaryFromUrl } from '@dkan-client-tools/react'
-
-function DatasetWithDictionary({ datasetId }: { datasetId: string }) {
-  const { data: dataset } = useDataset({ identifier: datasetId })
-  const distribution = dataset?.distribution?.[0]
-
-  const { data: dictionary, isLoading } = useDataDictionaryFromUrl({
-    url: distribution?.describedBy || '',
-    enabled: !!distribution?.describedBy &&
-             distribution.describedByType === 'application/vnd.tableschema+json'
-  })
-
-  if (isLoading) return <div>Loading dictionary...</div>
-
-  if (dictionary) {
-    return (
-      <div>
-        <h3>Data Dictionary: {dictionary.data.title}</h3>
-        <ul>
-          {dictionary.data.fields.map(field => (
-            <li key={field.name}>
-              <strong>{field.title || field.name}</strong> ({field.type})
-              {field.description && <p>{field.description}</p>}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )
-  }
-
-  return <div>No data dictionary available</div>
-}
-```
-
-### useDatastoreSchema
-
-Fetch the datastore schema with data dictionary information for a specific dataset resource.
-
-```tsx
-import { useDatastoreSchema } from '@dkan-client-tools/react'
-
-function DatastoreSchemaViewer({ datasetId }: { datasetId: string }) {
-  const { data, isLoading, error } = useDatastoreSchema({
-    datasetId,
-    index: 0
-  })
-
-  if (isLoading) return <div>Loading schema...</div>
-  if (error) return <div>Error: {error.message}</div>
-  if (!data?.schema) return <div>No schema available</div>
-
-  return (
-    <div>
-      <h3>Datastore Schema</h3>
-      <ul>
-        {data.schema.fields.map(field => (
-          <li key={field.name}>
-            {field.name}: {field.type}
-            {field.format && ` (${field.format})`}
-          </li>
-        ))}
-      </ul>
-      {data.results && (
-        <p>Sample data available: {data.count} rows</p>
-      )}
-    </div>
   )
 }
 ```
@@ -258,155 +150,34 @@ interface DataDictionaryConstraints {
 
 ## Use Cases
 
-### 1. Display Schema Information
+**1. Display Schema Information** - Show field types, formats, constraints to users
 
-Use data dictionaries to show users what fields are available and their types:
+**2. Generate Dynamic Forms** - Create form inputs based on field types and constraints
 
-```tsx
-function SchemaDocumentation({ dictionaryId }: { dictionaryId: string }) {
-  const { data } = useDataDictionary({ identifier: dictionaryId })
+**3. Format Data Display** - Use format information to properly display dates, currency, etc.
 
-  return (
-    <div>
-      {data?.data.fields.map(field => (
-        <div key={field.name}>
-          <h4>{field.title || field.name}</h4>
-          <p><strong>Type:</strong> {field.type}</p>
-          {field.format && <p><strong>Format:</strong> {field.format}</p>}
-          {field.description && <p>{field.description}</p>}
-          {field.constraints && (
-            <ul>
-              {field.constraints.required && <li>Required</li>}
-              {field.constraints.unique && <li>Unique</li>}
-              {field.constraints.minimum !== undefined &&
-                <li>Min: {field.constraints.minimum}</li>}
-              {field.constraints.maximum !== undefined &&
-                <li>Max: {field.constraints.maximum}</li>}
-            </ul>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
-```
-
-### 2. Generate Dynamic Forms
-
-Create forms based on data dictionary schema:
+**4. Validate Data** - Validate user input against constraints (required, min/max, pattern)
 
 ```tsx
+// Example: Dynamic form generation
 function DynamicForm({ dictionaryId }: { dictionaryId: string }) {
   const { data } = useDataDictionary({ identifier: dictionaryId })
 
-  if (!data) return null
-
   return (
     <form>
-      {data.data.fields.map(field => {
-        switch (field.type) {
-          case 'string':
-            return (
-              <input
-                key={field.name}
-                name={field.name}
-                type="text"
-                placeholder={field.title || field.name}
-                required={field.constraints?.required}
-              />
-            )
-          case 'number':
-          case 'integer':
-            return (
-              <input
-                key={field.name}
-                name={field.name}
-                type="number"
-                placeholder={field.title || field.name}
-                min={field.constraints?.minimum}
-                max={field.constraints?.maximum}
-                required={field.constraints?.required}
-              />
-            )
-          case 'date':
-            return (
-              <input
-                key={field.name}
-                name={field.name}
-                type="date"
-                placeholder={field.title || field.name}
-                required={field.constraints?.required}
-              />
-            )
-          default:
-            return null
+      {data?.data.fields.map(field => {
+        if (field.type === 'string') {
+          return <input type="text" name={field.name} required={field.constraints?.required} />
+        }
+        if (field.type === 'number' || field.type === 'integer') {
+          return <input type="number" name={field.name} min={field.constraints?.minimum} />
+        }
+        if (field.type === 'date') {
+          return <input type="date" name={field.name} />
         }
       })}
-      <button type="submit">Submit</button>
     </form>
   )
-}
-```
-
-### 3. Format Data Display
-
-Use format information to properly display data:
-
-```tsx
-function formatValue(value: any, field: DataDictionaryField) {
-  if (field.type === 'date' || field.type === 'datetime') {
-    const date = new Date(value)
-    if (field.format === '%m/%d/%Y') {
-      return date.toLocaleDateString('en-US')
-    }
-    return date.toLocaleDateString()
-  }
-
-  if (field.type === 'number' && field.format === 'currency') {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(value)
-  }
-
-  return value
-}
-```
-
-### 4. Validate Data
-
-Use constraints to validate user input:
-
-```tsx
-function validateField(value: any, field: DataDictionaryField): string | null {
-  if (field.constraints) {
-    if (field.constraints.required && !value) {
-      return `${field.title || field.name} is required`
-    }
-
-    if (field.type === 'number' || field.type === 'integer') {
-      if (field.constraints.minimum !== undefined && value < field.constraints.minimum) {
-        return `Minimum value is ${field.constraints.minimum}`
-      }
-      if (field.constraints.maximum !== undefined && value > field.constraints.maximum) {
-        return `Maximum value is ${field.constraints.maximum}`
-      }
-    }
-
-    if (field.type === 'string') {
-      if (field.constraints.minLength && value.length < field.constraints.minLength) {
-        return `Minimum length is ${field.constraints.minLength}`
-      }
-      if (field.constraints.maxLength && value.length > field.constraints.maxLength) {
-        return `Maximum length is ${field.constraints.maxLength}`
-      }
-      if (field.constraints.pattern && !new RegExp(field.constraints.pattern).test(value)) {
-        return `Invalid format`
-      }
-    }
-  }
-
-  return null
 }
 ```
 
