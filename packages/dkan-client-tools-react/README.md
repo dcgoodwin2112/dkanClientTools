@@ -4,13 +4,13 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 
 ## Features
 
-- ⚛️ **React Hooks** - Idiomatic React integration with 40+ hooks
-- 🔄 **Automatic Refetching** - Smart background updates
-- 💾 **Caching** - Efficient data caching and deduplication
-- 🎯 **TypeScript** - Full type safety with DCAT-US schema
-- 📦 **Tree-shakeable** - Only bundle what you use
-- 🔥 **React 18+** - Optimized for concurrent rendering
-- ✏️ **Mutations** - First-class support for create, update, delete operations
+- React Hooks - 40+ hooks for datasets, datastore, dictionaries, harvest, revisions
+- Automatic Refetching - Smart background updates via TanStack Query
+- Caching - Efficient data caching and deduplication
+- TypeScript - Full type safety with DCAT-US schema
+- Tree-shakeable - ESM/CJS dual build
+- React 18+ - Concurrent rendering support
+- Mutations - Create, update, delete operations with cache invalidation
 
 ## Installation
 
@@ -75,344 +75,120 @@ function DatasetDetail({ id }: { id: string }) {
 
 ## Available Hooks
 
-### Dataset Query Hooks
+### Dataset Hooks
 
-**`useDataset`** - Fetch a single dataset by identifier
+- **`useDataset`** - Fetch dataset by ID
+- **`useDatasetSearch`** - Search with filters, pagination
+- **`useAllDatasets`** - Get all datasets
+- **`useCreateDataset`** - Create dataset (mutation)
+- **`useUpdateDataset`** - Update dataset (mutation)
+- **`usePatchDataset`** - Partial update (mutation)
+- **`useDeleteDataset`** - Delete dataset (mutation)
 
 ```tsx
-const { data, isLoading, error } = useDataset({
-  identifier: 'my-dataset-id',
-  staleTime: 60000,
-  enabled: true,
-})
+const { data } = useDataset({ identifier: 'id' })
+const { data } = useDatasetSearch({ searchOptions: { keyword: 'health' } })
+const create = useCreateDataset()
+create.mutate({ title: 'Dataset', accessLevel: 'public' })
 ```
 
-**`useDatasetSearch`** - Search for datasets with filters
+### Datastore Hooks
+
+- **`useDatastore`** - Query datastore with filtering, sorting, pagination
+- **`useQueryDatastoreMulti`** - Multi-resource queries with JOINs
+- **`useSqlQuery`** - Execute SQL queries
+- **`useExecuteSqlQuery`** - SQL on demand (mutation)
 
 ```tsx
-const { data, isLoading } = useDatasetSearch({
-  searchOptions: {
-    keyword: 'health',
-    theme: 'healthcare',
-    page: 1,
-    'page-size': 20,
-  },
+const { data } = useDatastore({
+  datasetId: 'id',
+  queryOptions: { limit: 100, sorts: [{ property: 'date', order: 'desc' }] }
 })
-```
-
-**`useAllDatasets`** - Get all datasets with full metadata
-
-```tsx
-const { data: datasets } = useAllDatasets()
-```
-
-### Datastore Query Hooks
-
-**`useDatastore`** - Query datastore data for a specific resource
-
-```tsx
-const { data, isLoading } = useDatastore({
-  datasetId: 'dataset-id',
-  index: 0,
-  queryOptions: {
-    limit: 100,
-    properties: ['name', 'value', 'date'],
-    sorts: [{ property: 'date', order: 'desc' }],
-    conditions: [{ property: 'status', value: 'active' }],
-  },
-})
-```
-
-**`useSqlQuery`** - Execute SQL queries against datastore
-
-```tsx
-const { data } = useSqlQuery({
-  query: 'SELECT * FROM datastore_12345 WHERE status = "active" LIMIT 100',
-  show_db_columns: false,
-})
-```
-
-**`useExecuteSqlQuery`** - Execute SQL queries on demand (mutation)
-
-```tsx
-const executeSql = useExecuteSqlQuery()
-
-executeSql.mutate({
-  query: 'SELECT COUNT(*) FROM datastore_12345',
-})
+const { data } = useSqlQuery({ query: 'SELECT * FROM datastore_12345 LIMIT 10' })
 ```
 
 ### Data Dictionary Hooks
 
-**`useDataDictionary`** - Get a data dictionary by identifier
+- **`useDataDictionary`** - Get dictionary by ID
+- **`useDataDictionaryList`** - List all dictionaries
+- **`useDataDictionaryFromUrl`** - Fetch from URL
+- **`useDatastoreSchema`** - Get datastore schema
+- **`useCreateDataDictionary`** - Create dictionary (mutation)
+- **`useUpdateDataDictionary`** - Update dictionary (mutation)
+- **`useDeleteDataDictionary`** - Delete dictionary (mutation)
 
 ```tsx
-const { data: dictionary } = useDataDictionary({
-  identifier: 'dict-123',
-})
+const { data } = useDataDictionary({ identifier: 'dict-id' })
+const create = useCreateDataDictionary()
+create.mutate({ identifier: 'id', data: { title: 'Schema', fields: [...] } })
 ```
-
-**`useDataDictionaryList`** - List all data dictionaries
-
-```tsx
-const { data: dictionaries } = useDataDictionaryList()
-```
-
-**`useDataDictionaryFromUrl`** - Fetch dictionary from URL
-
-```tsx
-const { data } = useDataDictionaryFromUrl({
-  url: 'https://example.com/schema.json',
-})
-```
-
-**`useDatastoreSchema`** - Get schema for a datastore
-
-```tsx
-const { data: schema } = useDatastoreSchema({
-  identifier: 'dataset-id',
-  index: 0,
-})
-```
-
-### Data Dictionary Mutations
-
-**`useCreateDataDictionary`** - Create a new data dictionary
-
-```tsx
-const createDict = useCreateDataDictionary()
-
-createDict.mutate({
-  identifier: 'my-dict',
-  data: {
-    title: 'My Dictionary',
-    fields: [
-      { name: 'id', type: 'integer', title: 'ID' },
-      { name: 'name', type: 'string', title: 'Name' },
-    ],
-  },
-})
-```
-
-**`useUpdateDataDictionary`** - Update a data dictionary
-
-**`useDeleteDataDictionary`** - Delete a data dictionary
-
-### Dataset Mutations
-
-**`useCreateDataset`** - Create a new dataset
-
-```tsx
-const createDataset = useCreateDataset()
-
-createDataset.mutate({
-  title: 'My Dataset',
-  description: 'Dataset description',
-  accessLevel: 'public',
-  // ... other required fields
-})
-```
-
-**`useUpdateDataset`** - Update an entire dataset
-
-**`usePatchDataset`** - Partially update a dataset
-
-```tsx
-const patchDataset = usePatchDataset()
-
-patchDataset.mutate({
-  identifier: 'dataset-123',
-  partialDataset: { title: 'New Title' },
-})
-```
-
-**`useDeleteDataset`** - Delete a dataset
 
 ### Harvest Hooks
 
-**`useHarvestPlans`** - List all harvest plans
-
-**`useHarvestPlan`** - Get a specific harvest plan
-
-**`useHarvestRuns`** - List harvest runs for a plan
-
-**`useHarvestRun`** - Get harvest run status
-
-**`useRegisterHarvestPlan`** - Register a new harvest plan (mutation)
-
-**`useRunHarvest`** - Run a harvest (mutation)
-
-```tsx
-const runHarvest = useRunHarvest()
-
-runHarvest.mutate({ plan_id: 'my-plan' })
-```
+- **`useHarvestPlans`** - List harvest plans
+- **`useHarvestPlan`** - Get specific plan
+- **`useHarvestRuns`** - List runs for a plan
+- **`useHarvestRun`** - Get run status
+- **`useRegisterHarvestPlan`** - Register plan (mutation)
+- **`useRunHarvest`** - Run harvest (mutation)
 
 ### Datastore Import Hooks
 
-**`useDatastoreImports`** - List all datastore imports
-
-**`useDatastoreImport`** - Get a specific import
-
-**`useTriggerDatastoreImport`** - Trigger a datastore import (mutation)
-
-**`useDeleteDatastore`** - Delete a datastore (mutation)
+- **`useDatastoreImports`** - List all imports
+- **`useDatastoreImport`** - Get specific import
+- **`useDatastoreStatistics`** - Get datastore statistics
+- **`useTriggerDatastoreImport`** - Trigger import (mutation)
+- **`useDeleteDatastore`** - Delete datastore (mutation)
 
 ### Metastore Hooks
 
-**`useSchemas`** - List available metastore schemas
-
-**`useSchemaItems`** - Get items for a specific schema
-
-**`useDatasetFacets`** - Get dataset facets (themes, keywords, publishers)
-
-```tsx
-const { data: facets } = useDatasetFacets()
-
-// facets.theme: ['Health', 'Education', ...]
-// facets.keyword: ['open data', 'public', ...]
-// facets.publisher: ['City of...', ...]
-```
-
-### Dataset Properties Hooks
-
-**`useDatasetProperties`** - Get all available dataset properties
-
-**`usePropertyValues`** - Get all values for a specific property
-
-**`useAllPropertiesWithValues`** - Get all properties with their values
+- **`useSchemas`** - List metastore schemas
+- **`useSchema`** - Get specific schema
+- **`useSchemaItems`** - Get items for schema
+- **`useDatasetFacets`** - Get facets (themes, keywords, publishers)
 
 ### Revision/Moderation Hooks
 
-**`useRevisions`** - Get all revisions for an item
+- **`useRevisions`** - Get all revisions
+- **`useRevision`** - Get specific revision
+- **`useCreateRevision`** - Create revision (mutation)
+- **`useChangeDatasetState`** - Change workflow state (mutation)
 
-**`useRevision`** - Get a specific revision
+### Download Hooks
 
-**`useCreateRevision`** - Create a new revision (mutation)
-
-**`useChangeDatasetState`** - Change dataset workflow state (mutation)
-
-```tsx
-const changeState = useChangeDatasetState()
-
-changeState.mutate({
-  identifier: 'dataset-123',
-  state: 'published',
-  message: 'Publishing to production',
-})
-```
-
-### Query Download Hooks
-
-**`useDownloadQuery`** - Download query results (mutation)
+- **`useDownloadQuery`** - Download query results (mutation)
+- **`useDownloadQueryByDistribution`** - Download by distribution ID (mutation)
 
 ```tsx
-const downloadQuery = useDownloadQuery()
-
-downloadQuery.mutate(
-  {
-    datasetId: 'dataset-123',
-    index: 0,
-    queryOptions: { format: 'csv' },
-  },
-  {
-    onSuccess: (blob) => {
-      // Create download link
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'data.csv'
-      a.click()
-      URL.revokeObjectURL(url)
-    },
-  }
+const download = useDownloadQuery()
+download.mutate(
+  { datasetId: 'id', index: 0, queryOptions: { format: 'csv' } },
+  { onSuccess: (blob) => { /* create download link */ } }
 )
 ```
 
-**`useDownloadQueryByDistribution`** - Download by distribution ID (mutation)
+## Hook Options & Return Values
 
-## Hook Options
+**Common Query Options**: `enabled`, `staleTime`, `refetchInterval`
 
-All query hooks support these common options:
+**Query Returns**: `data`, `isLoading`, `isFetching`, `isError`, `error`, `refetch`
 
-- `enabled` - Enable/disable the query (default: `true`)
-- `staleTime` - Time in ms before data is considered stale (default: `0`)
-- `refetchInterval` - Auto-refetch interval in ms (optional)
-
-## Hook Return Values
-
-### Query Hooks
-
-All query hooks return:
-
-- `data` - The fetched data (undefined while loading)
-- `error` - Error object if the query failed
-- `status` - Query status: `'pending' | 'error' | 'success'`
-- `isLoading` - `true` if first load
-- `isPending` - `true` if no data yet
-- `isSuccess` - `true` if query succeeded
-- `isError` - `true` if query failed
-- `isFetching` - `true` if currently fetching (including background refetch)
-- `refetch` - Function to manually refetch
-
-### Mutation Hooks
-
-All mutation hooks return:
-
-- `mutate` - Function to trigger the mutation
-- `mutateAsync` - Async version of mutate
-- `data` - The mutation result
-- `error` - Error object if mutation failed
-- `status` - Mutation status
-- `isPending` - `true` if mutation is in progress
-- `isSuccess` - `true` if mutation succeeded
-- `isError` - `true` if mutation failed
-- `reset` - Reset mutation state
+**Mutation Returns**: `mutate`, `mutateAsync`, `isPending`, `isSuccess`, `isError`, `data`, `error`, `reset`
 
 ## Advanced Usage
 
-### Access the DkanClient
+Access the DkanClient or TanStack Query's QueryClient:
 
 ```tsx
-import { useDkanClient } from '@dkan-client-tools/react'
+import { useDkanClient, useQueryClient } from '@dkan-client-tools/react'
 
-function MyComponent() {
-  const dkanClient = useDkanClient()
-
-  // Access the API client
-  const apiClient = dkanClient.getApiClient()
-
-  // Access the QueryClient
-  const queryClient = dkanClient.getQueryClient()
-}
-```
-
-### Use TanStack Query Hooks Directly
-
-```tsx
-import { useQueryClient, useIsFetching } from '@dkan-client-tools/react'
-
-function MyComponent() {
-  const queryClient = useQueryClient()
-  const isFetching = useIsFetching()
-
-  // Manually invalidate queries
-  queryClient.invalidateQueries({ queryKey: ['datasets'] })
-
-  return <div>Loading: {isFetching > 0 ? 'yes' : 'no'}</div>
-}
+const dkanClient = useDkanClient()
+const queryClient = useQueryClient()
 ```
 
 ## Testing
 
-All hooks are fully tested with 218 comprehensive tests covering:
-
-- Loading states
-- Error handling
-- Data fetching
-- Mutations
-- Callbacks
-- Edge cases
+181 comprehensive tests covering loading states, errors, mutations, and edge cases. See [TESTING.md](./TESTING.md).
 
 ## License
 

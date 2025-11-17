@@ -4,100 +4,40 @@ This document provides information about the testing setup and patterns used in 
 
 ## Test Setup
 
-### Framework
+**Framework**: Vitest, @testing-library/react, happy-dom
 
-- **Vitest**: Test runner built on Vite's transform pipeline
-- **Testing Library**: React testing utilities
-  - `@testing-library/react`: Component rendering and queries
-  - `@testing-library/jest-dom`: DOM matchers
-  - `@testing-library/user-event`: User interaction simulation
-- **happy-dom**: Lightweight DOM implementation for Node.js testing
-
-### Configuration
-
-The test setup is configured in `vitest.config.ts`:
-
+**Configuration** (`vitest.config.ts`):
 ```typescript
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./src/__tests__/setup.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-    },
   },
 })
 ```
 
-### Global Setup
-
-The `setup.ts` file runs before all tests:
-
+**Global Setup** (`setup.ts`):
 ```typescript
-import { expect, afterEach, vi } from 'vitest'
-import { cleanup } from '@testing-library/react'
-import '@testing-library/jest-dom/vitest'
-
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
 })
 ```
 
-This ensures:
-- Components are cleaned up after each test
-- All mocks are cleared between tests
-- jest-dom matchers are available in all tests
-
 ## Running Tests
 
 ```bash
-# Run all tests once
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with UI
-npx vitest --ui
-
-# Run tests with coverage
-npx vitest --coverage
+npm test                  # Run once
+npm run test:watch        # Watch mode
+npx vitest --ui          # With UI
+npx vitest --coverage    # With coverage
 ```
 
 ## Test Patterns
 
-### Testing React Components with Context
-
-All hooks require the `DkanClientProvider` context. Tests follow this pattern:
-
-```typescript
-function TestComponent() {
-  const { data, isLoading } = useDataset({ identifier: 'test-123' })
-  if (isLoading) return <div>Loading...</div>
-  return <div>Title: {data.title}</div>
-}
-
-render(
-  <DkanClientProvider client={mockClient}>
-    <TestComponent />
-  </DkanClientProvider>
-)
-
-await waitFor(() => {
-  expect(screen.getByText('Title: Test Dataset')).toBeInTheDocument()
-})
-```
-
-### Mocking DkanClient
-
-Create a mock client in each test suite:
+### Basic Pattern
 
 ```typescript
 describe('useDataset', () => {
@@ -106,194 +46,77 @@ describe('useDataset', () => {
   beforeEach(() => {
     mockClient = new DkanClient({
       baseUrl: 'https://test.example.com',
-      defaultOptions: { retry: 0 }, // Disable retries for tests
+      defaultOptions: { retry: 0 }, // Important: disable retries
     })
   })
 
-  it('should fetch dataset', async () => {
+  it('fetches dataset', async () => {
     vi.spyOn(mockClient, 'fetchDataset').mockResolvedValue(mockData)
-    // ... test implementation
+
+    function TestComponent() {
+      const { data, isLoading } = useDataset({ identifier: 'test-123' })
+      if (isLoading) return <div>Loading...</div>
+      return <div>Title: {data.title}</div>
+    }
+
+    render(
+      <DkanClientProvider client={mockClient}>
+        <TestComponent />
+      </DkanClientProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Title: Test Dataset')).toBeInTheDocument()
+    })
   })
 })
 ```
 
-**Important**: Set `retry: 0` in the client options to disable TanStack Query's automatic retry behavior in tests.
-
-### Testing User Interactions
-
-Use `@testing-library/user-event` for simulating user interactions:
+### User Interactions
 
 ```typescript
-import userEvent from '@testing-library/user-event'
-
-it('should handle button click', async () => {
-  const user = userEvent.setup()
-
-  render(
-    <DkanClientProvider client={mockClient}>
-      <TestComponent />
-    </DkanClientProvider>
-  )
-
-  const button = screen.getByText('Load Dataset')
-  await user.click(button)
-
-  await waitFor(() => {
-    expect(screen.getByText('Data loaded')).toBeInTheDocument()
-  })
-})
+const user = userEvent.setup()
+render(<DkanClientProvider client={mockClient}><TestComponent /></DkanClientProvider>)
+await user.click(screen.getByText('Load Dataset'))
+await waitFor(() => expect(screen.getByText('Data loaded')).toBeInTheDocument())
 ```
 
-### Testing Async State
-
-Use `waitFor` to test loading and success states:
+### Error Handling
 
 ```typescript
-it('should show loading then data', async () => {
-  render(
-    <DkanClientProvider client={mockClient}>
-      <TestComponent />
-    </DkanClientProvider>
-  )
-
-  // Check initial loading state
-  expect(screen.getByText('Loading...')).toBeInTheDocument()
-
-  // Wait for data to load
-  await waitFor(() => {
-    expect(screen.getByText('Title: Test Dataset')).toBeInTheDocument()
-  })
-})
-```
-
-### Testing Error Handling
-
-Mock rejected promises and ensure retries are disabled:
-
-```typescript
-it('should handle errors', async () => {
-  vi.spyOn(mockClient, 'fetchDataset').mockRejectedValue(
-    new Error('Network error')
-  )
-
-  render(
-    <DkanClientProvider client={mockClient}>
-      <TestComponent />
-    </DkanClientProvider>
-  )
-
-  await waitFor(() => {
-    expect(screen.getByText('Error: Network error')).toBeInTheDocument()
-  })
-})
+vi.spyOn(mockClient, 'fetchDataset').mockRejectedValue(new Error('Network error'))
+await waitFor(() => expect(screen.getByText('Error: Network error')).toBeInTheDocument())
 ```
 
 ## Test Coverage
 
-### DkanClientProvider (10 tests)
+**181 tests across 13 test files:**
 
-- ✅ Renders children
-- ✅ Provides client via context
-- ✅ Calls mount() on component mount
-- ✅ Calls unmount() on component unmount
-- ✅ Handles mount/unmount with same client on rerender
-- ✅ Handles client replacement
-- ✅ Works with nested providers
-- ✅ useDkanClient throws error outside provider
-- ✅ useDkanClient returns client from context
-- ✅ useDkanClient allows access to client methods
+- DkanClientProvider: 10 tests
+- Dataset hooks: 47 tests (useDataset, useDatasetSearch, mutations)
+- Datastore hooks: 35 tests (useDatastore, useSqlQuery, imports)
+- Data Dictionary hooks: 42 tests (queries, mutations)
+- Harvest hooks: 11 tests
+- Metastore hooks: 16 tests
+- Revisions hooks: 10 tests
+- Download hooks: 8 tests
 
-### useDataset (9 tests)
-
-- ✅ Fetches dataset successfully
-- ✅ Handles fetch errors
-- ✅ Respects enabled option
-- ✅ Supports conditional fetching
-- ✅ Caches results across multiple hook instances
-- ✅ Provides all query states (isLoading, isSuccess, etc.)
-- ✅ Supports staleTime option
-- ✅ Handles multiple datasets simultaneously
-
-### useDatasetSearch (10 tests)
-
-- ✅ Searches with default options
-- ✅ Searches with keyword filter
-- ✅ Searches with multiple filters
-- ✅ Handles search errors
-- ✅ Respects enabled option
-- ✅ Refetches when search options change
-- ✅ Provides all query states
-- ✅ Caches search results
-- ✅ Handles empty results
-
-### useDatastore (10 tests)
-
-- ✅ Queries datastore successfully
-- ✅ Queries with specific index
-- ✅ Queries with query options (conditions, limit, offset)
-- ✅ Handles query errors
-- ✅ Respects enabled option
-- ✅ Refetches when dataset ID changes
-- ✅ Caches query results
-- ✅ Provides all query states
-- ✅ Handles complex queries with sorts and conditions
-- ✅ Handles empty results
+All tests cover loading states, error handling, success cases, mutations, callbacks, and edge cases.
 
 ## Common Issues
 
-### Issue: Tests timeout waiting for error states
-
-**Cause**: TanStack Query retries failed requests by default (3 retries with exponential backoff).
-
-**Solution**: Disable retries when creating the mock client:
-
-```typescript
-mockClient = new DkanClient({
-  baseUrl: 'https://test.example.com',
-  defaultOptions: { retry: 0 },
-})
-```
-
-### Issue: "Cannot read properties of undefined (reading 'click')"
-
-**Cause**: Incorrectly destructuring `user` from `render()` result.
-
-**Solution**: Use `userEvent.setup()` before rendering:
-
-```typescript
-// Wrong
-const { user } = render(<Component />)
-
-// Correct
-const user = userEvent.setup()
-render(<Component />)
-```
-
-### Issue: Components not unmounting between tests
-
-**Cause**: Missing cleanup in test setup.
-
-**Solution**: Ensure `setup.ts` includes cleanup:
-
-```typescript
-import { cleanup } from '@testing-library/react'
-
-afterEach(() => {
-  cleanup()
-  vi.clearAllMocks()
-})
-```
+**Tests timeout on errors**: Set `retry: 0` in DkanClient options
+**"Cannot read 'click'"**: Use `userEvent.setup()` before `render()`
+**Components persist between tests**: Add cleanup to `setup.ts`
 
 ## Best Practices
 
-1. **Always wrap components in DkanClientProvider** when testing hooks
-2. **Disable retries** in mock clients to avoid timeouts
-3. **Use `waitFor`** for async assertions
-4. **Use `userEvent.setup()`** before simulating user interactions
-5. **Clear mocks** between tests using `vi.clearAllMocks()`
-6. **Test loading, success, and error states** for all async operations
-7. **Test cache behavior** to ensure TanStack Query integration works correctly
-8. **Test conditional fetching** (enabled option) for hooks that support it
+1. Wrap components in DkanClientProvider
+2. Disable retries: `defaultOptions: { retry: 0 }`
+3. Use `waitFor` for async assertions
+4. Use `userEvent.setup()` before rendering
+5. Test loading, success, and error states
+6. Test cache behavior and conditional fetching
 
 ## Resources
 
