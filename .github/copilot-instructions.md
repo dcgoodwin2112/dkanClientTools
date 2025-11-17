@@ -9,7 +9,7 @@ This is a monorepo of TypeScript packages providing DKAN data catalog integratio
 - `@dkan-client-tools/react` - React hooks (TanStack React Query)
 - `@dkan-client-tools/vue` - Vue composables (TanStack Vue Query)
 
-**Current Status**: 50+ hooks/composables, 42 API methods across 9 categories, 500+ tests
+**Current Status**: 50+ hooks/composables, 42 API methods across 9 categories, 506 tests (Core: 225, React: 181, Vue: 100)
 
 ## Build & Test Commands
 
@@ -115,16 +115,7 @@ const mockClient = { getDataset: vi.fn() } as any
 
 ### 4. API Coverage & Completeness
 
-**42 API Methods** across 9 categories (see CLAUDE.md for full list):
-- Dataset operations (7 methods)
-- Datastore query (4 methods)
-- Datastore download (2 methods)
-- Data dictionary operations (6 methods)
-- Harvest operations (6 methods)
-- Datastore import operations (4 methods)
-- Metastore operations (4 methods)
-- Revision/moderation operations (4 methods)
-- Utility operations (3 methods: getBaseUrl, getDefaultOptions, getOpenApiDocsUrl)
+**42+ API Methods** across 9 categories covering datasets, datastore operations, data dictionaries, harvests, imports, metastore, and revisions. See [ARCHITECTURE.md](../docs/ARCHITECTURE.md) and [API_REFERENCE.md](../docs/API_REFERENCE.md) for complete API coverage.
 
 **Important**: Dataset Properties API methods (getDatasetProperties, getPropertyValues, getAllPropertiesWithValues) are not available in DKAN 2.x as the API endpoints return 404. These hooks/composables exist but are non-functional.
 
@@ -137,25 +128,15 @@ When adding new API methods:
 
 ### 5. Documentation Standards
 
-**Function Documentation**: All exported hooks/composables must include:
-```typescript
-/**
- * Fetches a single dataset by ID.
- *
- * @param options - Configuration options
- * @param options.datasetId - The dataset identifier
- * @param options.enabled - Whether the query should run (default: true)
- * @param options.staleTime - Time in ms before data becomes stale (default: 5 minutes)
- * @returns Query result with dataset data, loading state, and error state
- *
- * @example
- * ```tsx
- * const { data, isLoading, error } = useDataset({ datasetId: '123' })
- * ```
- */
-```
+**JSDoc Patterns**: Follow concise documentation style per CLAUDE.md:
+- One line for simple functions, brief descriptions for complex ones
+- Single practical example (not multiple variations)
+- See `packages/dkan-client-tools-react/src/useDataset.ts` and `packages/dkan-client-tools-vue/src/useDataset.ts` for reference patterns
 
-**README Updates**: When adding features, update relevant READMEs and CLAUDE.md
+**Documentation Updates**: When adding features, update:
+- Package READMEs with usage examples
+- CLAUDE.md with architectural notes (if significant)
+- Follow "reference instead of embed" pattern - link to detailed docs rather than duplicating content
 
 ### 6. Common Pitfalls to Flag
 
@@ -318,6 +299,9 @@ Follow conventional commits:
 ## References
 
 - **Project instructions**: `CLAUDE.md`
+- **Quick reference for AI agents**: `PROJECT_INFO.md`
+- **AI tool compatibility**: `llms.txt`
+- **Development guide**: `docs/DEVELOPMENT.md`
 - **DKAN API documentation**: `docs/external/platforms/DKAN_API.md`
 - **Data standards documentation**: `docs/external/standards/DATA_STANDARDS.md`
 - **Architecture documentation**: `docs/ARCHITECTURE.md`
