@@ -75,9 +75,7 @@ export class DkanApiClient {
     }
   }
 
-  /**
-   * Get the authorization header
-   */
+  /** Get the authorization header */
   private getAuthHeader(): string | undefined {
     if (!this.auth) return undefined
 
@@ -93,9 +91,7 @@ export class DkanApiClient {
     return undefined
   }
 
-  /**
-   * Make a request with retry logic
-   */
+  /** Make a request with retry logic */
   private async request<T>(
     path: string,
     options: RequestInit = {},
@@ -170,18 +166,10 @@ export class DkanApiClient {
   }
 
   /**
-   * Fetch a single dataset by identifier
-   *
+   * Fetch a single dataset by identifier.
+   * @param identifier - Dataset identifier
    * @param options.showReferenceIds - Include internal reference IDs (distribution identifiers)
    * @returns Dataset metadata
-   *
-   * @example
-   * ```typescript
-   * const dataset = await client.getDataset('abc-123', { showReferenceIds: true })
-   * console.log(dataset.distribution[0].identifier)
-   * ```
-   *
-   * @see searchDatasets for discovering datasets when identifier is unknown
    */
   async getDataset(
     identifier: string,
@@ -194,10 +182,7 @@ export class DkanApiClient {
     return response.data
   }
 
-  /**
-   * Helper function to append string or array values to URLSearchParams
-   * Reduces code duplication for handling both single and array parameter values
-   */
+  /** Append string or array values to URLSearchParams */
   private appendArrayOrString(
     params: URLSearchParams,
     key: string,
@@ -210,10 +195,7 @@ export class DkanApiClient {
     }
   }
 
-  /**
-   * Serialize datastore query options as URL query parameters
-   * Used for GET requests to datastore query endpoints
-   */
+  /** Serialize datastore query options as URL query parameters for GET requests */
   private serializeQueryOptions(options: DatastoreQueryOptions): string {
     const params = new URLSearchParams()
     for (const [key, value] of Object.entries(options)) {
@@ -225,18 +207,9 @@ export class DkanApiClient {
   }
 
   /**
-   * Search datasets with filters
-   *
-   * @param options.keyword - Filter by keyword/tag
-   * @param options.theme - Filter by theme category
-   * @param options.fulltext - Full-text search across all fields
-   * @param options.sort - Sort field(s) - single string or array
-   * @param options.sort-order - Sort order(s) - 'asc' or 'desc', single or array
-   * @param options.page - Page number for pagination (0-based)
-   * @param options.page-size - Number of results per page
+   * Search datasets with filters and pagination.
+   * @param options - Search options (keyword, theme, fulltext, sort, page, page-size)
    * @returns Search results with total count, dataset array, and facets
-   *
-   * @see getDatasetFacets for available filter values
    */
   async searchDatasets(options: DatasetQueryOptions = {}): Promise<DkanSearchResponse> {
     const params = new URLSearchParams()
@@ -279,19 +252,12 @@ export class DkanApiClient {
   }
 
   /**
-   * Query datastore for a specific dataset resource
-   *
+   * Query datastore for a specific dataset resource.
+   * @param datasetId - Dataset identifier
    * @param index - Resource index in dataset.distribution array (default: 0)
-   * @param options.conditions - Filter conditions (property, value, operator)
-   * @param options.limit - Maximum number of records to return
-   * @param options.offset - Number of records to skip for pagination
-   * @param options.sort - Sort configuration (property, order)
-   * @param options.keys - Specific columns to return
-   * @param options.joins - Join configuration for multi-resource queries
+   * @param options - Query options (conditions, limit, offset, sort, keys, joins)
    * @param method - HTTP method: POST (default) or GET
    * @returns Query results including schema and result rows
-   *
-   * @see querySql for SQL-based queries with joins and aggregations
    */
   async queryDatastore(
     datasetId: string,
@@ -321,34 +287,11 @@ export class DkanApiClient {
   }
 
   /**
-   * Query multiple datastore resources with joins
-   *
-   * @param options - Query options with resources array for multi-resource queries
-   * @param options.resources - Array of resources to query (id, alias)
-   * @param options.joins - Join conditions between resources
-   * @param options.conditions - Filter conditions across resources
-   * @param options.limit - Maximum number of records to return
-   * @param options.offset - Number of records to skip for pagination
-   * @param options.sort - Sort configuration
-   * @param options.keys - Specific columns to return
+   * Query multiple datastore resources with joins.
+   * @param options - Query options (resources, joins, conditions, limit, offset, sort, keys)
    * @param method - HTTP method: POST (default) or GET
    * @returns Query results including schema and result rows
    * @throws {DkanApiError} If resource not found or request fails
-   *
-   * @example
-   * // Join two resources
-   * const results = await client.queryDatastoreMulti({
-   *   resources: [
-   *     { id: 'resource-1', alias: 'r1' },
-   *     { id: 'resource-2', alias: 'r2' }
-   *   ],
-   *   joins: [{ resource: 'r2', condition: 'r1.id = r2.ref_id' }],
-   *   conditions: [{ property: 'r1.name', value: 'Test' }],
-   *   limit: 100
-   * });
-   *
-   * @see queryDatastore for single-resource queries
-   * @see querySql for SQL-based multi-table queries
    */
   async queryDatastoreMulti(
     options: DatastoreQueryOptions,
@@ -376,15 +319,11 @@ export class DkanApiClient {
   }
 
   /**
-   * Get datastore schema with data dictionary (if available)
-   *
-   * Returns the table schema including column definitions and data dictionary
-   * metadata if a data dictionary is associated with the distribution.
-   *
-   * @param datasetId - Dataset identifier (UUID or custom ID)
+   * Get datastore schema with data dictionary (if available).
+   * @param datasetId - Dataset identifier
    * @param index - Resource index in dataset.distribution array (default: 0)
-   * @returns Query response containing schema information and empty results
-   * @throws {DkanApiError} If resource not found or request fails
+   * @returns Query response containing schema information
+   * @throws {DkanApiError} If resource not found
    */
   async getDatastoreSchema(
     datasetId: string,
@@ -397,11 +336,7 @@ export class DkanApiClient {
   }
 
   /**
-   * Get all data dictionaries
-   *
-   * Retrieves all data dictionary definitions from the metastore.
-   * Data dictionaries follow the Frictionless Table Schema specification.
-   *
+   * Get all data dictionaries (Frictionless Table Schema).
    * @returns Array of data dictionary objects
    * @throws {DkanApiError} If request fails
    */
@@ -422,11 +357,8 @@ export class DkanApiClient {
   }
 
   /**
-   * Get a specific data dictionary by identifier
-   *
-   * Retrieves a single data dictionary by its unique identifier.
-   * Data dictionaries define column schemas and constraints for distributions.
-   *
+   * Get a specific data dictionary by identifier.
+   * @param identifier - Data dictionary identifier
    * @returns Data dictionary object with schema and field definitions
    */
   async getDataDictionary(identifier: string): Promise<DataDictionary> {
@@ -437,12 +369,7 @@ export class DkanApiClient {
   }
 
   /**
-   * Get data dictionary from a distribution's describedBy URL
-   *
-   * Fetches a data dictionary from a remote URL. This is useful when
-   * a distribution has a describedBy property pointing to an external
-   * data dictionary definition.
-   *
+   * Get data dictionary from a distribution's describedBy URL.
    * @param url - Full URL to the data dictionary JSON file
    * @returns Data dictionary object from the remote URL
    */
@@ -467,11 +394,7 @@ export class DkanApiClient {
   }
 
   /**
-   * Get all datasets from metastore
-   *
-   * Returns full metadata objects for all datasets in the catalog.
-   * Use listDatasets() for just the identifiers, or searchDatasets() for filtered results.
-   *
+   * Get all datasets from metastore (full metadata objects).
    * @returns Array of complete dataset metadata objects
    */
   async listAllDatasets(): Promise<DkanDataset[]> {
@@ -491,11 +414,7 @@ export class DkanApiClient {
   }
 
   /**
-   * List all available metastore schemas
-   *
-   * Returns the schema types available in the metastore.
-   * Common schemas: 'dataset', 'data-dictionary', 'distribution'.
-   *
+   * List all available metastore schemas (e.g., 'dataset', 'data-dictionary', 'distribution').
    * @returns Array of schema type identifiers
    * @throws {DkanApiError} If request fails
    */
@@ -512,12 +431,7 @@ export class DkanApiClient {
   }
 
   /**
-   * Get a specific schema definition
-   *
-   * Retrieves the JSON Schema definition for a specific metastore schema type.
-   * The schema defines the structure, validation rules, and allowed properties
-   * for items of that type.
-   *
+   * Get a specific schema definition (JSON Schema with validation rules).
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
    * @returns JSON Schema definition with properties and validation rules
    */
@@ -529,19 +443,10 @@ export class DkanApiClient {
   }
 
   /**
-   * Get items for a specific schema type
-   *
-   * Retrieves all items of a specific schema type from the metastore.
-   * For example, all datasets, all data dictionaries, or all distributions.
-   *
+   * Get all items for a specific schema type (e.g., all datasets, all data dictionaries).
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
    * @param options.showReferenceIds - Include internal reference IDs for nested items
    * @returns Array of items matching the schema type
-   *
-   * @example
-   * ```typescript
-   * const datasets = await client.getSchemaItems('dataset', { showReferenceIds: true })
-   * ```
    */
   async getSchemaItems(
     schemaId: string,
@@ -562,11 +467,7 @@ export class DkanApiClient {
   }
 
   /**
-   * Get facet values for datasets (themes, keywords, publishers)
-   *
-   * Retrieves all unique values for theme, keyword, and publisher facets
-   * across all datasets. Useful for building filter UIs.
-   *
+   * Get facet values for datasets (themes, keywords, publishers). Useful for building filter UIs.
    * @returns Object containing arrays of unique theme, keyword, and publisher values
    */
   async getDatasetFacets(): Promise<{
@@ -611,11 +512,7 @@ export class DkanApiClient {
   // ==================== HARVEST API ====================
 
   /**
-   * List all harvest plan identifiers
-   *
-   * Returns an array of identifiers for all registered harvest plans.
-   * Harvest plans define how to fetch datasets from external sources.
-   *
+   * List all harvest plan identifiers.
    * @returns Array of harvest plan identifiers
    * @throws {DkanApiError} If request fails
    */
@@ -625,13 +522,7 @@ export class DkanApiClient {
   }
 
   /**
-   * Register a new harvest plan
-   *
-   * Creates a new harvest plan in the system. Harvest plans define source URLs,
-   * extraction methods, and filters for importing datasets from external catalogs.
-   *
-   * Requires authentication with harvest plan create permissions.
-   *
+   * Register a new harvest plan. Requires authentication with create permissions.
    * @param plan - Harvest plan configuration with identifier, source, and extract options
    * @returns Write response containing the plan identifier and endpoint
    * @throws {DkanApiError} If authentication fails, validation fails, or request fails
@@ -648,10 +539,8 @@ export class DkanApiClient {
   }
 
   /**
-   * Get a specific harvest plan
-   *
-   * Retrieves the configuration for a registered harvest plan.
-   *
+   * Get a specific harvest plan.
+   * @param planId - Harvest plan identifier
    * @returns Harvest plan configuration with source and extract settings
    */
   async getHarvestPlan(planId: string): Promise<HarvestPlan> {
@@ -662,12 +551,9 @@ export class DkanApiClient {
   }
 
   /**
-   * List harvest runs for a specific plan
-   *
-   * Returns an array of harvest run identifiers for the given plan.
-   * Use getHarvestRun() with a specific run ID to get full run details.
-   *
-   * @returns Array of harvest run identifiers (strings)
+   * List harvest runs for a specific plan.
+   * @param planId - Harvest plan identifier
+   * @returns Array of harvest run identifiers
    */
   async listHarvestRuns(planId: string): Promise<string[]> {
     const response = await this.request<string[]>(
@@ -677,11 +563,8 @@ export class DkanApiClient {
   }
 
   /**
-   * Get information about a specific harvest run
-   *
-   * Retrieves detailed information about a single harvest run execution,
-   * including status, counts, error messages, and timestamps.
-   *
+   * Get information about a specific harvest run (status, counts, errors, timestamps).
+   * @param runId - Harvest run identifier
    * @param planId - Harvest plan identifier (required by DKAN API)
    * @returns Harvest run details with execution status and statistics
    */
@@ -693,17 +576,10 @@ export class DkanApiClient {
   }
 
   /**
-   * Execute a harvest run
-   *
-   * Triggers a harvest operation for a specific plan. The harvest fetches
-   * datasets from the configured source and imports them into DKAN.
-   *
-   * Requires authentication with harvest run permissions.
-   *
-   * @param options - Harvest run options with plan ID and optional filters
-   * @param options.plan_id - Identifier of the harvest plan to execute
+   * Execute a harvest run. Requires authentication with harvest run permissions.
+   * @param options - Harvest run options with plan_id and optional filters
    * @returns Harvest run record with initial status
-   * @throws {DkanApiError} If authentication fails, harvest plan not found, or request fails
+   * @throws {DkanApiError} If authentication fails, plan not found, or request fails
    */
   async runHarvest(options: HarvestRunOptions): Promise<HarvestRun> {
     const response = await this.request<HarvestRun>(
@@ -719,40 +595,10 @@ export class DkanApiClient {
   // ==================== DATASET CRUD ====================
 
   /**
-   * Create a new dataset in the DKAN metastore
-   *
-   * Requires authentication with dataset create permissions.
-   * The dataset must include all required DCAT-US properties.
-   *
+   * Create a new dataset. Requires authentication with create permissions.
    * @param dataset - Complete dataset metadata following DCAT-US schema
    * @returns Write response containing the dataset identifier and endpoint
-   * @throws {DkanApiError} If authentication fails or dataset validation fails
-   *
-   * @example
-   * ```typescript
-   * const newDataset = {
-   *   title: 'Water Quality Measurements',
-   *   description: 'Monthly water quality data from monitoring stations',
-   *   identifier: 'water-quality-2025',
-   *   accessLevel: 'public',
-   *   modified: '2025-01-15',
-   *   keyword: ['water', 'environment', 'quality'],
-   *   publisher: {
-   *     name: 'Environmental Protection Agency'
-   *   },
-   *   contactPoint: {
-   *     '@type': 'vcard:Contact',
-   *     fn: 'Data Team',
-   *     hasEmail: 'mailto:data@epa.gov'
-   *   }
-   * };
-   *
-   * const response = await client.createDataset(newDataset);
-   * console.log(`Created: ${response.identifier}`);
-   * ```
-   *
-   * @see updateDataset for replacing existing datasets
-   * @see patchDataset for partial updates
+   * @throws {DkanApiError} If authentication fails or validation fails
    */
   async createDataset(dataset: DkanDataset): Promise<MetastoreWriteResponse> {
     const response = await this.request<MetastoreWriteResponse>(
@@ -766,32 +612,11 @@ export class DkanApiClient {
   }
 
   /**
-   * Update an existing dataset with full replacement
-   *
-   * Replaces the entire dataset with new metadata. All properties must be provided.
-   * For partial updates, use patchDataset() instead.
-   *
-   * Requires authentication with dataset update permissions.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
+   * Update existing dataset (full replacement). All properties required. Requires authentication.
+   * @param identifier - Dataset identifier
    * @param dataset - Complete replacement dataset metadata
    * @returns Write response containing the updated identifier
    * @throws {DkanApiError} If dataset not found, authentication fails, or validation fails
-   *
-   * @example
-   * ```typescript
-   * // Get existing dataset
-   * const existing = await client.getDataset('water-quality-2025');
-   *
-   * // Modify and update
-   * existing.description = 'Updated description with more details';
-   * existing.modified = new Date().toISOString();
-   *
-   * const response = await client.updateDataset('water-quality-2025', existing);
-   * ```
-   *
-   * @see patchDataset for partial updates
-   * @see createDataset for creating new datasets
    */
   async updateDataset(
     identifier: string,
@@ -808,25 +633,11 @@ export class DkanApiClient {
   }
 
   /**
-   * Partially update a dataset (PATCH)
-   *
-   * Updates only specified properties, leaving others unchanged.
-   * More efficient than updateDataset() when modifying a few fields.
-   *
+   * Partially update a dataset. Updates only specified properties. Requires authentication.
+   * @param identifier - Dataset identifier
    * @param partialDataset - Partial dataset with only fields to update
    * @returns Write response with updated identifier
-   * @throws {DkanApiError} Requires authentication with update permissions
-   *
-   * @example
-   * ```typescript
-   * await client.patchDataset('dataset-id', {
-   *   description: 'Updated description',
-   *   keyword: ['water', 'quality'],
-   *   modified: new Date().toISOString()
-   * })
-   * ```
-   *
-   * @see updateDataset for full replacement
+   * @throws {DkanApiError} If authentication fails or dataset not found
    */
   async patchDataset(
     identifier: string,
@@ -843,20 +654,10 @@ export class DkanApiClient {
   }
 
   /**
-   * Delete a dataset from the metastore
-   *
-   * Permanently removes the dataset and all associated metadata.
-   * This operation cannot be undone.
-   *
-   * Requires authentication with dataset delete permissions.
-   *
+   * Delete a dataset. Permanently removes dataset and metadata. Requires authentication.
+   * @param identifier - Dataset identifier
    * @returns Confirmation message
    * @throws {DkanApiError} If dataset not found or authentication fails
-   *
-   * @example
-   * ```typescript
-   * await client.deleteDataset('water-quality-2025')
-   * ```
    */
   async deleteDataset(identifier: string): Promise<{ message: string }> {
     const response = await this.request<{ message: string }>(
@@ -871,11 +672,7 @@ export class DkanApiClient {
   // ==================== DATASTORE IMPORTS ====================
 
   /**
-   * List all datastore imports
-   *
-   * Returns import status for all distributions that have been imported
-   * into the datastore. Includes import state, timestamps, and statistics.
-   *
+   * List all datastore imports (status, timestamps, statistics).
    * @returns Object mapping distribution identifiers to import records
    * @throws {DkanApiError} If request fails
    */
@@ -887,16 +684,8 @@ export class DkanApiClient {
   }
 
   /**
-   * Trigger a datastore import
-   *
-   * Initiates import of a distribution's data into the datastore.
-   * The data is downloaded from the distribution's downloadURL and
-   * loaded into a queryable database table.
-   *
-   * Requires authentication with datastore import permissions.
-   *
-   * @param options - Import options with resource identifier
-   * @param options.resource - Distribution identifier or dataset identifier
+   * Trigger a datastore import. Requires authentication with import permissions.
+   * @param options - Import options with resource identifier (distribution or dataset ID)
    * @returns Import record with initial status
    * @throws {DkanApiError} If authentication fails, resource not found, or request fails
    */
@@ -914,16 +703,10 @@ export class DkanApiClient {
   }
 
   /**
-   * Delete a datastore (resource or all resources for a dataset)
-   *
-   * Removes imported data from the datastore for a specific distribution
-   * or all distributions in a dataset. Does not delete the metadata.
-   *
-   * Requires authentication with datastore delete permissions.
-   *
-   * @param identifier - Distribution identifier or dataset identifier
+   * Delete datastore data (does not delete metadata). Requires authentication with delete permissions.
+   * @param identifier - Distribution or dataset identifier
    * @returns Confirmation message
-   * @throws {DkanApiError} If resource not found, authentication fails, or request fails
+   * @throws {DkanApiError} If resource not found or authentication fails
    */
   async deleteDatastore(identifier: string): Promise<{ message: string }> {
     const response = await this.request<{ message: string}>(
@@ -936,16 +719,9 @@ export class DkanApiClient {
   }
 
   /**
-   * Get datastore statistics (row/column counts)
-   *
+   * Get datastore statistics (row/column counts).
    * @param identifier - Distribution or dataset identifier
    * @returns Statistics including numOfRows, numOfColumns, and columns metadata
-   *
-   * @example
-   * ```typescript
-   * const stats = await client.getDatastoreStatistics('distribution-uuid')
-   * console.log(`Rows: ${stats.numOfRows}, Columns: ${stats.numOfColumns}`)
-   * ```
    */
   async getDatastoreStatistics(identifier: string): Promise<DatastoreStatistics> {
     const response = await this.request<DatastoreStatistics>(
@@ -957,13 +733,9 @@ export class DkanApiClient {
   // ==================== REVISIONS / MODERATION ====================
 
   /**
-   * Get all revisions for an item in a schema
-   *
-   * Returns the revision history for a specific item, showing all
-   * workflow state changes and modifications over time.
-   *
+   * Get all revisions for an item (workflow state changes and modifications).
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param identifier - Item identifier (UUID or custom ID)
+   * @param identifier - Item identifier
    * @returns Array of revision records with timestamps and state information
    * @throws {DkanApiError} If item not found or request fails
    */
@@ -978,16 +750,12 @@ export class DkanApiClient {
   }
 
   /**
-   * Get a specific revision
-   *
-   * Retrieves details for a single revision, including the full item
-   * data as it existed at that point in time.
-   *
+   * Get a specific revision (full item data as it existed at that point in time).
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param identifier - Item identifier (UUID or custom ID)
+   * @param identifier - Item identifier
    * @param revisionId - Revision identifier or number
    * @returns Revision record with complete item data and metadata
-   * @throws {DkanApiError} If item or revision not found, or request fails
+   * @throws {DkanApiError} If item or revision not found
    */
   async getRevision(
     schemaId: string,
@@ -1001,20 +769,12 @@ export class DkanApiClient {
   }
 
   /**
-   * Create a new revision (change workflow state)
-   *
-   * Creates a new revision by changing the workflow state of an item.
-   * Common states: 'draft', 'published', 'archived'.
-   *
-   * Requires authentication with moderation permissions.
-   *
+   * Create a new revision (change workflow state). Common states: 'draft', 'published', 'archived'. Requires authentication.
    * @param schemaId - Schema identifier (e.g., 'dataset', 'data-dictionary')
-   * @param identifier - Item identifier (UUID or custom ID)
+   * @param identifier - Item identifier
    * @param revision - Revision data with new state and optional message
-   * @param revision.state - New workflow state ('draft', 'published', 'archived')
-   * @param revision.message - Optional message describing the state change
    * @returns Write response containing the revision identifier
-   * @throws {DkanApiError} If authentication fails, item not found, or request fails
+   * @throws {DkanApiError} If authentication fails or item not found
    */
   async createRevision(
     schemaId: string,
@@ -1032,18 +792,12 @@ export class DkanApiClient {
   }
 
   /**
-   * Convenience method to change dataset workflow state
-   *
-   * Shortcut for creating a revision to change a dataset's workflow state.
-   * Equivalent to calling createRevision('dataset', identifier, { state, message }).
-   *
-   * Requires authentication with moderation permissions.
-   *
-   * @param identifier - Dataset identifier (UUID or custom ID)
+   * Convenience method to change dataset workflow state. Requires authentication.
+   * @param identifier - Dataset identifier
    * @param state - New workflow state ('draft', 'published', 'archived')
    * @param message - Optional message describing the state change
    * @returns Write response containing the revision identifier
-   * @throws {DkanApiError} If authentication fails, dataset not found, or request fails
+   * @throws {DkanApiError} If authentication fails or dataset not found
    */
   async changeDatasetState(
     identifier: string,
@@ -1056,19 +810,10 @@ export class DkanApiClient {
   // ==================== QUERY DOWNLOAD ====================
 
   /**
-   * Download datastore query results as CSV or JSON
-   *
-   * Executes a datastore query and returns the results as a downloadable file.
-   * Supports filtering, sorting, and pagination like queryDatastore().
-   *
-   * @param datasetId - Dataset identifier (UUID or custom ID)
+   * Download datastore query results as CSV or JSON.
+   * @param datasetId - Dataset identifier
    * @param index - Resource index in dataset.distribution array
-   * @param options - Query and download options
-   * @param options.format - Download format: 'csv' (default) or 'json'
-   * @param options.conditions - Filter conditions
-   * @param options.limit - Maximum number of records
-   * @param options.offset - Pagination offset
-   * @param options.sort - Sort configuration
+   * @param options - Query and download options (format, conditions, limit, offset, sort)
    * @returns Blob containing the file data for download
    * @throws {DkanApiError} If resource not found or request fails
    */
@@ -1118,19 +863,9 @@ export class DkanApiClient {
   }
 
   /**
-   * Download datastore query results by distribution ID
-   *
-   * Similar to downloadQuery() but uses distribution identifier directly
-   * instead of dataset ID and index. Useful when you have the distribution
-   * ID from getDataset({ showReferenceIds: true }).
-   *
-   * @param distributionId - Distribution identifier (UUID)
-   * @param options - Query and download options
-   * @param options.format - Download format: 'csv' (default) or 'json'
-   * @param options.conditions - Filter conditions
-   * @param options.limit - Maximum number of records
-   * @param options.offset - Pagination offset
-   * @param options.sort - Sort configuration
+   * Download datastore query results by distribution ID (instead of dataset ID and index).
+   * @param distributionId - Distribution identifier
+   * @param options - Query and download options (format, conditions, limit, offset, sort)
    * @returns Blob containing the file data for download
    * @throws {DkanApiError} If distribution not found or request fails
    */
@@ -1181,23 +916,9 @@ export class DkanApiClient {
   // ==================== SQL QUERY ====================
 
   /**
-   * Execute SQL query using DKAN bracket syntax.
-   *
-   * Format: `[SELECT cols FROM dist-id][WHERE cond][ORDER BY field ASC][LIMIT n];`
-   *
-   * @param options.query - SQL in bracket syntax
-   * @param options.show_db_columns - Return DB column names instead of descriptions
-   * @param options.method - HTTP method (GET or POST, default: GET)
+   * Execute SQL query using DKAN bracket syntax: `[SELECT cols FROM dist-id][WHERE cond][ORDER BY field ASC][LIMIT n];`
+   * @param options - Query options (query, show_db_columns, method: GET or POST)
    * @returns Query results
-   *
-   * @example
-   * ```typescript
-   * const results = await client.querySql({
-   *   query: '[SELECT * FROM dist-123][LIMIT 10];'
-   * })
-   * ```
-   *
-   * @see {@link ../../docs/external/platforms/DKAN_API.md#sql-queries-bracket-notation---complete-guide | Complete SQL Query Guide}
    */
   async querySql(options: SqlQueryOptions): Promise<SqlQueryResult> {
     const method = options.method || 'GET'
@@ -1235,24 +956,10 @@ export class DkanApiClient {
   // ==================== DATA DICTIONARY CRUD ====================
 
   /**
-   * Create a new data dictionary.
-   *
-   * @param dictionary.identifier - Unique identifier for the dictionary
-   * @param dictionary.data - Frictionless table schema
+   * Create a new data dictionary. Requires authentication with create permissions.
+   * @param dictionary - Data dictionary with identifier and Frictionless table schema
    * @returns Metastore write response with identifier
-   * @throws {DkanApiError} Requires authentication with create permissions
-   *
-   * @example
-   * ```typescript
-   * await client.createDataDictionary({
-   *   identifier: 'dict-id',
-   *   data: {
-   *     fields: [{ name: 'temperature', type: 'number', title: 'Water Temperature' }]
-   *   }
-   * })
-   * ```
-   *
-   * @see {@link ../../docs/external/standards/DATA_STANDARDS.md#creating-and-updating-data-dictionaries | Data Dictionary Guide}
+   * @throws {DkanApiError} If authentication fails or validation fails
    */
   async createDataDictionary(
     dictionary: DataDictionary
@@ -1268,22 +975,11 @@ export class DkanApiClient {
   }
 
   /**
-   * Update an existing data dictionary (full replacement).
-   *
-   * All fields must be provided - use PATCH for partial updates.
-   *
+   * Update existing data dictionary (full replacement). All fields required. Requires authentication.
+   * @param identifier - Data dictionary identifier
    * @param dictionary - Complete replacement data dictionary object
    * @returns Metastore write response with identifier
-   * @throws {DkanApiError} Requires authentication with update permissions
-   *
-   * @example
-   * ```typescript
-   * const existing = await client.getDataDictionary('dict-id')
-   * existing.data.fields.push({ name: 'new_field', type: 'string' })
-   * await client.updateDataDictionary('dict-id', existing)
-   * ```
-   *
-   * @see {@link ../../docs/external/standards/DATA_STANDARDS.md#creating-and-updating-data-dictionaries | Data Dictionary Guide}
+   * @throws {DkanApiError} If authentication fails or dictionary not found
    */
   async updateDataDictionary(
     identifier: string,
@@ -1300,15 +996,10 @@ export class DkanApiClient {
   }
 
   /**
-   * Delete a data dictionary
-   *
-   * Permanently removes a data dictionary from the metastore.
-   * This does not affect the data in the datastore, only the schema definition.
-   *
-   * Requires authentication with data dictionary delete permissions.
-   *
+   * Delete a data dictionary. Permanently removes schema definition. Requires authentication.
+   * @param identifier - Data dictionary identifier
    * @returns Confirmation message
-   * @throws {DkanApiError} If data dictionary not found, authentication fails, or request fails
+   * @throws {DkanApiError} If dictionary not found or authentication fails
    */
   async deleteDataDictionary(identifier: string): Promise<{ message: string }> {
     const response = await this.request<{ message: string }>(
@@ -1323,17 +1014,8 @@ export class DkanApiClient {
   // ==================== OPENAPI DOCUMENTATION ====================
 
   /**
-   * Get OpenAPI specification URL
-   *
-   * Returns URL to OpenAPI 3.0 spec for use with Swagger UI, Redoc, or Postman.
-   *
+   * Get OpenAPI specification URL (for use with Swagger UI, Redoc, or Postman).
    * @returns URL to OpenAPI specification
-   *
-   * @example
-   * ```typescript
-   * const specUrl = client.getOpenApiDocsUrl()
-   * window.open(`https://petstore.swagger.io/?url=${encodeURIComponent(specUrl)}`)
-   * ```
    */
   getOpenApiDocsUrl(): string {
     return `${this.baseUrl}/api/1`
