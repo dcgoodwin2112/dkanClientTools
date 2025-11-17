@@ -76,116 +76,38 @@ const { data: searchResults, isLoading } = useDatasetSearch({
 
 ## Available Composables
 
-### Dataset Query Composables (3)
-- `useDataset()` - Fetch a single dataset
-- `useDatasetSearch()` - Search datasets with filters
-- `useAllDatasets()` - Fetch all datasets
-
-### Dataset Mutations (4)
-- `useCreateDataset()` - Create a new dataset
-- `useUpdateDataset()` - Update an existing dataset (full replacement)
-- `usePatchDataset()` - Partially update a dataset
-- `useDeleteDataset()` - Delete a dataset
-
-### Datastore Composables (5)
-- `useDatastore()` - Query datastore data
-- `useSqlQuery()` - Execute SQL queries
-- `useExecuteSqlQuery()` - Execute SQL as a mutation
-- `useDownloadQuery()` - Download query results
-- `useDownloadQueryByDistribution()` - Download by distribution ID
-
-### Data Dictionary Composables (7)
-- `useDataDictionary()` - Fetch a data dictionary
-- `useDataDictionaryList()` - List all data dictionaries
-- `useDataDictionaryFromUrl()` - Fetch from URL
-- `useDatastoreSchema()` - Get datastore schema
-- `useCreateDataDictionary()` - Create a data dictionary
-- `useUpdateDataDictionary()` - Update a data dictionary
-- `useDeleteDataDictionary()` - Delete a data dictionary
-
-### Harvest Composables (6)
-- `useHarvestPlans()` - List harvest plans
-- `useHarvestPlan()` - Get a specific plan
-- `useHarvestRuns()` - List harvest runs
-- `useHarvestRun()` - Get a specific run
-- `useRegisterHarvestPlan()` - Register a new plan
-- `useRunHarvest()` - Execute a harvest
-
-### Datastore Import Composables (4)
-- `useDatastoreImports()` - List all imports
-- `useDatastoreImport()` - Get import status
-- `useTriggerDatastoreImport()` - Trigger an import
-- `useDeleteDatastore()` - Delete a datastore
-
-### Metastore Composables (3)
-- `useSchemas()` - List available schemas
-- `useSchemaItems()` - Get items for a schema
-- `useDatasetFacets()` - Get dataset facets
-
-### Dataset Properties Composables (3)
-- `useDatasetProperties()` - Get all properties
-- `usePropertyValues()` - Get values for a property
-- `useAllPropertiesWithValues()` - Get properties with values
-
-### Revision/Moderation Composables (4)
-- `useRevisions()` - Get all revisions
-- `useRevision()` - Get a specific revision
-- `useCreateRevision()` - Create a revision
-- `useChangeDatasetState()` - Change workflow state
+| Category | Composables |
+|----------|-------------|
+| **Dataset Query** (3) | `useDataset`, `useDatasetSearch`, `useAllDatasets` |
+| **Dataset Mutations** (4) | `useCreateDataset`, `useUpdateDataset`, `usePatchDataset`, `useDeleteDataset` |
+| **Datastore** (5) | `useDatastore`, `useSqlQuery`, `useExecuteSqlQuery`, `useDownloadQuery`, `useDownloadQueryByDistribution` |
+| **Data Dictionary** (7) | `useDataDictionary`, `useDataDictionaryList`, `useDataDictionaryFromUrl`, `useDatastoreSchema`, `useCreateDataDictionary`, `useUpdateDataDictionary`, `useDeleteDataDictionary` |
+| **Harvest** (6) | `useHarvestPlans`, `useHarvestPlan`, `useHarvestRuns`, `useHarvestRun`, `useRegisterHarvestPlan`, `useRunHarvest` |
+| **Datastore Import** (4) | `useDatastoreImports`, `useDatastoreImport`, `useTriggerDatastoreImport`, `useDeleteDatastore` |
+| **Metastore** (3) | `useSchemas`, `useSchemaItems`, `useDatasetFacets` |
+| **Dataset Properties** (3) | `useDatasetProperties`, `usePropertyValues`, `useAllPropertiesWithValues` |
+| **Revisions** (4) | `useRevisions`, `useRevision`, `useCreateRevision`, `useChangeDatasetState` |
 
 ## Vue-Specific Features
 
-### Reactive Parameters
-
-All composables accept reactive parameters using Vue's `MaybeRefOrGetter` type:
+All composables accept reactive parameters (`MaybeRefOrGetter`) and return TanStack Query objects:
 
 ```vue
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useDataset } from '@dkan-client-tools/vue'
+import { useDataset, useCreateDataset } from '@dkan-client-tools/vue'
 
 const datasetId = ref('my-dataset-id')
-
-// identifier can be a ref, computed, or plain value
 const { data, isLoading } = useDataset({
-  identifier: datasetId, // ref
-  enabled: computed(() => !!datasetId.value), // computed
-  staleTime: 5 * 60 * 1000, // plain value
+  identifier: datasetId, // ref, computed, or plain value
+  enabled: computed(() => !!datasetId.value),
 })
-</script>
-```
-
-### Query Mutations
-
-Mutations return TanStack Query mutation objects with full TypeScript support:
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useCreateDataset } from '@dkan-client-tools/vue'
 
 const createDataset = useCreateDataset()
-const dataset = ref({
-  title: 'My Dataset',
-  description: 'Dataset description',
-  // ... other fields
-})
-
 async function handleCreate() {
-  try {
-    const result = await createDataset.mutateAsync(dataset.value)
-    console.log('Created:', result.identifier)
-  } catch (error) {
-    console.error('Failed:', error)
-  }
+  const result = await createDataset.mutateAsync({ title: 'My Dataset' })
 }
 </script>
-
-<template>
-  <button @click="handleCreate" :disabled="createDataset.isPending">
-    {{ createDataset.isPending ? 'Creating...' : 'Create Dataset' }}
-  </button>
-</template>
 ```
 
 ## Authentication
@@ -211,38 +133,17 @@ const client = new DkanClient({
 })
 ```
 
-## TypeScript Support
-
-All composables are fully typed with TypeScript:
-
-```typescript
-import type { DkanDataset, DatasetQueryOptions } from '@dkan-client-tools/vue'
-
-const options: DatasetQueryOptions = {
-  fulltext: 'health',
-  'page-size': 20,
-}
-
-const dataset: DkanDataset = {
-  title: 'My Dataset',
-  description: 'A comprehensive dataset',
-  // ... TypeScript will enforce the schema
-}
-```
-
 ## Advanced Usage
-
-### Custom Query Client Options
 
 ```typescript
 import { QueryClient } from '@tanstack/vue-query'
+import { DkanClient } from '@dkan-client-tools/core'
+import { useDkanClient } from '@dkan-client-tools/vue'
 
+// Custom query client options
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      staleTime: 10 * 60 * 1000, // 10 minutes
-      retry: 2,
-    },
+    queries: { staleTime: 10 * 60 * 1000, retry: 2 },
   },
 })
 
@@ -250,22 +151,10 @@ const client = new DkanClient({
   baseUrl: 'https://your-dkan-site.com',
   queryClient,
 })
-```
 
-### Accessing the Client
-
-```vue
-<script setup lang="ts">
-import { useDkanClient } from '@dkan-client-tools/vue'
-
-const client = useDkanClient()
-
-// Access the QueryClient
-const queryClient = client.getQueryClient()
-
-// Get the base URL
-const baseUrl = client.getBaseUrl()
-</script>
+// Access client in components
+const dkanClient = useDkanClient()
+const baseUrl = dkanClient.getBaseUrl()
 ```
 
 ## License
