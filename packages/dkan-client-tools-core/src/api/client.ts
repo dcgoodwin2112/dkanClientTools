@@ -4,7 +4,7 @@
  * Direct API access without caching. For React/Vue apps, use framework-specific hooks/composables.
  * Use this for server-side operations, scripts, or custom integrations.
  *
- * Provides 42 methods across datasets, datastore, data dictionaries, harvests, imports,
+ * Provides 40 methods across datasets, datastore, data dictionaries, harvests, imports,
  * metastore, revisions, downloads, and utilities. Supports Basic auth (default in DKAN 2.x)
  * and Bearer tokens (requires extra modules).
  *

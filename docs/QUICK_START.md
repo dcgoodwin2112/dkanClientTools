@@ -191,8 +191,8 @@ Or with token authentication:
 ```typescript
 const client = new DkanClient({
   baseUrl: 'https://your-dkan-site.com',
-  headers: {
-    'Authorization': 'Bearer your-token-here'
+  auth: {
+    token: 'your-api-token'
   }
 })
 ```

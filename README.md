@@ -140,7 +140,7 @@ const data = await apiClient.queryDatastore('dataset-id', 0, {
 
 ## API Coverage
 
-The packages provide **50+ hooks/composables** covering all major DKAN REST APIs:
+The packages provide **39 hooks/composables per package** covering all major DKAN REST APIs:
 
 - **Datasets** - Search, CRUD operations, metadata management
 - **Datastore** - Query data with SQL-like filters, statistics, imports
@@ -225,7 +225,7 @@ See **[Build Process](./docs/BUILD_PROCESS.md)** for detailed build documentatio
 
 ### Testing
 
-Comprehensive test suite with **500+ tests** across React and Vue packages:
+Comprehensive test suite with **506 tests** (Core: 225, React: 181, Vue: 100) across all packages:
 
 ```bash
 # Run all tests

@@ -4,7 +4,7 @@ Vue composables for DKAN client tools. Built on [TanStack Vue Query](https://tan
 
 ## Features
 
-- 40+ idiomatic Vue composables covering all DKAN APIs
+- 39 idiomatic Vue composables covering all DKAN APIs
 - Automatic refetching and background updates
 - Efficient caching and deduplication via TanStack Query
 - First-class mutation support for create/update/delete operations
@@ -80,12 +80,11 @@ const { data: searchResults, isLoading } = useDatasetSearch({
 |----------|-------------|
 | **Dataset Query** (3) | `useDataset`, `useDatasetSearch`, `useAllDatasets` |
 | **Dataset Mutations** (4) | `useCreateDataset`, `useUpdateDataset`, `usePatchDataset`, `useDeleteDataset` |
-| **Datastore** (5) | `useDatastore`, `useSqlQuery`, `useExecuteSqlQuery`, `useDownloadQuery`, `useDownloadQueryByDistribution` |
+| **Datastore** (6) | `useDatastore`, `useQueryDatastoreMulti`, `useSqlQuery`, `useExecuteSqlQuery`, `useDownloadQuery`, `useDownloadQueryByDistribution` |
 | **Data Dictionary** (7) | `useDataDictionary`, `useDataDictionaryList`, `useDataDictionaryFromUrl`, `useDatastoreSchema`, `useCreateDataDictionary`, `useUpdateDataDictionary`, `useDeleteDataDictionary` |
 | **Harvest** (6) | `useHarvestPlans`, `useHarvestPlan`, `useHarvestRuns`, `useHarvestRun`, `useRegisterHarvestPlan`, `useRunHarvest` |
 | **Datastore Import** (4) | `useDatastoreImports`, `useDatastoreImport`, `useTriggerDatastoreImport`, `useDeleteDatastore` |
-| **Metastore** (3) | `useSchemas`, `useSchemaItems`, `useDatasetFacets` |
-| **Dataset Properties** (3) | `useDatasetProperties`, `usePropertyValues`, `useAllPropertiesWithValues` |
+| **Metastore** (4) | `useSchemas`, `useSchema`, `useSchemaItems`, `useDatasetFacets` |
 | **Revisions** (4) | `useRevisions`, `useRevision`, `useCreateRevision`, `useChangeDatasetState` |
 
 ## Vue-Specific Features
