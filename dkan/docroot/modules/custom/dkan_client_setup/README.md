@@ -88,6 +88,27 @@ ddev drush dkan-client:create-data-dictionaries
 
 **Idempotent:** Safe to run multiple times.
 
+### Clean Refresh
+
+Remove all existing demo content and sample datasets, then recreate:
+
+```bash
+ddev drush dkan-client:setup --clean
+```
+
+**Removes:**
+- Demo pages (3 pages)
+- Demo blocks (3 blocks)
+- Data dictionaries (all *-dict items)
+- Sample datasets (reverts sample_content harvest)
+
+**Then Creates:**
+- Fresh demo pages
+- Fresh demo blocks
+- Fresh data dictionaries
+
+**Use Case:** Reset demo environment to clean state.
+
 ## Aliases
 
 Short aliases available:
@@ -96,7 +117,9 @@ Short aliases available:
 - `dkan-client-dictionaries` → `dkan-client:create-data-dictionaries`
 - `dkan-client-demo-setup` → `dkan-client:setup`
 
-## Usage Example
+## Usage Examples
+
+### Normal Setup (Idempotent)
 
 ```bash
 # Enable module
@@ -109,6 +132,17 @@ ddev drush dkan-client:setup
 open https://dkan.ddev.site/vanilla-demo
 open https://dkan.ddev.site/react-demo
 open https://dkan.ddev.site/vue-demo
+```
+
+### Clean Refresh
+
+```bash
+# Remove all demo content and sample datasets, then recreate
+ddev drush dkan-client:setup --clean
+
+# Or via bash script
+cd /path/to/dkan
+bash scripts/setup-site.sh -c
 ```
 
 ## Architecture
