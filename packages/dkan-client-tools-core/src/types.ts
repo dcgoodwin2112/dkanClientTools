@@ -117,33 +117,10 @@ export interface DatasetQueryOptions {
   theme?: string
   fulltext?: string
 
-  /**
-   * Field(s) to sort by. Supports both single field and multi-field sorting.
-   *
-   * @example
-   * ```typescript
-   * // Single field
-   * sort: 'title'
-   *
-   * // Multiple fields (sort by modified date, then title)
-   * sort: ['modified', 'title']
-   * ```
-   */
+  /** Field(s) to sort by. Supports single field or array for multi-field sorting. */
   sort?: string | string[]
 
-  /**
-   * Sort order(s). Supports both single order and multiple orders for multi-field sorting.
-   * When using multiple sort fields, provide corresponding sort orders.
-   *
-   * @example
-   * ```typescript
-   * // Single order
-   * 'sort-order': 'asc'
-   *
-   * // Multiple orders (descending by date, then ascending by title)
-   * 'sort-order': ['desc', 'asc']
-   * ```
-   */
+  /** Sort order(s). Single or array for multi-field sorting (corresponds to sort fields). */
   'sort-order'?: 'asc' | 'desc' | Array<'asc' | 'desc'>
 
   page?: number
@@ -203,13 +180,7 @@ export interface DkanClientConfig {
   defaultOptions?: DkanDefaultOptions
 }
 
-/**
- * Authentication configuration for DKAN API client.
- *
- * Basic Auth works out-of-the-box with DKAN 2.x. Bearer tokens require additional Drupal modules.
- *
- * @see ../../README.md#authentication for setup details
- */
+/** Authentication for DKAN API. Basic Auth works with DKAN 2.x, tokens require additional modules. */
 export interface DkanAuth {
   username?: string
   password?: string
@@ -423,36 +394,13 @@ export interface QueryDownloadOptions extends DatastoreQueryOptions {
  * SQL Query types
  */
 export interface SqlQueryOptions {
-  /**
-   * SQL query string in DKAN bracket syntax.
-   *
-   * Format: `[SELECT columns FROM distribution-id][WHERE conditions][ORDER BY fields][LIMIT n OFFSET m];`
-   *
-   * @example
-   * ```typescript
-   * {
-   *   query: '[SELECT * FROM abc123][LIMIT 10];'
-   * }
-   * ```
-   */
+  /** SQL query in DKAN bracket syntax: `[SELECT cols FROM dist-id][WHERE...][ORDER BY...][LIMIT n];` */
   query: string
 
-  /**
-   * Return database column names instead of human-readable descriptions.
-   * Useful for building queries when column headers are very long.
-   *
-   * @default false
-   */
+  /** Return database column names instead of human-readable descriptions. @default false */
   show_db_columns?: boolean
 
-  /**
-   * HTTP method to use for the request.
-   *
-   * - GET: Recommended for most queries, matches DKAN standard examples
-   * - POST: More permissive (no auth required), useful for complex queries
-   *
-   * @default 'GET'
-   */
+  /** HTTP method. GET (standard) or POST (no auth required). @default 'GET' */
   method?: 'GET' | 'POST'
 }
 

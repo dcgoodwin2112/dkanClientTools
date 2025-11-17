@@ -1,162 +1,53 @@
 # API Response Fixtures
 
-This directory contains recorded API responses from a live DKAN instance for use in integration testing.
-
-## Overview
-
-These fixtures were generated using the API Response Recorder script (`scripts/record-api-responses.ts`) running against a local DKAN 2.x instance. They provide real-world API responses for testing and validation.
+Recorded API responses from live DKAN instance for integration testing. Generated via `scripts/record-api-responses.ts` against local DKAN 2.x.
 
 ## Files
 
-- **summary.json** - Complete recording summary with metadata and all results
-- **dataset-operations.json** - Dataset CRUD operations (7 methods)
-- **datastore-operations.json** - Datastore query operations (5 methods)
-- **data-dictionary.json** - Data dictionary operations (6 methods)
-- **harvest.json** - Harvest plan and run operations (6 methods)
-- **datastore-imports.json** - Datastore import operations (4 methods)
-- **metastore.json** - Metastore schema operations (6 methods)
-- **revisions.json** - Revision/moderation operations (4 methods)
-- **utility.json** - Utility operations (2 methods)
-- **openapi.json** - OpenAPI documentation operations (1 method)
+- `summary.json` - Recording summary with metadata
+- `dataset-operations.json`, `datastore-operations.json`, `data-dictionary.json`, `harvest.json`, `datastore-imports.json`, `metastore.json`, `revisions.json`, `utility.json`, `openapi.json` - API operation fixtures
 
-## Successfully Recorded APIs (12/45)
+## Coverage
 
-### Dataset Operations (3/7)
-- ✓ `getDataset` - Get single dataset by ID
-- ✓ `searchDatasets` - Search datasets with filters
-- ✓ `listAllDatasets` - List all datasets
+**Recorded (12/45)**: Dataset operations (3), data dictionaries (1), harvest (3), metastore (3), revisions (1), OpenAPI (1)
 
-### Data Dictionary (1/6)
-- ✓ `listDataDictionaries` - List all data dictionaries
+**Skipped (21)**: Mutations in read-only mode (12), missing test data (6), datastore operations requiring imports (3)
 
-### Harvest Operations (3/6)
-- ✓ `listHarvestPlans` - List all harvest plans
-- ✓ `getHarvestPlan` - Get specific harvest plan
-- ✓ `listHarvestRuns` - List harvest runs for a plan
-
-### Metastore Operations (3/6)
-- ✓ `listSchemas` - List all metastore schemas
-- ✓ `getSchemaItems` - Get items for a schema
-- ✓ `getDatasetFacets` - Get dataset facets (themes, keywords, publishers)
-
-### Revision Operations (1/4)
-- ✓ `getRevisions` - Get revision history for an item
-
-### OpenAPI (1/2)
-- ✓ `getOpenApiDocsUrl` - Get URL to API documentation
-
-## Skipped APIs (21/45)
-
-### Read-only Mode (12)
-Mutation operations skipped in read-only mode:
-- createDataset, updateDataset, patchDataset, deleteDataset
-- createDataDictionary, updateDataDictionary, deleteDataDictionary
-- registerHarvestPlan, runHarvest
-- triggerDatastoreImport, deleteDatastore
-- createRevision, changeDatasetState
-
-### Missing Test Data (6)
-Operations skipped due to missing test data:
-- getDataDictionary (no data dictionary found)
-- getDataDictionaryFromUrl (requires URL)
-- getHarvestRun (no completed run found)
-- getRevision (requires specific revision ID)
-- downloadQueryByDistribution (distribution not found)
-
-## API Errors (12/45)
-
-### Datastore Operations (4)
-- queryDatastore, getDatastoreSchema, querySql, downloadQuery
-- **Reason**: Datastores not imported for test datasets
-
-### Datastore Imports (1)
-- listDatastoreImports
-- **Reason**: Endpoint returns 404 (might not be enabled in this DKAN version)
-
-### Dataset Properties (3)
-- getDatasetProperties, getPropertyValues, getAllPropertiesWithValues
-- **Reason**: Properties API endpoint returns 404 (API not present in DKAN 2.21.2)
+**Errors (12)**: Datastore operations (4 - not imported), datastore imports endpoint (1 - 404), dataset properties API (3 - not in DKAN 2.21.2)
 
 ## Recording Details
 
-**Source**: Local DKAN 2.x instance (http://dkan.ddev.site)
-**Date**: 2025-11-12
-**Authentication**: Admin user (required for harvest plans and revisions)
-**Mode**: Read-only (mutations skipped)
-**Total Methods**: 45
-**Success Rate**: 26.7% (12 recorded)
+Source: DKAN 2.x (http://dkan.ddev.site), Date: 2025-11-12, Mode: Read-only, Success: 12/45 (26.7%)
 
 ## Regenerating Fixtures
 
-To update these fixtures with fresh data:
-
 ```bash
-# From packages/dkan-client-tools-core directory
-
-# Read-only mode (no mutations, public endpoints only)
+# Read-only (public endpoints)
 DKAN_URL=http://dkan.ddev.site npm run record:api:readonly
 
-# Read-only with authentication (includes harvest plans, revisions)
-DKAN_URL=http://dkan.ddev.site \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api:readonly
+# Read-only with auth (includes harvest, revisions)
+DKAN_URL=http://dkan.ddev.site DKAN_USER=admin DKAN_PASS=admin npm run record:api:readonly
 
-# Full mode with mutations (includes create/update/delete operations)
-# WARNING: Creates and deletes test resources
-DKAN_URL=http://dkan.ddev.site \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api
+# Full mode with mutations (creates/deletes test resources)
+DKAN_URL=http://dkan.ddev.site DKAN_USER=admin DKAN_PASS=admin npm run record:api
+
+# Manual cleanup only
+CLEANUP_ONLY=true DKAN_USER=admin DKAN_PASS=admin npm run record:api
 ```
 
-### Cleanup & Safety
+Automatic cleanup: Pre/post-cleanup removes orphaned resources, uses UUID prefixes (`test-recorder-{uuid}`, `test-dict-{uuid}`).
 
-The recording script includes automatic cleanup:
-- **Pre-cleanup**: Removes orphaned test resources from previous failed runs
-- **Post-cleanup**: Verifies all created test resources were deleted
-- **Unique IDs**: Uses UUIDs to avoid ID collisions
-- **Error recovery**: Cleanup runs even if the script crashes
-
-Test resources use predictable prefixes:
-- Datasets: `test-recorder-{uuid}`
-- Data dictionaries: `test-dict-{uuid}`
-
-### Manual Cleanup
-
-If test resources are orphaned, clean them manually:
-
-```bash
-# Clean up orphaned test resources (no recording)
-CLEANUP_ONLY=true \
-DKAN_USER=admin \
-DKAN_PASS=admin \
-npm run record:api
-```
-
-## Using Fixtures in Tests
-
-These fixtures can be used in integration tests to validate API responses without requiring a live DKAN instance:
+## Using Fixtures
 
 ```typescript
-import datasetFixtures from './__tests__/fixtures/dataset-operations.json'
-import metastoreFixtures from './__tests__/fixtures/metastore.json'
-
-// Use recorded responses in tests
-const getDatasetResponse = datasetFixtures.find(f => f.method === 'getDataset')
-expect(actualResponse).toEqual(getDatasetResponse.response)
+import fixtures from './__tests__/fixtures/dataset-operations.json'
+const response = fixtures.find(f => f.method === 'getDataset')
+expect(actualResponse).toEqual(response.response)
 ```
 
-## Next Steps
+## Capturing Remaining APIs
 
-To capture the remaining APIs:
-
-1. **Enable Datastore**: Import CSV data into datastores to test datastore operations
-2. **Run Harvests**: Execute harvest runs to test harvest run APIs
-3. **Check DKAN Version**: Verify which APIs are available in this version
-4. **Configure Properties API**: Enable dataset properties endpoint if available
-5. **Full Recording**: Run with mutations enabled to test create/update/delete operations
-
-## Related Files
-
-- `scripts/record-api-responses.ts` - API recording script
+1. Import CSV data to test datastore operations
+2. Execute harvest runs for harvest run APIs
+3. Enable dataset properties endpoint if available
+4. Run full mode for mutation operations
