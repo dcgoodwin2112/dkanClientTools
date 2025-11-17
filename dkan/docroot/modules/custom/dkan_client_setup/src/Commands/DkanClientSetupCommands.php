@@ -9,6 +9,7 @@ use Drupal\datastore\DatastoreService;
 use Drupal\metastore\MetastoreService;
 use Drupal\metastore\Storage\DataFactory;
 use Drupal\metastore\DataDictionary\DataDictionaryDiscovery;
+use Drupal\harvest\HarvestService;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -52,6 +53,13 @@ class DkanClientSetupCommands extends DrushCommands {
   protected $dictionaryDiscovery;
 
   /**
+   * The harvest service.
+   *
+   * @var \Drupal\harvest\HarvestService
+   */
+  protected $harvestService;
+
+  /**
    * JSONPath for extracting resource ID from distribution reference.
    *
    * Used when downloadURL is a %Ref:downloadURL reference to a resource.
@@ -78,13 +86,16 @@ class DkanClientSetupCommands extends DrushCommands {
    *   The metastore data factory.
    * @param \Drupal\metastore\DataDictionary\DataDictionaryDiscovery $dictionary_discovery
    *   The data dictionary discovery service.
+   * @param \Drupal\harvest\HarvestService $harvest_service
+   *   The harvest service.
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
     DatastoreService $datastore_service,
     MetastoreService $metastore_service,
     DataFactory $data_factory,
-    DataDictionaryDiscovery $dictionary_discovery
+    DataDictionaryDiscovery $dictionary_discovery,
+    HarvestService $harvest_service
   ) {
     parent::__construct();
     $this->entityTypeManager = $entity_type_manager;
@@ -92,6 +103,7 @@ class DkanClientSetupCommands extends DrushCommands {
     $this->metastoreService = $metastore_service;
     $this->dataFactory = $data_factory;
     $this->dictionaryDiscovery = $dictionary_discovery;
+    $this->harvestService = $harvest_service;
   }
 
   /**
@@ -460,12 +472,21 @@ class DkanClientSetupCommands extends DrushCommands {
    * Complete DKAN Client Tools demo setup.
    *
    * @command dkan-client:setup
+   * @option clean Remove existing demo content before setup.
    * @usage dkan-client:setup
    *   Runs complete demo setup (creates pages and places blocks).
+   * @usage dkan-client:setup --clean
+   *   Removes existing demo content and sample datasets, then runs setup.
    * @aliases dkan-client-demo-setup
    */
-  public function setupDemo() {
+  public function setupDemo(array $options = ['clean' => FALSE]) {
     $this->logger()->notice('Starting DKAN Client Tools demo setup...');
+
+    // Clean existing content if requested.
+    if ($options['clean']) {
+      $this->logger()->notice('Clean option enabled - removing existing content first...');
+      $this->cleanAll();
+    }
 
     // Create demo pages.
     $this->createDemoPages();
@@ -481,6 +502,201 @@ class DkanClientSetupCommands extends DrushCommands {
     $this->logger()->notice('  - /vanilla-demo');
     $this->logger()->notice('  - /react-demo');
     $this->logger()->notice('  - /vue-demo');
+  }
+
+  /**
+   * Remove all demo content and sample datasets.
+   *
+   * Cleans demo pages, blocks, data dictionaries, and sample datasets.
+   */
+  protected function cleanAll() {
+    $this->logger()->notice('Removing all demo content and sample datasets...');
+
+    // Clean in reverse order of dependencies.
+    $this->cleanBlocks();
+    $this->cleanDemoPages();
+    $this->cleanDataDictionaries();
+    $this->cleanSampleContent();
+
+    $this->logger()->success('All demo content and sample datasets removed.');
+  }
+
+  /**
+   * Remove demo pages created by setup.
+   *
+   * @return int
+   *   Number of pages deleted.
+   */
+  protected function cleanDemoPages() {
+    $deleted = 0;
+
+    $page_titles = [
+      'Vanilla JavaScript Demo',
+      'React Demo',
+      'Vue Demo',
+    ];
+
+    foreach ($page_titles as $title) {
+      try {
+        $nodes = $this->entityTypeManager
+          ->getStorage('node')
+          ->loadByProperties([
+            'type' => 'page',
+            'title' => $title,
+          ]);
+
+        if (!empty($nodes)) {
+          foreach ($nodes as $node) {
+            $node->delete();
+            $deleted++;
+            $this->logger()->success('Deleted page: ' . $title);
+          }
+        }
+        else {
+          $this->logger()->notice('Page not found (already deleted): ' . $title);
+        }
+      }
+      catch (\Exception $e) {
+        $this->logger()->error('Failed to delete page "' . $title . '": ' . $e->getMessage());
+      }
+    }
+
+    $this->logger()->notice('Demo pages cleanup: ' . $deleted . ' deleted.');
+    return $deleted;
+  }
+
+  /**
+   * Remove demo blocks created by setup.
+   *
+   * @return int
+   *   Number of blocks deleted.
+   */
+  protected function cleanBlocks() {
+    $deleted = 0;
+
+    $block_ids = [
+      'dkan_client_vanilla_demo_block',
+      'dkan_client_react_demo_block',
+      'dkan_client_vue_demo_block',
+    ];
+
+    foreach ($block_ids as $block_id) {
+      try {
+        $block = Block::load($block_id);
+        if ($block) {
+          $label = $block->label();
+          $block->delete();
+          $deleted++;
+          $this->logger()->success('Deleted block: ' . $label);
+        }
+        else {
+          $this->logger()->notice('Block not found (already deleted): ' . $block_id);
+        }
+      }
+      catch (\Exception $e) {
+        $this->logger()->error('Failed to delete block "' . $block_id . '": ' . $e->getMessage());
+      }
+    }
+
+    $this->logger()->notice('Demo blocks cleanup: ' . $deleted . ' deleted.');
+    return $deleted;
+  }
+
+  /**
+   * Remove data dictionaries created by setup.
+   *
+   * Removes all data dictionaries matching the *-dict pattern.
+   *
+   * @return int
+   *   Number of dictionaries deleted.
+   */
+  protected function cleanDataDictionaries() {
+    $deleted = 0;
+    $errors = 0;
+
+    try {
+      $dict_storage = $this->dataFactory->getInstance('data-dictionary');
+
+      // Get all data dictionaries.
+      try {
+        $dictionaries = $this->metastoreService->getAll('data-dictionary');
+      }
+      catch (\Exception $e) {
+        $this->logger()->notice('No data dictionaries found to clean: ' . $e->getMessage());
+        return 0;
+      }
+
+      if (empty($dictionaries)) {
+        $this->logger()->notice('No data dictionaries found to clean.');
+        return 0;
+      }
+
+      foreach ($dictionaries as $dictionary) {
+        /** @var \RootedData\RootedJsonData $dictionary */
+        $dict_id = $dictionary->get('$.identifier');
+        $dict_title = $dictionary->get('$.data.title') ?? $dict_id;
+
+        if (!$dict_id) {
+          continue;
+        }
+
+        // Only delete dictionaries with -dict suffix (created by setup).
+        if (str_ends_with($dict_id, '-dict')) {
+          try {
+            $dict_storage->remove($dict_id);
+            $deleted++;
+            $this->logger()->success('Deleted data dictionary: ' . $dict_title);
+          }
+          catch (\Exception $e) {
+            $this->logger()->error('Failed to delete dictionary "' . $dict_title . '": ' . $e->getMessage());
+            $errors++;
+          }
+        }
+      }
+
+      $this->logger()->notice('Data dictionaries cleanup: ' . $deleted . ' deleted, ' . $errors . ' errors.');
+    }
+    catch (\Exception $e) {
+      $this->logger()->error('Error during data dictionary cleanup: ' . $e->getMessage());
+    }
+
+    return $deleted;
+  }
+
+  /**
+   * Remove sample content datasets.
+   *
+   * Reverts and deregisters the sample_content harvest plan.
+   *
+   * @return int
+   *   Number of items reverted.
+   */
+  protected function cleanSampleContent() {
+    $harvest_id = 'sample_content';
+
+    try {
+      // Check if harvest plan exists.
+      if (!$this->harvestService->getHarvestPlanObject($harvest_id)) {
+        $this->logger()->notice('Sample content harvest plan not found (already removed).');
+        return 0;
+      }
+
+      // Revert harvest (deletes all harvested datasets).
+      $this->logger()->notice('Reverting sample content harvest...');
+      $count = $this->harvestService->revertHarvest($harvest_id);
+      $this->logger()->success('Reverted ' . $count . ' sample content items.');
+
+      // Deregister harvest plan.
+      $this->logger()->notice('Deregistering sample content harvest plan...');
+      $this->harvestService->deregisterHarvest($harvest_id);
+      $this->logger()->success('Sample content harvest plan deregistered.');
+
+      return $count;
+    }
+    catch (\Exception $e) {
+      $this->logger()->error('Error during sample content cleanup: ' . $e->getMessage());
+      return 0;
+    }
   }
 
   /**

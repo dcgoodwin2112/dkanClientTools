@@ -6,8 +6,28 @@
 # Automates complete DKAN development environment setup.
 # Idempotent - safe to run multiple times.
 #
+# Usage:
+#   ./setup-site.sh       # Normal idempotent setup
+#   ./setup-site.sh -c    # Clean refresh (removes all demo content and sample datasets first)
+#
 
 set -e  # Exit on error
+
+# Parse command line options
+CLEAN_FIRST=false
+while getopts "c" opt; do
+  case $opt in
+    c)
+      CLEAN_FIRST=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      echo "Usage: $0 [-c]" >&2
+      echo "  -c  Clean refresh (remove existing demo content and sample datasets first)" >&2
+      exit 1
+      ;;
+  esac
+done
 
 # Color codes
 GREEN='\033[0;32m'
@@ -32,8 +52,22 @@ fi
 echo ""
 echo "========================================="
 echo " DKAN Client Tools - Site Setup"
+if [ "$CLEAN_FIRST" = true ]; then
+  echo " (Clean Refresh Mode)"
+fi
 echo "========================================="
 echo ""
+
+# Clean existing content if requested
+if [ "$CLEAN_FIRST" = true ]; then
+  echo -e "${YELLOW}Clean mode enabled - removing existing demo content and sample datasets...${NC}"
+  echo ""
+  drush dkan-client:setup --clean
+  echo ""
+  echo -e "${CHECK} Clean refresh complete!"
+  echo ""
+  exit 0
+fi
 
 # Step 1: Verify Drupal installation
 echo -e "${CHECK} Step 1/10: Verifying Drupal installation..."

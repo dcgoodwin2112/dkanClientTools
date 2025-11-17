@@ -7,5 +7,6 @@ services:
       - '@dkan.metastore.service'
       - '@dkan.metastore.storage'
       - '@dkan.metastore.data_dictionary_discovery'
+      - '@dkan.harvest.service'
     tags:
       - { name: drush.command }

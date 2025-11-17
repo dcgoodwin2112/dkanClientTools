@@ -277,8 +277,11 @@ cd dkan
 ddev drush si --account-pass=admin -y
 ddev start  # Automated setup runs on post-start hook
 
-# Manual setup script
+# Manual setup script (idempotent)
 ddev exec bash scripts/setup-site.sh
+
+# Clean refresh (removes demo content and sample datasets, then recreates)
+ddev exec bash scripts/setup-site.sh -c
 
 # Complete rebuild (destroys database)
 ddev exec bash scripts/rebuild-site.sh
@@ -286,9 +289,11 @@ ddev exec bash scripts/rebuild-site.sh
 
 **Automation Drush Commands**:
 ```bash
-ddev drush dkan-client:create-demo-pages  # Create demo pages
-ddev drush dkan-client:place-blocks       # Place demo blocks
-ddev drush dkan-client:setup              # Complete setup (pages + blocks)
+ddev drush dkan-client:create-demo-pages     # Create demo pages
+ddev drush dkan-client:place-blocks          # Place demo blocks
+ddev drush dkan-client:create-data-dictionaries  # Create data dictionaries
+ddev drush dkan-client:setup                 # Complete setup (idempotent)
+ddev drush dkan-client:setup --clean         # Clean refresh (removes all, then recreates)
 ```
 
 **Common Commands**:
@@ -567,6 +572,7 @@ Fetch a single dataset by identifier.
   - Commit: Add at end of commit body (not subject line)
   - PR: Add at bottom of description with separator line
   - Format: `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
+- PR descriptions should also include `Co-Authored-By: Claude <noreply@anthropic.com>`
 
 **Important Notes**:
 - Dataset Properties API endpoints return 404 in DKAN 2.x (not available)
