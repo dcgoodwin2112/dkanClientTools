@@ -83,34 +83,17 @@ export function useDatastoreImport(options: UseDatastoreImportOptions) {
 }
 
 /**
- * Mutation composable to trigger a datastore import
+ * Triggers a datastore import for a resource.
  *
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useTriggerDatastoreImport } from '@dkan-client-tools/vue'
- *
- * const props = defineProps<{ resourceId: string }>()
- *
  * const triggerImport = useTriggerDatastoreImport()
  *
- * const handleImport = () => {
- *   triggerImport.mutate(
- *     { resource_id: props.resourceId },
- *     {
- *       onSuccess: (result) => {
- *         console.log('Import started:', result.status)
- *       },
- *     }
- *   )
+ * function handleImport() {
+ *   triggerImport.mutate({ resource_id: 'resource-uuid' })
  * }
  * </script>
- *
- * <template>
- *   <button @click="handleImport" :disabled="triggerImport.isPending">
- *     {{ triggerImport.isPending ? 'Starting...' : 'Import to Datastore' }}
- *   </button>
- * </template>
  * ```
  */
 export function useTriggerDatastoreImport() {
@@ -129,38 +112,17 @@ export function useTriggerDatastoreImport() {
 }
 
 /**
- * Mutation composable to delete a datastore
- * Deletes a specific resource datastore or all datastores for a dataset
+ * Deletes a datastore for a specific resource or dataset.
  *
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useDeleteDatastore } from '@dkan-client-tools/vue'
- *
- * const props = defineProps<{ identifier: string }>()
- *
  * const deleteDatastore = useDeleteDatastore()
  *
- * const handleDelete = () => {
- *   if (confirm('Delete this datastore? This cannot be undone.')) {
- *     deleteDatastore.mutate(props.identifier, {
- *       onSuccess: (result) => {
- *         console.log(result.message)
- *       },
- *     })
- *   }
+ * function handleDelete() {
+ *   deleteDatastore.mutate('identifier')
  * }
  * </script>
- *
- * <template>
- *   <button
- *     @click="handleDelete"
- *     :disabled="deleteDatastore.isPending"
- *     class="btn-danger"
- *   >
- *     {{ deleteDatastore.isPending ? 'Deleting...' : 'Delete Datastore' }}
- *   </button>
- * </template>
  * ```
  */
 export function useDeleteDatastore() {
