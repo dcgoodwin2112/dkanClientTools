@@ -1,0 +1,81 @@
+# dkanClientTools
+
+TypeScript monorepo for DKAN data catalog integration. Framework-agnostic core with React and Vue adapters built on TanStack Query.
+
+## Project Guidance
+
+- Quick reference: /PROJECT_INFO.md
+- Comprehensive guidance: /CLAUDE.md
+- Global AI preferences: ~/.claude/CLAUDE.md
+
+## Core Documentation
+
+- Architecture: /docs/ARCHITECTURE.md
+- API reference: /docs/API_REFERENCE.md
+- Build process: /docs/BUILD_PROCESS.md
+- Development: /docs/DEVELOPMENT.md
+- Installation: /docs/INSTALLATION.md
+- Patterns: /docs/reference/PATTERNS.md
+
+## Framework Guides
+
+- React integration: /docs/REACT_GUIDE.md
+- Vue integration: /docs/VUE_GUIDE.md
+- Drupal integration: /docs/DRUPAL_INTEGRATION.md
+
+## Packages
+
+### Core Package
+- Location: /packages/dkan-client-tools-core
+- README: /packages/dkan-client-tools-core/README.md
+- Testing: /packages/dkan-client-tools-core/TESTING.md
+- API client: /packages/dkan-client-tools-core/src/api/client.ts
+- Types: /packages/dkan-client-tools-core/src/types.ts
+
+### React Package
+- Location: /packages/dkan-client-tools-react
+- README: /packages/dkan-client-tools-react/README.md
+- Testing: /packages/dkan-client-tools-react/TESTING.md
+- Example hook: /packages/dkan-client-tools-react/src/useDataset.ts
+- Example test: /packages/dkan-client-tools-react/src/__tests__/useDataset.test.tsx
+
+### Vue Package
+- Location: /packages/dkan-client-tools-vue
+- README: /packages/dkan-client-tools-vue/README.md
+- Test summary: /packages/dkan-client-tools-vue/TEST_SUMMARY.md
+- Example composable: /packages/dkan-client-tools-vue/src/useDataset.ts
+- Example test: /packages/dkan-client-tools-vue/src/__tests__/useDataset.test.ts
+
+## External Dependencies Documentation
+
+- DKAN platform: /docs/external/platforms/DKAN.md
+- DKAN API: /docs/external/platforms/DKAN_API.md
+- TanStack Query: /docs/external/libraries/TANSTACK_QUERY.md
+- Data standards: /docs/external/standards/DATA_STANDARDS.md
+- TypeScript: /docs/external/frameworks/TYPESCRIPT.md
+- React hooks: /docs/external/frameworks/REACT_HOOKS.md
+- Vue Composition API: /docs/external/frameworks/VUE_COMPOSITION_API.md
+
+## Examples
+
+- React demo: /examples/react-demo-app
+- Vue demo: /examples/vue-demo-app
+
+## Key Directories
+
+- Source packages: /packages
+- Documentation: /docs
+- External docs: /docs/external
+- Build scripts: /scripts
+- DKAN development site: /dkan
+
+## Common Commands
+
+```bash
+npm run build:all    # Build packages, deploy, examples
+npm run dev          # Watch mode
+npm test             # All tests
+npm run typecheck    # Type checking
+```
+
+See /docs/DEVELOPMENT.md for complete command reference.

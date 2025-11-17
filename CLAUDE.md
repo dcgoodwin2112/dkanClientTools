@@ -54,115 +54,19 @@ npm run typecheck        # Verify TypeScript types
 
 ## Packages
 
-### @dkan-client-tools/core
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed package architecture and `/packages/*/README.md` for package-specific APIs.
 
-**Location**: `/packages/dkan-client-tools-core`
+- **@dkan-client-tools/core** (`/packages/dkan-client-tools-core`) - Framework-agnostic DkanClient wrapping TanStack Query Core. HTTP client for all DKAN REST APIs with TypeScript types for DCAT-US schema.
 
-Framework-agnostic core wrapping TanStack Query Core with DKAN-specific configuration.
+- **@dkan-client-tools/react** (`/packages/dkan-client-tools-react`) - React hooks built on Core and TanStack React Query. 40+ hooks covering all DKAN APIs with mutation support. React 18+ and TypeScript support.
 
-**Architecture**:
-- `DkanClient` - Wraps QueryClient with DKAN defaults
-- `DkanApiClient` - HTTP client for all DKAN REST APIs
-- TypeScript types for DCAT-US schema and API responses
-- Authentication: HTTP Basic (default), Bearer tokens (requires extra Drupal modules)
-
-**API Coverage**:
-Dataset, Datastore, Data Dictionary, Harvest, Metastore, Datastore Import, Revisions/Moderation, Utilities
-
-**Build**: TypeScript strict mode, dual ESM/CJS via tsup, source maps, tree-shakeable
-
-### @dkan-client-tools/react
-
-**Location**: `/packages/dkan-client-tools-react`
-
-React hooks built on `@dkan-client-tools/core` and TanStack React Query.
-
-**Features**:
-- Comprehensive hooks covering all DKAN APIs
-- Mutation support (create/update/delete operations)
-- React 18+ support
-- Full TypeScript support
-
-**Hook Categories**: Dataset (query + mutations), Datastore, Data Dictionary (query + mutations), Harvest, Datastore Import, Metastore, Revisions/Moderation, Download
-
-**Test Coverage**: Comprehensive tests for all hooks (loading, errors, success, mutations, callbacks) using Vitest + React Testing Library
-
-**Dependencies**: `@dkan-client-tools/core` (workspace), `@tanstack/react-query` (peer), `react` ^18.0.0 || ^19.0.0 (peer)
-
-### @dkan-client-tools/vue
-
-**Location**: `/packages/dkan-client-tools-vue`
-
-Vue composables built on `@dkan-client-tools/core` and TanStack Vue Query.
-
-**Features**:
-- Comprehensive composables covering all DKAN APIs
-- Mutation support (create/update/delete operations)
-- Vue 3 Composition API with `<script setup>` support
-- MaybeRefOrGetter types for reactive parameters
-
-**Composable Categories**: Dataset (query + mutations), Datastore, Data Dictionary (query + mutations), Harvest, Datastore Import, Metastore, Revisions/Moderation, Download
-
-**Test Coverage**: Comprehensive tests for all composables using Vitest + Vue Test Utils
-
-**Dependencies**: `@dkan-client-tools/core` (workspace), `@tanstack/vue-query` (peer), `vue` ^3.3.0 (peer)
+- **@dkan-client-tools/vue** (`/packages/dkan-client-tools-vue`) - Vue 3 composables built on Core and TanStack Vue Query. 40+ composables with MaybeRefOrGetter types for reactive parameters. Composition API with `<script setup>` support.
 
 ---
 
-## Development Setup
+## Development
 
-### Prerequisites
-
-- Node.js 20.19+ or 22.12+
-- npm >= 9.0.0
-
-### Building
-
-```bash
-# Complete build workflow
-npm run build:all                # Packages → deploy → examples → Drupal
-npm run build:all:drupal         # Build all + clear Drupal cache
-
-# Individual build phases
-npm run build:packages           # Build core, react, vue
-npm run build:examples           # Build standalone examples
-npm run build:drupal             # Build Drupal demo modules
-npm run build:deploy             # Deploy built packages to Drupal
-
-# Development
-npm run dev                      # Watch mode
-```
-
-### Testing
-
-```bash
-npm test                         # All tests
-npm run test:watch               # Watch mode
-npm run typecheck                # Type checking
-
-# Package-specific tests
-cd packages/dkan-client-tools-react && npm test
-cd packages/dkan-client-tools-vue && npm test
-```
-
-### Monorepo Management
-
-```bash
-# Add dependency to specific package
-npm install <package> -w @dkan-client-tools/core
-
-# Run script in specific package
-npm run build -w @dkan-client-tools/react
-
-# Run script in all packages
-npm run build --workspaces
-```
-
-**Workspace Notes**:
-- Internal dependencies use `workspace:*` protocol
-- Peer dependencies declared in each package
-- Common deps hoisted to root
-- Independent versioning per package
+See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for complete development setup, commands, and monorepo management.
 
 ---
 
@@ -189,73 +93,13 @@ npm run build --workspaces
    - React: Vitest + React Testing Library
    - Vue: Vitest + Vue Test Utils
 
-**Example Test Pattern**:
-```typescript
-let mockClient: DkanClient
-
-beforeEach(() => {
-  mockClient = new DkanClient({
-    baseUrl: 'https://test.example.com',
-    defaultOptions: { retry: 0 },
-  })
-})
-
-it('fetches dataset successfully', async () => {
-  vi.spyOn(mockClient, 'getDataset').mockResolvedValue(mockDataset)
-  // Test implementation
-})
-```
-
 ### Adding New Features
 
-**React Query Hook**:
-```typescript
-import { useQuery } from '@tanstack/react-query'
-import { useDkanClient } from './useDkanClient'
-
-export function useMyHook(options: MyOptions & { enabled?: boolean }) {
-  const dkanClient = useDkanClient()
-
-  return useQuery({
-    queryKey: ['myHook', options.param],
-    queryFn: () => dkanClient.myApiMethod(options.param),
-    enabled: options.enabled !== false && !!options.param,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
-}
-```
-
-**Vue Composable**:
-```typescript
-import { useQuery } from '@tanstack/vue-query'
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
-
-export function useMyComposable(options: { param: MaybeRefOrGetter<string> }) {
-  const client = useDkanClient()
-
-  return useQuery({
-    queryKey: computed(() => ['myComposable', toValue(options.param)]),
-    queryFn: () => client.myApiMethod(toValue(options.param)),
-  })
-}
-```
-
-**Mutation Hook/Composable**:
-```typescript
-import { useMutation, useQueryClient } from '@tanstack/[react|vue]-query'
-
-export function useMyMutation() {
-  const client = useDkanClient()
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (data: MyData) => client.myMutationMethod(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['related'] })
-    },
-  })
-}
-```
+See [PATTERNS.md](docs/reference/PATTERNS.md) for detailed test patterns, hook/composable examples, and implementation guidance. Key patterns:
+- Test pattern with DkanClient instances and vi.spyOn()
+- React Query hooks with useQuery and enabled options
+- Vue composables with MaybeRefOrGetter and computed query keys
+- Mutation hooks/composables with query invalidation
 
 ---
 
@@ -326,124 +170,18 @@ ddev composer install                     # Install dependencies
 
 ---
 
-## Documentation Guidelines
+## Documentation Standards
 
-### What Goes Where
+Follow formatting and communication standards in `~/.claude/CLAUDE.md`. Project-specific conventions:
 
-| Directory | Content | Examples |
-|-----------|---------|----------|
-| `/docs` | Internal project documentation | INSTALLATION.md, REACT_GUIDE.md, BUILD_PROCESS.md, API_REFERENCE.md |
-| `/docs/external` | External dependencies and technologies | platforms/DKAN_API.md, standards/DATA_STANDARDS.md, libraries/TANSTACK_QUERY.md |
-| Package READMEs | Package-specific installation and API | Each package's README.md |
+**Documentation Organization**:
+- `/docs` - Internal project documentation (installation, guides, architecture, API reference)
+- `/docs/external` - External dependencies (DKAN APIs, TanStack Query, data standards)
+- Package READMEs - Package-specific installation and usage
 
-**Simple Rule**: If it's about how dkanClientTools works internally or how to use it, put it in `/docs`. If it's about an external API, library, or standard, put it in `/docs/external`.
+**Simple Rule**: Internal project docs in `/docs`, external API/library/standard docs in `/docs/external`
 
-### Documentation Types
-
-**In /docs**:
-- Getting Started (INSTALLATION.md, QUICK_START.md)
-- Framework Guides (REACT_GUIDE.md, VUE_GUIDE.md)
-- Integration (DRUPAL_INTEGRATION.md, BUILD_PROCESS.md)
-- Reference (API_REFERENCE.md, ARCHITECTURE.md, reference/PATTERNS.md)
-
-**In /docs/external**:
-- External API documentation (platforms/DKAN_API.md)
-- Technology overviews (platforms/DKAN.md)
-- Standards/specs (standards/DATA_STANDARDS.md)
-- Framework references (frameworks/TYPESCRIPT.md, frameworks/REACT_HOOKS.md, frameworks/VUE_COMPOSITION_API.md)
-- Library references (libraries/TANSTACK_QUERY.md)
-
-### Formatting Standards
-
-**Heading Hierarchy** (consistent across all docs):
-- **H1 (`#`)** - Document title only
-- **H2 (`##`)** - Major sections
-- **H3 (`###`)** - Subtopics within sections
-- **H4 (`####`)** - Use sparingly for deep nesting
-
-**Section Separators**: Use `---` between major sections
-
-**Code Examples**: Always include language tags
-```markdown
-\```typescript
-// TypeScript example
-\```
-
-\```json
-{ "example": "JSON" }
-\```
-```
-
-Common tags: `typescript`, `javascript`, `jsx`, `tsx`, `json`, `http`, `sql`, `bash`
-
-**API Documentation Pattern**:
-```markdown
-### methodName(params)
-
-Brief description of what this does.
-
-**Parameters**:
-- `param1` (type, required) - Description
-- `param2` (type, optional) - Description
-
-**Returns**: Return type and description
-
-**Example**:
-\```typescript
-const result = methodName({ param1: 'value' })
-\```
-```
-
-**Callouts**:
-```markdown
-**IMPORTANT**: Critical information
-
-**NOTE**: Helpful context
-
-**WARNING**: Caution needed
-```
-
-**Typography**:
-- **Bold** (`**text**`) - Key terms, important concepts
-- `Code font` (`` `text` ``) - Identifiers, filenames, technical terms
-- *Italic* (`*text*`) - Subtle emphasis only (use sparingly)
-
-### Communication Style
-
-**Direct and concise**:
-- Focus on practical information developers need
-- Avoid unnecessary explanations
-- Use examples instead of lengthy descriptions
-- Get to the point quickly
-
-**Developer-focused**:
-- Technical accuracy over marketing
-- Assume knowledge of JavaScript/TypeScript, React, Vue, npm
-- Include implementation details and specifics
-- Explain "why" not just "what"
-
-**No hype**:
-- Don't oversell features or improvements
-- Present facts and tradeoffs objectively
-- Avoid superlatives and marketing language
-- Keep commit messages and docs concise and factual
-
-**Examples**:
-```markdown
-<!-- Good -->
-The DkanClient wraps QueryClient with default options for DKAN use cases.
-
-<!-- Avoid -->
-The amazing DkanClient dramatically improves your development experience by wrapping QueryClient with powerful default options!
-```
-
-### File Naming
-
-**Uppercase with underscores**:
-- `INSTALLATION.md`, `QUICK_START.md`
-- `REACT_GUIDE.md`, `VUE_GUIDE.md`
-- `DKAN_API.md`, `DATA_STANDARDS.md`
-- `CLAUDE.md` (this file)
+**Key Pattern**: Reference actual source files and existing documentation instead of repeating code examples or explanations
 
 ---
 
