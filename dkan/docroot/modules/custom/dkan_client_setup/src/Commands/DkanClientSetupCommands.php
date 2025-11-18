@@ -876,11 +876,11 @@ class DkanClientSetupCommands extends DrushCommands {
 
     foreach ($lines as $line) {
       if (strpos($line, 'DKAN_USER=') === 0) {
-        $updated_lines[] = "DKAN_USER={$username}";
+        $updated_lines[] = "DKAN_USER=\"{$username}\"";
         $found_user = TRUE;
       }
       elseif (strpos($line, 'DKAN_PASS=') === 0) {
-        $updated_lines[] = "DKAN_PASS={$password}";
+        $updated_lines[] = "DKAN_PASS=\"{$password}\"";
         $found_pass = TRUE;
       }
       else {
@@ -890,10 +890,10 @@ class DkanClientSetupCommands extends DrushCommands {
 
     // Add missing credentials if not found.
     if (!$found_user) {
-      $updated_lines[] = "DKAN_USER={$username}";
+      $updated_lines[] = "DKAN_USER=\"{$username}\"";
     }
     if (!$found_pass) {
-      $updated_lines[] = "DKAN_PASS={$password}";
+      $updated_lines[] = "DKAN_PASS=\"{$password}\"";
     }
 
     return implode("\n", $updated_lines);
@@ -917,11 +917,11 @@ class DkanClientSetupCommands extends DrushCommands {
 # DO NOT commit this file to version control
 
 # DKAN API User (auto-generated)
-DKAN_USER={$username}
-DKAN_PASS={$password}
+DKAN_USER="{$username}"
+DKAN_PASS="{$password}"
 
 # DKAN site URL
-DKAN_URL=https://dkan.ddev.site
+DKAN_URL="https://dkan.ddev.site"
 
 # Recording mode (optional)
 READ_ONLY=false
