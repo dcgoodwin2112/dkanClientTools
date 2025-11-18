@@ -462,6 +462,7 @@ class DkanClientSetupCommands extends DrushCommands {
           foreach ($processed_resources as $resource_id) {
             // Get the DataResource object from the resource mapper.
             // Use the 'local_file' perspective since that's what datastores use.
+            // Remote resources without local copies will return NULL and be skipped.
             $data_resource = $resource_mapper->get($resource_id, 'local_file');
             if ($data_resource) {
               $queue->createItem($data_resource);
@@ -589,7 +590,7 @@ class DkanClientSetupCommands extends DrushCommands {
       $this->cleanAll();
       $this->logger()->success('All demo content and sample datasets removed.');
       $this->logger()->notice('');
-      $this->logger()->notice('Clean complete. The setup script will now continue to re-import content.');
+      $this->logger()->notice('Clean complete. The setup script will continue to re-import content.');
       return;
     }
 
@@ -947,7 +948,8 @@ class DkanClientSetupCommands extends DrushCommands {
    *   The generated password.
    */
   protected function generateSecurePassword($length = 32) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+';
+    // Alphanumeric + safe special characters (excludes shell metacharacters like $, (, ))
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#%^&*-_=+';
     $characters_length = strlen($characters);
     $password = '';
 

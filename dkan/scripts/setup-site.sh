@@ -57,7 +57,8 @@ if [ "$CLEAN_FIRST" = true ]; then
   echo ""
   echo -e "${CHECK} Content cleaned. Continuing with fresh setup..."
   echo ""
-  # Don't exit - continue with normal setup to re-import everything
+  # Don't exit - continue with normal setup to re-import demo pages, blocks, and data dictionaries
+  # Note: Sample datasets were already re-imported during the clean process
 fi
 
 # Step 1: Verify Drupal installation

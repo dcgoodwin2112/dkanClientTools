@@ -52,12 +52,12 @@ const __dirname = dirname(__filename)
 const projectRoot = join(__dirname, '../../..')
 const NODE_ENV = process.env.NODE_ENV || 'development'
 
-// Load in priority order (later calls don't override earlier due to override: false)
-// This means shell vars and earlier .env files take precedence
-config({ path: join(projectRoot, '.env'), override: false })
-config({ path: join(projectRoot, '.env.local'), override: false })
-config({ path: join(projectRoot, `.env.${NODE_ENV}`), override: false })
+// Load in reverse priority order (with override: false, first loaded wins)
+// Shell vars are already loaded and will never be overridden
 config({ path: join(projectRoot, `.env.${NODE_ENV}.local`), override: false })
+config({ path: join(projectRoot, `.env.${NODE_ENV}`), override: false })
+config({ path: join(projectRoot, '.env.local'), override: false })
+config({ path: join(projectRoot, '.env'), override: false })
 
 interface RecordingConfig {
   baseUrl: string
