@@ -394,8 +394,9 @@ class DkanClientSetupCommands extends DrushCommands {
             $dist_json = $dist_storage->retrieve($dist_id);
             $dist_data = json_decode($dist_json, TRUE);
 
-            // Add describedBy field to distribution data.
+            // Add describedBy and describedByType fields to distribution data.
             $dist_data['data']['describedBy'] = $dict_url;
+            $dist_data['data']['describedByType'] = 'application/vnd.tableschema+json';
 
             // Update the distribution in metastore.
             $dist_storage->store(json_encode($dist_data), $dist_id);
