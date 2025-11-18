@@ -270,7 +270,7 @@ The `/dkan` directory contains a complete Drupal 10 + DKAN 2.x development envir
 cd dkan
 
 # Install Drupal
-ddev drush si --account-pass=admin -y
+ddev drush si -y
 
 # Start DDEV (automated setup runs automatically)
 ddev start
@@ -282,8 +282,11 @@ The automated setup:
 - Creates demo pages at `/vanilla-demo`, `/react-demo`, `/vue-demo`
 - Places demo blocks
 - Generates data dictionaries
+- Creates API user with secure credentials
 
-Access: https://dkan.ddev.site (admin/admin)
+**Access**: https://dkan.ddev.site
+
+**Admin Login**: `ddev drush uli` (generates one-time login link)
 
 ### Manual Setup Scripts
 

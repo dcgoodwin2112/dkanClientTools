@@ -26,6 +26,7 @@ echo " DKAN Client Tools - Site Rebuild"
 echo "========================================="
 echo ""
 echo -e "${WARN} ${YELLOW}WARNING:${NC} This will destroy the existing database!"
+echo -e "${WARN} ${YELLOW}NOTE:${NC} Existing API credentials in .env will be backed up to .env.backup"
 echo ""
 read -p "Are you sure you want to continue? (yes/no): " -r
 echo ""
@@ -40,8 +41,9 @@ echo ""
 
 # Step 1: Reinstall Drupal
 echo -e "${CHECK} Reinstalling Drupal..."
-drush si --account-pass=admin -y
+drush si -y
 echo -e "  ${CHECK} Drupal reinstalled"
+echo -e "  ${CHECK} Use 'ddev drush uli' to generate admin login link"
 echo ""
 
 # Step 2: Run setup script

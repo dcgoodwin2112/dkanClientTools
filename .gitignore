@@ -26,10 +26,20 @@ lerna-debug.log*
 *.sw?
 .DS_Store
 
-# Environment files
+# Environment files (credentials - never commit)
 .env
 .env.local
-.env.*.local
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Committed environment templates (safe - no credentials)
+# .env.example
+# .env.development.example
+# .env.test.example
+# .env.production.example
 
 # Testing
 coverage/

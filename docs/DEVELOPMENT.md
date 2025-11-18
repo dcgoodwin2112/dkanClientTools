@@ -71,7 +71,9 @@ npm run build --workspaces
 
 The `/dkan` directory contains a Drupal 10 + DKAN 2.x site for testing integration.
 
-**Access**: https://dkan.ddev.site (admin/admin)
+**Access**: https://dkan.ddev.site
+
+**Admin Login**: `ddev drush uli` (generates one-time login link)
 
 **Common Commands**:
 ```bash

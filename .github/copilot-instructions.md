@@ -240,7 +240,7 @@ The `/dkan` directory contains a fully configured Drupal 10 + DKAN 2.x developme
 
 **Access**:
 - Site URL: https://dkan.ddev.site
-- Admin credentials: admin/admin
+- Admin login: `ddev drush uli` (generates one-time login link)
 
 **Common Commands**:
 ```bash

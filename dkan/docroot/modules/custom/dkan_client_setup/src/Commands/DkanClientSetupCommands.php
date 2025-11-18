@@ -260,9 +260,22 @@ class DkanClientSetupCommands extends DrushCommands {
   public function createDataDictionaries() {
     $this->logger()->notice('Creating data dictionaries from datastore schemas...');
 
+    // Ensure data dictionary mode is set to 'reference' for distribution-specific dictionaries.
+    $config = \Drupal::configFactory()->getEditable('metastore.settings');
+    $current_mode = $config->get('data_dictionary_mode');
+
+    if ($current_mode !== 'reference') {
+      $config->set('data_dictionary_mode', 'reference')->save();
+      $this->logger()->success('Data dictionary mode configured to "reference" (distribution-specific).');
+    }
+    else {
+      $this->logger()->notice('Data dictionary mode already set to "reference".');
+    }
+
     $created = 0;
     $skipped = 0;
     $errors = 0;
+    $processed_resources = [];
 
     try {
       // Get all distributions from metastore.
@@ -335,34 +348,88 @@ class DkanClientSetupCommands extends DrushCommands {
           $dict_id = $dist_id . '-dict';
 
           // Check if dictionary already exists.
+          $dict_exists = FALSE;
           try {
             $existing = $dict_storage->retrieve($dict_id);
             if ($existing) {
+              $dict_exists = TRUE;
               $this->logger()->notice('  Dictionary already exists for: ' . $dist_title);
-              $skipped++;
-              continue;
             }
           }
           catch (\Exception $e) {
             // Dictionary doesn't exist, proceed with creation.
           }
 
-          $dict_data = [
-            'title' => 'Data Dictionary for ' . $dist_title,
-            'fields' => $fields,
-          ];
-
-          // Store via DataFactory.
-          try {
-            $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
+          // If dictionary exists, check if distribution is linked and skip.
+          if ($dict_exists) {
+            // Check if distribution already has describedBy field.
+            $current_described_by = $distribution->get('$.data.describedBy');
+            if (!empty($current_described_by)) {
+              $this->logger()->notice('  Dictionary already linked for: ' . $dist_title);
+              $skipped++;
+              continue;
+            }
+            else {
+              // Dictionary exists but not linked - link it below.
+              $this->logger()->notice('  Linking existing dictionary for: ' . $dist_title);
+            }
           }
-          catch (\JsonException $je) {
-            $this->logger()->error('  JSON encoding failed for dictionary "' . $dist_title . '": ' . $je->getMessage());
+
+          // Create dictionary only if it doesn't exist.
+          if (!$dict_exists) {
+            $dict_data = [
+              'title' => 'Data Dictionary for ' . $dist_title,
+              'fields' => $fields,
+            ];
+
+            // Store via DataFactory.
+            try {
+              $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
+              $this->logger()->success('  Created dictionary for: ' . $dist_title);
+            }
+            catch (\JsonException $je) {
+              $this->logger()->error('  JSON encoding failed for dictionary "' . $dist_title . '": ' . $je->getMessage());
+              $errors++;
+              continue;
+            }
+          }
+
+          // Link the data dictionary to the distribution via describedBy field.
+          try {
+            // Get the base URL for DKAN API.
+            $base_url = \Drupal::request()->getSchemeAndHttpHost();
+            $dict_url = $base_url . '/api/1/metastore/schemas/data-dictionary/items/' . $dict_id;
+
+            // Get distribution storage.
+            $dist_storage = $this->dataFactory->getInstance('distribution');
+
+            // Retrieve the current distribution data as JSON string.
+            $dist_json = $dist_storage->retrieve($dist_id);
+            $dist_data = json_decode($dist_json, TRUE);
+
+            // Add describedBy and describedByType fields to distribution data.
+            $dist_data['data']['describedBy'] = $dict_url;
+            $dist_data['data']['describedByType'] = 'application/vnd.tableschema+json';
+
+            // Update the distribution in metastore.
+            $dist_storage->store(json_encode($dist_data), $dist_id);
+
+            if ($dict_exists) {
+              $this->logger()->success('  Linked existing dictionary to distribution: ' . $dist_title);
+            }
+            else {
+              $this->logger()->success('  Linked new dictionary to distribution: ' . $dist_title);
+            }
+
+            // Track this resource for post-import re-processing.
+            $processed_resources[] = $resource_id;
+          }
+          catch (\Exception $e) {
+            $this->logger()->warning('  Dictionary created but linking failed for ' . $dist_title . ': ' . $e->getMessage());
             $errors++;
             continue;
           }
 
-          $this->logger()->success('  Created dictionary for: ' . $dist_title);
           $created++;
         }
         catch (\Exception $e) {
@@ -380,6 +447,38 @@ class DkanClientSetupCommands extends DrushCommands {
 
       if ($created > 0) {
         $this->logger()->success('Data dictionaries created successfully!');
+      }
+
+      // Queue resources for post-import re-processing to apply data dictionaries.
+      if (!empty($processed_resources)) {
+        $this->logger()->notice('');
+        $this->logger()->notice('Queueing resources for post-import re-processing...');
+
+        try {
+          $queue = \Drupal::queue('post_import');
+          $resource_mapper = $this->datastoreService->getResourceMapper();
+          $queued = 0;
+
+          foreach ($processed_resources as $resource_id) {
+            // Get the DataResource object from the resource mapper.
+            // Use the 'local_file' perspective since that's what datastores use.
+            // Remote resources without local copies will return NULL and be skipped.
+            $data_resource = $resource_mapper->get($resource_id, 'local_file');
+            if ($data_resource) {
+              $queue->createItem($data_resource);
+              $queued++;
+            }
+            else {
+              $this->logger()->warning('  Could not find resource for ID: ' . $resource_id);
+            }
+          }
+
+          $this->logger()->success('Queued ' . $queued . ' resources for post-import re-processing.');
+          $this->logger()->notice('Run "drush queue:run post_import" to process the queue.');
+        }
+        catch (\Exception $e) {
+          $this->logger()->error('Failed to queue resources for post-import: ' . $e->getMessage());
+        }
       }
     }
     catch (\Exception $e) {
@@ -489,6 +588,10 @@ class DkanClientSetupCommands extends DrushCommands {
     if ($options['clean']) {
       $this->logger()->notice('Clean option enabled - removing existing content first...');
       $this->cleanAll();
+      $this->logger()->success('All demo content and sample datasets removed.');
+      $this->logger()->notice('');
+      $this->logger()->notice('Clean complete. The setup script will continue to re-import content.');
+      return;
     }
 
     // Create demo pages.
@@ -700,6 +803,290 @@ class DkanClientSetupCommands extends DrushCommands {
       $this->logger()->error('Error during sample content cleanup: ' . $e->getMessage());
       return 0;
     }
+  }
+
+  /**
+   * Create DKAN API user with auto-generated secure password.
+   *
+   * Creates a dedicated user account for API access with minimal permissions.
+   * Auto-generates a secure password and saves credentials to .env file.
+   *
+   * @command dkan-client:create-api-user
+   * @option username The username for the API user.
+   * @option env-path Absolute path to .env file (auto-detected if not provided).
+   * @option dkan-url DKAN site URL (default: https://dkan.ddev.site).
+   * @option regenerate Regenerate password for existing user.
+   * @usage dkan-client:create-api-user
+   *   Creates API user and saves credentials to project root .env
+   * @usage dkan-client:create-api-user --regenerate
+   *   Regenerates password for existing API user.
+   * @usage dkan-client:create-api-user --dkan-url=https://custom.dkan.site
+   *   Sets custom DKAN URL in .env file.
+   * @usage dkan-client:create-api-user --env-path=/custom/path/.env
+   *   Saves credentials to custom location.
+   * @aliases dkan-api-user
+   */
+  public function createApiUser(array $options = [
+    'username' => 'dkan-api-user',
+    'env-path' => NULL,
+    'dkan-url' => 'https://dkan.ddev.site',
+    'regenerate' => FALSE,
+  ]) {
+    $username = $options['username'];
+    $regenerate = $options['regenerate'];
+
+    // Auto-detect project root: go up from docroot to find project root
+    if ($options['env-path']) {
+      $env_path = $options['env-path'];
+    } else {
+      // Drupal root is typically at /var/www/html/docroot in DDEV
+      // Project root is /var/www/html
+      $drupal_root = \Drupal::root();
+
+      // Check if we're in a typical DDEV setup (docroot subdirectory)
+      if (basename($drupal_root) === 'docroot') {
+        $project_root = dirname($drupal_root);
+      } else {
+        // Drupal root is the project root
+        $project_root = $drupal_root;
+      }
+
+      $env_path = $project_root . '/.env';
+    }
+
+    $this->logger()->notice("Creating DKAN API user: {$username}");
+    $this->logger()->notice("Credentials will be saved to: {$env_path}");
+
+    try {
+      // Check if .env file already exists with credentials
+      $env_exists = file_exists($env_path);
+      if ($env_exists) {
+        $env_content = file_get_contents($env_path);
+        $has_credentials = (strpos($env_content, 'DKAN_USER=') !== FALSE &&
+                           strpos($env_content, 'DKAN_PASS=') !== FALSE);
+      } else {
+        $has_credentials = FALSE;
+      }
+
+      // Load or create user.
+      $user_storage = $this->entityTypeManager->getStorage('user');
+      $users = $user_storage->loadByProperties(['name' => $username]);
+      $user = !empty($users) ? reset($users) : NULL;
+
+      // Check if user exists and handle regeneration.
+      if ($user) {
+        // If user exists and .env has credentials, only regenerate if explicitly requested
+        if ($has_credentials && !$regenerate) {
+          $this->logger()->notice("User '{$username}' already exists with credentials in {$env_path}");
+          $this->logger()->notice("Use --regenerate to update password.");
+          return;
+        }
+        // If user exists but no .env credentials, force regeneration
+        if (!$has_credentials) {
+          $this->logger()->notice("User exists but credentials not found in .env - regenerating password");
+          $regenerate = TRUE;
+        }
+        $this->logger()->notice("Regenerating password for existing user: {$username}");
+      }
+      else {
+        $this->logger()->notice("Creating new user: {$username}");
+      }
+
+      // Generate secure random password (32 characters).
+      $password = $this->generateSecurePassword(32);
+
+      if (!$user) {
+        // Create new user.
+        $user = $user_storage->create([
+          'name' => $username,
+          'mail' => "{$username}@localhost",
+          'pass' => $password,
+          'status' => 1,
+        ]);
+        $user->save();
+        $this->logger()->success("Created user: {$username}");
+      }
+      else {
+        // Update existing user password.
+        $user->setPassword($password);
+        $user->save();
+        $this->logger()->success("Updated password for user: {$username}");
+      }
+
+      // Assign authenticated user role (has API access by default).
+      // DKAN APIs are generally accessible to authenticated users.
+      // If specific permissions are needed, you can create a custom role here.
+      $this->logger()->notice("User has 'authenticated' role with API access.");
+
+      // Save credentials to .env file.
+      $dkan_url = $options['dkan-url'];
+      $this->saveCredentials($env_path, $username, $password, $dkan_url);
+
+      $this->logger()->success('==============================================');
+      $this->logger()->success('API User Created Successfully!');
+      $this->logger()->success('==============================================');
+      $this->logger()->notice("Username: {$username}");
+      $this->logger()->notice("Password: [saved to {$env_path}]");
+      $this->logger()->notice('');
+      $this->logger()->notice('Credentials saved to: ' . $env_path);
+      $this->logger()->notice('Use these credentials for API scripts and tools.');
+      $this->logger()->success('==============================================');
+    }
+    catch (\Exception $e) {
+      $this->logger()->error('Failed to create API user: ' . $e->getMessage());
+      throw $e;
+    }
+  }
+
+  /**
+   * Generate a cryptographically secure random password.
+   *
+   * @param int $length
+   *   The desired password length.
+   *
+   * @return string
+   *   The generated password.
+   */
+  protected function generateSecurePassword($length = 32) {
+    // Alphanumeric + safe special characters (excludes shell metacharacters like $, (, ))
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#%^&*-_=+';
+    $characters_length = strlen($characters);
+    $password = '';
+
+    for ($i = 0; $i < $length; $i++) {
+      $random_index = random_int(0, $characters_length - 1);
+      $password .= $characters[$random_index];
+    }
+
+    return $password;
+  }
+
+  /**
+   * Save API credentials to .env file.
+   *
+   * @param string $file_path
+   *   Absolute path to .env file.
+   * @param string $username
+   *   The API username.
+   * @param string $password
+   *   The API password.
+   * @param string $dkan_url
+   *   The DKAN site URL.
+   */
+  protected function saveCredentials($file_path, $username, $password, $dkan_url) {
+    $this->logger()->notice("Saving credentials to: {$file_path}");
+
+    // Backup existing file if it exists.
+    if (file_exists($file_path)) {
+      $backup_path = $file_path . '.backup';
+      copy($file_path, $backup_path);
+      $this->logger()->notice("Backed up existing file to: {$file_path}.backup");
+
+      // Read existing file and update DKAN credentials.
+      $existing_content = file_get_contents($file_path);
+      $updated_content = $this->updateEnvContent($existing_content, $username, $password, $dkan_url);
+      file_put_contents($file_path, $updated_content);
+    }
+    else {
+      // Create new .env file with credentials.
+      $content = $this->createEnvContent($username, $password, $dkan_url);
+      file_put_contents($file_path, $content);
+      $this->logger()->notice("Created new credentials file: {$file_path}");
+    }
+
+    // Set restrictive permissions (readable only by owner).
+    chmod($file_path, 0600);
+    $this->logger()->notice("Set file permissions to 0600 (owner read/write only)");
+  }
+
+  /**
+   * Update existing .env file content with new credentials.
+   *
+   * @param string $content
+   *   Existing .env file content.
+   * @param string $username
+   *   The API username.
+   * @param string $password
+   *   The API password.
+   * @param string $dkan_url
+   *   The DKAN site URL.
+   *
+   * @return string
+   *   Updated .env file content.
+   */
+  protected function updateEnvContent($content, $username, $password, $dkan_url) {
+    $lines = explode("\n", $content);
+    $updated_lines = [];
+    $found_user = FALSE;
+    $found_pass = FALSE;
+    $found_url = FALSE;
+
+    foreach ($lines as $line) {
+      if (strpos($line, 'DKAN_USER=') === 0) {
+        $updated_lines[] = "DKAN_USER=\"{$username}\"";
+        $found_user = TRUE;
+      }
+      elseif (strpos($line, 'DKAN_PASS=') === 0) {
+        $updated_lines[] = "DKAN_PASS=\"{$password}\"";
+        $found_pass = TRUE;
+      }
+      elseif (strpos($line, 'DKAN_URL=') === 0) {
+        $updated_lines[] = "DKAN_URL=\"{$dkan_url}\"";
+        $found_url = TRUE;
+      }
+      else {
+        $updated_lines[] = $line;
+      }
+    }
+
+    // Add missing credentials if not found.
+    if (!$found_user) {
+      $updated_lines[] = "DKAN_USER=\"{$username}\"";
+    }
+    if (!$found_pass) {
+      $updated_lines[] = "DKAN_PASS=\"{$password}\"";
+    }
+    if (!$found_url) {
+      $updated_lines[] = "DKAN_URL=\"{$dkan_url}\"";
+    }
+
+    return implode("\n", $updated_lines);
+  }
+
+  /**
+   * Create new .env file content with credentials.
+   *
+   * @param string $username
+   *   The API username.
+   * @param string $password
+   *   The API password.
+   * @param string $dkan_url
+   *   The DKAN site URL.
+   *
+   * @return string
+   *   .env file content.
+   */
+  protected function createEnvContent($username, $password, $dkan_url) {
+    $content = <<<EOT
+# DKAN Client Tools - API Credentials
+# Auto-generated by dkan-client:create-api-user command
+# DO NOT commit this file to version control
+
+# DKAN API User (auto-generated)
+DKAN_USER="{$username}"
+DKAN_PASS="{$password}"
+
+# DKAN site URL
+DKAN_URL="{$dkan_url}"
+
+# Recording mode (optional)
+READ_ONLY=false
+
+# Cleanup mode (optional)
+CLEANUP_ONLY=false
+EOT;
+
+    return $content;
   }
 
   /**

@@ -15,7 +15,7 @@ Comprehensive testing procedures for automated setup functionality.
 cd dkan
 
 # Install Drupal
-ddev drush si --account-pass=admin -y
+ddev drush si -y
 
 # Start DDEV (triggers post-start hook)
 ddev start
@@ -283,7 +283,7 @@ To execute all tests sequentially:
 
 ```bash
 # 1. Fresh install
-ddev delete -O && cd dkan && ddev start && ddev drush si --account-pass=admin -y
+ddev delete -O && cd dkan && ddev start && ddev drush si -y
 
 # 2. Manual execution
 ddev exec bash scripts/setup-site.sh
