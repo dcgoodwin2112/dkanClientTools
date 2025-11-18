@@ -732,6 +732,21 @@ class DkanClientSetupCommands extends DrushCommands {
     $this->logger()->notice("Creating DKAN API user: {$username}");
 
     try {
+      // Resolve absolute path for .env file check
+      $drupal_root = \Drupal::root();
+      $absolute_path = $drupal_root . '/' . $save_path;
+      $absolute_path = realpath(dirname($absolute_path)) . '/' . basename($absolute_path);
+
+      // Check if .env file already exists with credentials
+      $env_exists = file_exists($absolute_path);
+      if ($env_exists) {
+        $env_content = file_get_contents($absolute_path);
+        $has_credentials = (strpos($env_content, 'DKAN_USER=') !== FALSE &&
+                           strpos($env_content, 'DKAN_PASS=') !== FALSE);
+      } else {
+        $has_credentials = FALSE;
+      }
+
       // Load or create user.
       $user_storage = $this->entityTypeManager->getStorage('user');
       $users = $user_storage->loadByProperties(['name' => $username]);
@@ -739,10 +754,16 @@ class DkanClientSetupCommands extends DrushCommands {
 
       // Check if user exists and handle regeneration.
       if ($user) {
-        if (!$regenerate) {
-          $this->logger()->warning("User '{$username}' already exists. Use --regenerate to update password.");
-          $this->logger()->notice("Existing credentials should be in: {$save_path}");
+        // If user exists and .env has credentials, only regenerate if explicitly requested
+        if ($has_credentials && !$regenerate) {
+          $this->logger()->notice("User '{$username}' already exists with credentials in {$save_path}");
+          $this->logger()->notice("Use --regenerate to update password.");
           return;
+        }
+        // If user exists but no .env credentials, force regeneration
+        if (!$has_credentials) {
+          $this->logger()->notice("User exists but credentials not found in .env - regenerating password");
+          $regenerate = TRUE;
         }
         $this->logger()->notice("Regenerating password for existing user: {$username}");
       }
