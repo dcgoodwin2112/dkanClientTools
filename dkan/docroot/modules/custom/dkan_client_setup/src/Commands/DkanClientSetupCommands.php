@@ -710,37 +710,51 @@ class DkanClientSetupCommands extends DrushCommands {
    *
    * @command dkan-client:create-api-user
    * @option username The username for the API user.
-   * @option save-to Path to save credentials (relative to Drupal root).
+   * @option env-path Absolute path to .env file (auto-detected if not provided).
    * @option regenerate Regenerate password for existing user.
    * @usage dkan-client:create-api-user
-   *   Creates API user and saves credentials to ../.env (project root)
+   *   Creates API user and saves credentials to project root .env
    * @usage dkan-client:create-api-user --regenerate
    *   Regenerates password for existing API user.
-   * @usage dkan-client:create-api-user --save-to=../.env.local
+   * @usage dkan-client:create-api-user --env-path=/custom/path/.env
    *   Saves credentials to custom location.
    * @aliases dkan-api-user
    */
   public function createApiUser(array $options = [
     'username' => 'dkan-api-user',
-    'save-to' => '../.env',
+    'env-path' => NULL,
     'regenerate' => FALSE,
   ]) {
     $username = $options['username'];
-    $save_path = $options['save-to'];
     $regenerate = $options['regenerate'];
 
+    // Auto-detect project root: go up from docroot to find project root
+    if ($options['env-path']) {
+      $env_path = $options['env-path'];
+    } else {
+      // Drupal root is typically at /var/www/html/docroot in DDEV
+      // Project root is /var/www/html
+      $drupal_root = \Drupal::root();
+
+      // Check if we're in a typical DDEV setup (docroot subdirectory)
+      if (basename($drupal_root) === 'docroot') {
+        $project_root = dirname($drupal_root);
+      } else {
+        // Drupal root is the project root
+        $project_root = $drupal_root;
+      }
+
+      $env_path = $project_root . '/.env';
+    }
+
     $this->logger()->notice("Creating DKAN API user: {$username}");
+    $this->logger()->notice("Credentials will be saved to: {$env_path}");
 
     try {
-      // Resolve absolute path for .env file check
-      $drupal_root = \Drupal::root();
-      $raw_path = $drupal_root . '/' . $save_path;
-      $absolute_path = $this->normalizePath($raw_path);
-
       // Check if .env file already exists with credentials
-      $env_exists = file_exists($absolute_path);
+      $env_exists = file_exists($env_path);
       if ($env_exists) {
-        $env_content = file_get_contents($absolute_path);
+        $env_content = file_get_contents($env_path);
         $has_credentials = (strpos($env_content, 'DKAN_USER=') !== FALSE &&
                            strpos($env_content, 'DKAN_PASS=') !== FALSE);
       } else {
@@ -756,7 +770,7 @@ class DkanClientSetupCommands extends DrushCommands {
       if ($user) {
         // If user exists and .env has credentials, only regenerate if explicitly requested
         if ($has_credentials && !$regenerate) {
-          $this->logger()->notice("User '{$username}' already exists with credentials in {$save_path}");
+          $this->logger()->notice("User '{$username}' already exists with credentials in {$env_path}");
           $this->logger()->notice("Use --regenerate to update password.");
           return;
         }
@@ -798,15 +812,15 @@ class DkanClientSetupCommands extends DrushCommands {
       $this->logger()->notice("User has 'authenticated' role with API access.");
 
       // Save credentials to .env file.
-      $this->saveCredentials($save_path, $username, $password);
+      $this->saveCredentials($env_path, $username, $password);
 
       $this->logger()->success('==============================================');
       $this->logger()->success('API User Created Successfully!');
       $this->logger()->success('==============================================');
       $this->logger()->notice("Username: {$username}");
-      $this->logger()->notice("Password: [saved to {$save_path}]");
+      $this->logger()->notice("Password: [saved to {$env_path}]");
       $this->logger()->notice('');
-      $this->logger()->notice('Credentials saved to: ' . $save_path);
+      $this->logger()->notice('Credentials saved to: ' . $env_path);
       $this->logger()->notice('Use these credentials for API scripts and tools.');
       $this->logger()->success('==============================================');
     }
@@ -842,46 +856,35 @@ class DkanClientSetupCommands extends DrushCommands {
    * Save API credentials to .env file.
    *
    * @param string $file_path
-   *   Path to .env file (relative to Drupal root).
+   *   Absolute path to .env file.
    * @param string $username
    *   The API username.
    * @param string $password
    *   The API password.
    */
   protected function saveCredentials($file_path, $username, $password) {
-    // Resolve absolute path.
-    $drupal_root = \Drupal::root();
-    $raw_path = $drupal_root . '/' . $file_path;
-
-    // Normalize path to resolve .. components manually
-    // This is more reliable than realpath() when the file doesn't exist yet
-    $absolute_path = $this->normalizePath($raw_path);
-
-    $this->logger()->notice("Drupal root: {$drupal_root}");
-    $this->logger()->notice("Raw path: {$raw_path}");
-    $this->logger()->notice("Normalized path: {$absolute_path}");
-    $this->logger()->notice("Saving credentials to: {$absolute_path}");
+    $this->logger()->notice("Saving credentials to: {$file_path}");
 
     // Backup existing file if it exists.
-    if (file_exists($absolute_path)) {
-      $backup_path = $absolute_path . '.backup';
-      copy($absolute_path, $backup_path);
+    if (file_exists($file_path)) {
+      $backup_path = $file_path . '.backup';
+      copy($file_path, $backup_path);
       $this->logger()->notice("Backed up existing file to: {$file_path}.backup");
 
       // Read existing file and update DKAN credentials.
-      $existing_content = file_get_contents($absolute_path);
+      $existing_content = file_get_contents($file_path);
       $updated_content = $this->updateEnvContent($existing_content, $username, $password);
-      file_put_contents($absolute_path, $updated_content);
+      file_put_contents($file_path, $updated_content);
     }
     else {
       // Create new .env file with credentials.
       $content = $this->createEnvContent($username, $password);
-      file_put_contents($absolute_path, $content);
+      file_put_contents($file_path, $content);
       $this->logger()->notice("Created new credentials file: {$file_path}");
     }
 
     // Set restrictive permissions (readable only by owner).
-    chmod($absolute_path, 0600);
+    chmod($file_path, 0600);
     $this->logger()->notice("Set file permissions to 0600 (owner read/write only)");
   }
 
@@ -961,55 +964,6 @@ CLEANUP_ONLY=false
 EOT;
 
     return $content;
-  }
-
-  /**
-   * Normalize a file path by resolving . and .. components.
-   *
-   * @param string $path
-   *   The path to normalize.
-   *
-   * @return string
-   *   The normalized path.
-   */
-  protected function normalizePath($path) {
-    // Replace backslashes with forward slashes
-    $path = str_replace('\\', '/', $path);
-
-    // Split path into parts
-    $parts = explode('/', $path);
-    $normalized = [];
-
-    foreach ($parts as $part) {
-      if ($part === '' || $part === '.') {
-        // Skip empty parts and current directory references
-        if ($part === '' && count($normalized) === 0) {
-          // Keep leading slash for absolute paths
-          $normalized[] = '';
-        }
-        continue;
-      }
-      elseif ($part === '..') {
-        // Go up one directory
-        if (count($normalized) > 0) {
-          array_pop($normalized);
-        }
-      }
-      else {
-        // Regular directory/file name
-        $normalized[] = $part;
-      }
-    }
-
-    // Reconstruct the path
-    $result = implode('/', $normalized);
-
-    // Ensure absolute paths start with /
-    if (isset($parts[0]) && $parts[0] === '' && $result[0] !== '/') {
-      $result = '/' . $result;
-    }
-
-    return $result;
   }
 
   /**

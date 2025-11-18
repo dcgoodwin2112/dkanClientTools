@@ -122,8 +122,8 @@ fi
 # Step 6: Create API user with auto-generated credentials
 echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
 # Always run the command - it will check if credentials exist and skip if needed
-# The Drush command has better logic to check both user and .env file
-drush dkan-client:create-api-user --save-to=../.env
+# The Drush command auto-detects project root and saves to .env file
+drush dkan-client:create-api-user
 
 # Step 7: Import sample content (49 datasets)
 echo -e "${CHECK} Step 7/11: Importing sample datasets..."
