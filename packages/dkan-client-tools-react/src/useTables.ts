@@ -101,13 +101,14 @@ export function useDatasetSearchTable(options: {
  *
  * @example
  * ```tsx
+ * const datasetId = 'abc-123'
  * const { table, query } = useDatastoreTable({
  *   datastoreOptions: {
- *     datasetId: datasetId,
+ *     datasetId,
  *     index: 0,
  *   },
  *   columns: createDatastoreColumns({
- *     fields: schema?.fields,
+ *     fields: query.data?.schema?.fields,
  *   }),
  * })
  * ```

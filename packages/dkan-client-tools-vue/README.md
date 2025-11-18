@@ -166,7 +166,7 @@ Create interactive tables from query results:
 import { useDatasetSearchTable, createDatasetColumns } from '@dkan-client-tools/vue'
 
 const { table, query } = useDatasetSearchTable({
-  searchOptions: { searchOptions: { keyword: 'health' } },
+  searchOptions: { keyword: 'health' },
   columns: createDatasetColumns({ showDescription: true }),
 })
 </script>

@@ -126,7 +126,7 @@ export function useDatasetSearchTable(options: {
  * const datasetId = ref('abc-123')
  * const { table, query } = useDatastoreTable({
  *   datastoreOptions: {
- *     datasetId: datasetId,
+ *     datasetId,
  *     index: 0,
  *   },
  *   columns: () => createDatastoreColumns({

@@ -178,7 +178,7 @@ download.mutate(
 import { useDatasetSearchTable, createDatasetColumns } from '@dkan-client-tools/react'
 
 const { table, query } = useDatasetSearchTable({
-  searchOptions: { searchOptions: { keyword: 'health' } },
+  searchOptions: { keyword: 'health' },
   columns: createDatasetColumns({ showDescription: true }),
 })
 
