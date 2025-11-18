@@ -55,9 +55,9 @@ if [ "$CLEAN_FIRST" = true ]; then
   echo ""
   drush dkan-client:setup --clean
   echo ""
-  echo -e "${CHECK} Clean refresh complete!"
+  echo -e "${CHECK} Content cleaned. Continuing with fresh setup..."
   echo ""
-  exit 0
+  # Don't exit - continue with normal setup to re-import everything
 fi
 
 # Step 1: Verify Drupal installation

@@ -489,30 +489,10 @@ class DkanClientSetupCommands extends DrushCommands {
     if ($options['clean']) {
       $this->logger()->notice('Clean option enabled - removing existing content first...');
       $this->cleanAll();
-
-      // Re-import sample content after cleaning.
-      $this->logger()->notice('Re-importing sample content...');
-      $this->io()->note('Sample content will be imported. CSV files will be queued for datastore import.');
-      $this->io()->note('Run cron to process the datastore import queue before creating data dictionaries.');
-      try {
-        // Enable sample_content module if not already enabled.
-        $module_installer = \Drupal::service('module_installer');
-        if (!\Drupal::moduleHandler()->moduleExists('sample_content')) {
-          $this->logger()->notice('Enabling sample_content module...');
-          $module_installer->install(['sample_content']);
-        }
-        // Run sample content creation.
-        $result = $this->processManager->drush(['dkan:sample-content:create']);
-        if ($result->isSuccessful()) {
-          $this->logger()->success('Sample content imported (metadata). CSV files queued for datastore import.');
-        }
-        else {
-          $this->logger()->error('Failed to import sample content: ' . $result->getErrorOutput());
-        }
-      }
-      catch (\Exception $e) {
-        $this->logger()->error('Error importing sample content: ' . $e->getMessage());
-      }
+      $this->logger()->success('All demo content and sample datasets removed.');
+      $this->logger()->notice('');
+      $this->logger()->notice('Clean complete. The setup script will now continue to re-import content.');
+      return;
     }
 
     // Create demo pages.
