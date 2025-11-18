@@ -53,7 +53,7 @@ The automated setup will:
 2. Import 49 sample datasets
 3. Create demo pages (/vanilla-demo, /react-demo, /vue-demo)
 4. Place demo blocks
-5. Generate data dictionaries
+5. Create data dictionaries
 
 Access the site at: https://dkan.ddev.site
 
@@ -73,6 +73,27 @@ To run setup manually at any time:
 ```bash
 ddev exec bash scripts/setup-site.sh
 ```
+
+### Clean Refresh
+
+Remove all existing demo content and sample datasets, then recreate:
+
+```bash
+ddev exec bash scripts/setup-site.sh -c
+```
+
+**Removes**:
+- Demo pages (3 pages)
+- Demo blocks (3 blocks)
+- Data dictionaries (all *-dict items)
+- Sample datasets (reverts sample_content harvest)
+
+**Then Creates**:
+- Fresh demo pages
+- Fresh demo blocks
+- Fresh data dictionaries
+
+**Use Case**: Reset demo environment to clean state.
 
 ### Complete Rebuild
 
@@ -146,15 +167,53 @@ Places dataset search blocks on each demo page:
 ddev drush dkan-client:place-blocks
 ```
 
+### Create Data Dictionaries
+
+Creates data dictionaries for all datastore resources by analyzing table schemas:
+
+```bash
+ddev drush dkan-client:create-data-dictionaries
+```
+
+**Process**:
+- Queries all distributions in metastore
+- Finds distributions with datastore tables
+- Retrieves table schema from datastore
+- Maps field types from Drupal schema to Frictionless format
+- Creates data dictionary metadata
+
+**Idempotent**: Safe to run multiple times. Skips existing dictionaries.
+
 ### Complete Demo Setup
 
-Runs both commands (create pages + place blocks):
+Runs all commands in sequence (create pages + place blocks + create dictionaries):
 
 ```bash
 ddev drush dkan-client:setup
 ```
 
-All commands are idempotent - safe to run multiple times.
+**Idempotent**: Safe to run multiple times.
+
+### Clean Refresh
+
+Remove all existing demo content and sample datasets, then recreate:
+
+```bash
+ddev drush dkan-client:setup --clean
+```
+
+**Removes**:
+- Demo pages (3 pages)
+- Demo blocks (3 blocks)
+- Data dictionaries (all *-dict items)
+- Sample datasets (reverts sample_content harvest)
+
+**Then Creates**:
+- Fresh demo pages
+- Fresh demo blocks
+- Fresh data dictionaries
+
+**Use Case**: Reset demo environment to clean state.
 
 ## Advanced Manual Setup
 
@@ -428,11 +487,17 @@ ddev drush cr
 #### Data Dictionary Creation Fails
 
 ```bash
-# Check if script exists
-ls -la ../../scripts/create-data-dictionaries.ts
+# Verify datastore tables exist
+ddev drush dkan:datastore:list
 
-# Run from project root
-cd ../.. && npx tsx scripts/create-data-dictionaries.ts
+# Check metastore distributions
+ddev drush sql-query "SELECT identifier FROM metastore WHERE data_type='distribution' LIMIT 10"
+
+# Manually run data dictionary creation
+ddev drush dkan-client:create-data-dictionaries
+
+# Clear cache after creation
+ddev drush cr
 ```
 
 ## Testing Demo Modules
