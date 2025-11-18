@@ -122,9 +122,14 @@ fi
 
 # Step 6: Create API user with auto-generated credentials
 echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
+# Prompt for DKAN URL with default
+echo ""
+read -p "Enter DKAN site URL [https://dkan.ddev.site]: " DKAN_URL_INPUT
+DKAN_URL="${DKAN_URL_INPUT:-https://dkan.ddev.site}"
+echo -e "  Using DKAN URL: ${DKAN_URL}"
 # Always run the command - it will check if credentials exist and skip if needed
 # The Drush command auto-detects project root and saves to .env file
-drush dkan-client:create-api-user
+drush dkan-client:create-api-user --dkan-url="${DKAN_URL}"
 
 # Step 7: Import sample content (49 datasets)
 echo -e "${CHECK} Step 7/11: Importing sample datasets..."

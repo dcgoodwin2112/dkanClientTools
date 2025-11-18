@@ -55,6 +55,9 @@ The automated setup will:
 4. Place demo blocks
 5. Create data dictionaries
 6. Generate API user with secure credentials
+7. Prompt for DKAN URL (defaults to https://dkan.ddev.site)
+
+**Note**: During setup, you'll be prompted to enter the DKAN site URL. Press Enter to use the default (https://dkan.ddev.site) or enter a custom URL if testing against a different DKAN instance.
 
 Access the site at: https://dkan.ddev.site
 
