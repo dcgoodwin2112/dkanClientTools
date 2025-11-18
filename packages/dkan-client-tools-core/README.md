@@ -102,12 +102,15 @@ const client = new DkanClient({
 
 ## TypeScript Types
 
-DCAT-US schema types exported:
+DCAT-US schema types and table configuration types exported:
 
 ```typescript
 import type { DkanDataset, Distribution, Publisher, ContactPoint, DataDictionary,
-  DataDictionaryField, DatastoreQueryOptions, HarvestPlan } from '@dkan-client-tools/core'
+  DataDictionaryField, DatastoreQueryOptions, HarvestPlan,
+  DatasetColumnConfig, DatastoreColumnConfig } from '@dkan-client-tools/core'
 ```
+
+See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for complete type reference.
 
 ## Error Handling
 

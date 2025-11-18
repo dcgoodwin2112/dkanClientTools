@@ -5,6 +5,7 @@ Vue composables for DKAN client tools. Built on [TanStack Vue Query](https://tan
 ## Features
 
 - 39 idiomatic Vue composables covering all DKAN APIs
+- Table Integration - TanStack Table composables with pre-configured column utilities
 - Automatic refetching and background updates
 - Efficient caching and deduplication via TanStack Query
 - First-class mutation support for create/update/delete operations
@@ -155,6 +156,39 @@ const client = new DkanClient({
 const dkanClient = useDkanClient()
 const baseUrl = dkanClient.getBaseUrl()
 ```
+
+## Table Composables (TanStack Table)
+
+Create interactive tables from query results:
+
+```vue
+<script setup lang="ts">
+import { useDatasetSearchTable, createDatasetColumns } from '@dkan-client-tools/vue'
+
+const { table, query } = useDatasetSearchTable({
+  searchOptions: { keyword: 'health' },
+  columns: createDatasetColumns({ showDescription: true }),
+})
+</script>
+
+<template>
+  <table v-if="!query.isLoading.value">
+    <tbody>
+      <tr v-for="row in table.getRowModel().rows" :key="row.id">
+        <td v-for="cell in row.getVisibleCells()" :key="cell.id">
+          <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+```
+
+**Available Composables**: `useTableFromQuery`, `useDatasetSearchTable`, `useDatastoreTable`
+
+**Column Utilities**: `createDatasetColumns`, `createDatastoreColumns`, `createHarvestPlanColumns`, `createHarvestRunColumns`, `createDatastoreImportColumns`, `createDataDictionaryFieldColumns`
+
+See [TANSTACK_TABLE.md](../../docs/external/libraries/TANSTACK_TABLE.md) for complete table documentation.
 
 ## License
 

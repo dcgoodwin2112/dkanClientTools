@@ -108,3 +108,22 @@ export type {
 } from './types'
 
 export { DkanApiError } from './types'
+
+// Table configuration types
+export type {
+  DatasetColumnConfig,
+  DatastoreColumnConfig,
+  HarvestPlanColumnConfig,
+  HarvestRunColumnConfig,
+  DatastoreImportColumnConfig,
+  DataDictionaryFieldColumnConfig,
+  TablePaginationConfig,
+  TableSortingConfig,
+  TableFilterConfig,
+  DatasetTableRow,
+  DatastoreTableRow,
+  HarvestPlanTableRow,
+  HarvestRunTableRow,
+  DatastoreImportTableRow,
+  DataDictionaryFieldTableRow,
+} from './table-types'

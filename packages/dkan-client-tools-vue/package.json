@@ -37,18 +37,21 @@
     "open-data",
     "vue",
     "composables",
-    "tanstack-query"
+    "tanstack-query",
+    "tanstack-table"
   ],
   "license": "MIT",
   "sideEffects": false,
   "peerDependencies": {
     "@dkan-client-tools/core": "*",
     "@tanstack/vue-query": "^5.0.0",
+    "@tanstack/vue-table": "^8.0.0",
     "vue": "^3.3.0"
   },
   "devDependencies": {
     "@dkan-client-tools/core": "*",
     "@tanstack/vue-query": "^5.90.7",
+    "@tanstack/vue-table": "^8.20.5",
     "@vitejs/plugin-vue": "^5.0.0",
     "@vitest/ui": "^1.2.0",
     "@vue/test-utils": "^2.4.0",

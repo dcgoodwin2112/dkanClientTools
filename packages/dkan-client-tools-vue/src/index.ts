@@ -135,6 +135,35 @@ export {
   useDeleteDataDictionary,
 } from './useDataDictionaryMutations'
 
+// Table composables
+export {
+  useTableFromQuery,
+  useDatasetSearchTable,
+  useDatastoreTable,
+  FlexRender,
+} from './useTables'
+export type {
+  ColumnDef,
+  Table,
+  Row,
+  Cell,
+  Header,
+  Column,
+  PaginationState,
+  SortingState,
+  ColumnFiltersState,
+  TableOptions,
+} from './useTables'
+
+// Table column utilities
+export {
+  createDatasetColumns,
+  createDatastoreColumns,
+  createHarvestPlanColumns,
+  createHarvestRunColumns,
+  createDatastoreImportColumns,
+  createDataDictionaryFieldColumns,
+} from './tableColumns'
 
 // Re-export core types and client for convenience
 export type {
@@ -160,6 +189,15 @@ export type {
   MetastoreRevision,
   MetastoreNewRevision,
   WorkflowState,
+  DatasetColumnConfig,
+  DatastoreColumnConfig,
+  HarvestPlanColumnConfig,
+  HarvestRunColumnConfig,
+  DatastoreImportColumnConfig,
+  DataDictionaryFieldColumnConfig,
+  TablePaginationConfig,
+  TableSortingConfig,
+  TableFilterConfig,
 } from '@dkan-client-tools/core'
 
 // Re-export TanStack Vue Query for advanced usage
@@ -170,3 +208,12 @@ export {
   useIsFetching,
   useIsMutating,
 } from '@tanstack/vue-query'
+
+// Re-export TanStack Vue Table for advanced usage
+export {
+  useVueTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+} from '@tanstack/vue-table'

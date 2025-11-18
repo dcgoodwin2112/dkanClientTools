@@ -134,6 +134,35 @@ export {
   useDeleteDataDictionary,
 } from './useDataDictionaryMutations'
 
+// Table hooks
+export {
+  useTableFromQuery,
+  useDatasetSearchTable,
+  useDatastoreTable,
+  flexRender,
+} from './useTables'
+export type {
+  ColumnDef,
+  Table,
+  Row,
+  Cell,
+  Header,
+  Column,
+  PaginationState,
+  SortingState,
+  ColumnFiltersState,
+  TableOptions,
+} from './useTables'
+
+// Table column utilities
+export {
+  createDatasetColumns,
+  createDatastoreColumns,
+  createHarvestPlanColumns,
+  createHarvestRunColumns,
+  createDatastoreImportColumns,
+  createDataDictionaryFieldColumns,
+} from './tableColumns'
 
 // Re-export core types for convenience
 export type {
@@ -158,6 +187,15 @@ export type {
   MetastoreRevision,
   MetastoreNewRevision,
   WorkflowState,
+  DatasetColumnConfig,
+  DatastoreColumnConfig,
+  HarvestPlanColumnConfig,
+  HarvestRunColumnConfig,
+  DatastoreImportColumnConfig,
+  DataDictionaryFieldColumnConfig,
+  TablePaginationConfig,
+  TableSortingConfig,
+  TableFilterConfig,
 } from '@dkan-client-tools/core'
 
 // Re-export TanStack React Query for advanced usage
@@ -168,3 +206,12 @@ export {
   useIsFetching,
   useIsMutating,
 } from '@tanstack/react-query'
+
+// Re-export TanStack React Table for advanced usage
+export {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+} from '@tanstack/react-table'
