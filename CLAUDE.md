@@ -5,7 +5,7 @@ Guidance for Claude Code (claude.ai/code) when working with the dkanClientTools 
 ## Quick Reference
 
 **Project Type**: TypeScript monorepo with React/Vue adapters for DKAN data catalog integration
-**Foundation**: Built on TanStack Query for caching and state management
+**Foundation**: Built on TanStack Query (caching/state) and TanStack Table (headless tables)
 **Status**: Active Development - Comprehensive DKAN API coverage
 
 **Documentation Locations**:
@@ -56,11 +56,11 @@ npm run typecheck        # Verify TypeScript types
 
 See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed package architecture and `/packages/*/README.md` for package-specific APIs.
 
-- **@dkan-client-tools/core** (`/packages/dkan-client-tools-core`) - Framework-agnostic DkanClient wrapping TanStack Query Core. HTTP client for all DKAN REST APIs with TypeScript types for DCAT-US schema.
+- **@dkan-client-tools/core** (`/packages/dkan-client-tools-core`) - Framework-agnostic DkanClient wrapping TanStack Query Core. HTTP client for all DKAN REST APIs with TypeScript types for DCAT-US schema and table configurations.
 
-- **@dkan-client-tools/react** (`/packages/dkan-client-tools-react`) - React hooks built on Core and TanStack React Query. 40+ hooks covering all DKAN APIs with mutation support. React 18+ and TypeScript support.
+- **@dkan-client-tools/react** (`/packages/dkan-client-tools-react`) - React hooks built on Core and TanStack React Query. 40+ hooks covering all DKAN APIs with mutation support. TanStack Table integration for data display. React 18+ and TypeScript support.
 
-- **@dkan-client-tools/vue** (`/packages/dkan-client-tools-vue`) - Vue 3 composables built on Core and TanStack Vue Query. 40+ composables with MaybeRefOrGetter types for reactive parameters. Composition API with `<script setup>` support.
+- **@dkan-client-tools/vue** (`/packages/dkan-client-tools-vue`) - Vue 3 composables built on Core and TanStack Vue Query. 40+ composables with MaybeRefOrGetter types for reactive parameters. TanStack Table integration for data display. Composition API with `<script setup>` support.
 
 ---
 
@@ -210,6 +210,14 @@ Follow formatting and communication standards in `~/.claude/CLAUDE.md`. Project-
 - Default GC time: 5 minutes
 - Enable queries only when params are valid: `enabled: options.enabled !== false && !!id`
 
+**TanStack Table Patterns**:
+- Column helpers: `createColumnHelper<DataType>()` for type-safe columns
+- Pre-built utilities: `createDatasetColumns()`, `createDatastoreColumns()`, etc.
+- Integration hooks: `useTableFromQuery`, `useDatasetSearchTable`, `useDatastoreTable`
+- React: `useReactTable` with `getCoreRowModel`
+- Vue: `useVueTable` with reactive `data` and `columns` getters
+- See [TANSTACK_TABLE.md](docs/external/libraries/TANSTACK_TABLE.md)
+
 **Type Safety**:
 - Strict TypeScript mode enabled
 - DCAT-US types: `DkanDataset`, `Publisher`, `Distribution`
@@ -327,4 +335,5 @@ Fetch a single dataset by identifier.
 - **[Build Process](docs/BUILD_PROCESS.md)** - Build system details
 - **[DKAN API](docs/external/platforms/DKAN_API.md)** - DKAN REST API reference
 - **[TanStack Query](https://tanstack.com/query)** - Official TanStack Query docs
+- **[TanStack Table](https://tanstack.com/table)** - Official TanStack Table docs
 - **[DKAN Documentation](https://dkan.readthedocs.io)** - Official DKAN docs

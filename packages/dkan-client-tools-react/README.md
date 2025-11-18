@@ -5,6 +5,7 @@ React hooks for DKAN client tools. Built on top of `@dkan-client-tools/core` and
 ## Features
 
 - React Hooks - 39 hooks for datasets, datastore, dictionaries, harvest, revisions
+- Table Integration - TanStack Table hooks with pre-configured column utilities
 - Automatic Refetching - Smart background updates via TanStack Query
 - Caching - Efficient data caching and deduplication
 - TypeScript - Full type safety with DCAT-US schema
@@ -166,6 +167,27 @@ download.mutate(
   { onSuccess: (blob) => { /* create download link */ } }
 )
 ```
+
+### Table Hooks (TanStack Table)
+
+- **`useTableFromQuery`** - Create table from any query result
+- **`useDatasetSearchTable`** - Dataset search with table
+- **`useDatastoreTable`** - Datastore query with table
+
+```tsx
+import { useDatasetSearchTable, createDatasetColumns } from '@dkan-client-tools/react'
+
+const { table, query } = useDatasetSearchTable({
+  searchOptions: { searchOptions: { keyword: 'health' } },
+  columns: createDatasetColumns({ showDescription: true }),
+})
+
+// Render table using flexRender and table.getRowModel()
+```
+
+**Column Utilities**: `createDatasetColumns`, `createDatastoreColumns`, `createHarvestPlanColumns`, `createHarvestRunColumns`, `createDatastoreImportColumns`, `createDataDictionaryFieldColumns`
+
+See [TANSTACK_TABLE.md](../../docs/external/libraries/TANSTACK_TABLE.md) for complete table documentation.
 
 ## Hook Options & Return Values
 
