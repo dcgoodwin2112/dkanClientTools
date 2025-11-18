@@ -275,6 +275,7 @@ class DkanClientSetupCommands extends DrushCommands {
     $created = 0;
     $skipped = 0;
     $errors = 0;
+    $processed_resources = [];
 
     try {
       // Get all distributions from metastore.
@@ -419,6 +420,9 @@ class DkanClientSetupCommands extends DrushCommands {
             else {
               $this->logger()->success('  Linked new dictionary to distribution: ' . $dist_title);
             }
+
+            // Track this resource for post-import re-processing.
+            $processed_resources[] = $resource_id;
           }
           catch (\Exception $e) {
             $this->logger()->warning('  Dictionary created but linking failed for ' . $dist_title . ': ' . $e->getMessage());
@@ -443,6 +447,37 @@ class DkanClientSetupCommands extends DrushCommands {
 
       if ($created > 0) {
         $this->logger()->success('Data dictionaries created successfully!');
+      }
+
+      // Queue resources for post-import re-processing to apply data dictionaries.
+      if (!empty($processed_resources)) {
+        $this->logger()->notice('');
+        $this->logger()->notice('Queueing resources for post-import re-processing...');
+
+        try {
+          $queue = \Drupal::queue('post_import');
+          $resource_mapper = $this->datastoreService->getResourceMapper();
+          $queued = 0;
+
+          foreach ($processed_resources as $resource_id) {
+            // Get the DataResource object from the resource mapper.
+            // Use the 'local_file' perspective since that's what datastores use.
+            $data_resource = $resource_mapper->get($resource_id, 'local_file');
+            if ($data_resource) {
+              $queue->createItem($data_resource);
+              $queued++;
+            }
+            else {
+              $this->logger()->warning('  Could not find resource for ID: ' . $resource_id);
+            }
+          }
+
+          $this->logger()->success('Queued ' . $queued . ' resources for post-import re-processing.');
+          $this->logger()->notice('Run "drush queue:run post_import" to process the queue.');
+        }
+        catch (\Exception $e) {
+          $this->logger()->error('Failed to queue resources for post-import: ' . $e->getMessage());
+        }
       }
     }
     catch (\Exception $e) {
