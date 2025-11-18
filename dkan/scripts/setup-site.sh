@@ -175,8 +175,8 @@ echo -e "  ${CHECK} Blocks placed"
 
 # Step 10: Configure data dictionary mode
 echo -e "${CHECK} Step 10/12: Configuring data dictionary mode..."
-drush config:set datastore.settings data_dictionary_mode sitewide_and_distribution_ref -y
-echo -e "  ${CHECK} Data dictionary mode configured"
+drush config:set metastore.settings data_dictionary_mode reference -y
+echo -e "  ${CHECK} Data dictionary mode configured (distribution reference)"
 
 # Step 11: Generate data dictionaries
 echo -e "${CHECK} Step 11/12: Generating data dictionaries..."
