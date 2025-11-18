@@ -130,12 +130,14 @@ fi
 
 # Step 6: Create API user with auto-generated credentials
 echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
-if [ -f "../.env" ] && grep -q "^DKAN_USER=" "../.env" 2>/dev/null && grep -q "^DKAN_PASS=" "../.env" 2>/dev/null; then
-  echo -e "  ${CHECK} API credentials already exist in .env"
+# Check if credentials exist in project root .env file
+PROJECT_ROOT_ENV="$(cd .. && pwd)/.env"
+if [ -f "$PROJECT_ROOT_ENV" ] && grep -q "^DKAN_USER=" "$PROJECT_ROOT_ENV" 2>/dev/null && grep -q "^DKAN_PASS=" "$PROJECT_ROOT_ENV" 2>/dev/null; then
+  echo -e "  ${CHECK} API credentials already exist in $PROJECT_ROOT_ENV"
 else
-  # Create API user and save credentials to .env
-  drush dkan-client:create-api-user --save-to=../.env
-  echo -e "  ${CHECK} API user created and credentials saved to .env"
+  # Create API user and save credentials to project root .env
+  drush dkan-client:create-api-user --save-to=../../.env
+  echo -e "  ${CHECK} API user created and credentials saved to project root .env"
 fi
 
 # Step 7: Import sample content (49 datasets)

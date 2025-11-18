@@ -713,16 +713,16 @@ class DkanClientSetupCommands extends DrushCommands {
    * @option save-to Path to save credentials (relative to Drupal root).
    * @option regenerate Regenerate password for existing user.
    * @usage dkan-client:create-api-user
-   *   Creates API user and saves credentials to ../.env
+   *   Creates API user and saves credentials to ../../.env (project root)
    * @usage dkan-client:create-api-user --regenerate
    *   Regenerates password for existing API user.
-   * @usage dkan-client:create-api-user --save-to=../.env.local
+   * @usage dkan-client:create-api-user --save-to=../../.env.local
    *   Saves credentials to custom location.
    * @aliases dkan-api-user
    */
   public function createApiUser(array $options = [
     'username' => 'dkan-api-user',
-    'save-to' => '../.env',
+    'save-to' => '../../.env',
     'regenerate' => FALSE,
   ]) {
     $username = $options['username'];
