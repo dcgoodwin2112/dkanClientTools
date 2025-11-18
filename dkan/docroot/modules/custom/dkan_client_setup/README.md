@@ -155,6 +155,57 @@ Uses Drupal's Node API to programmatically create pages with URL aliases. Checks
 
 Uses Drupal's Block API to create and place blocks with path-based visibility conditions using the `request_path` condition plugin.
 
+## Testing
+
+Comprehensive PHPUnit test suite available in `tests/` directory.
+
+### Running Tests
+
+Run all tests from module directory:
+
+```bash
+cd docroot/modules/custom/dkan_client_setup
+ddev exec phpunit
+```
+
+Run specific test suites:
+
+```bash
+# Functional tests only
+ddev exec phpunit --testsuite functional
+
+# Unit tests only
+ddev exec phpunit --testsuite unit
+
+# Specific test file
+ddev exec phpunit tests/src/Functional/DkanClientSetupCommandsTest.php
+```
+
+### Test Coverage
+
+**Functional Tests** (`tests/src/Functional/DkanClientSetupCommandsTest.php`):
+- Create demo pages command
+- Place blocks command
+- Create data dictionaries command
+- Complete setup command
+- Setup with --clean flag
+- Idempotency verification for all commands
+- Command alias verification
+
+**Unit Tests** (`tests/src/Unit/DkanClientSetupCommandsUnitTest.php`):
+- Field type mapping (Drupal → Frictionless)
+- Field title generation (snake_case → Title Case)
+- Schema to fields conversion
+
+### Test Infrastructure
+
+- **Base Class**: `DkanClientSetupTestBase` provides common helpers
+- **Framework**: PHPUnit 9.5+ with Drupal's BrowserTestBase
+- **Traits**: DrushTestTrait for command execution testing
+- **Configuration**: `phpunit.xml` configured for DDEV environment
+
+See `tests/README.md` for detailed testing documentation.
+
 ## Troubleshooting
 
 ### Blocks Not Visible
