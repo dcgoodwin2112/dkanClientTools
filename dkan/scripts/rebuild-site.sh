@@ -41,8 +41,9 @@ echo ""
 
 # Step 1: Reinstall Drupal
 echo -e "${CHECK} Reinstalling Drupal..."
-drush si --account-pass=admin -y
+drush si -y
 echo -e "  ${CHECK} Drupal reinstalled"
+echo -e "  ${CHECK} Use 'ddev drush uli' to generate admin login link"
 echo ""
 
 # Step 2: Run setup script

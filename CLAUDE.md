@@ -107,7 +107,9 @@ See [PATTERNS.md](docs/reference/PATTERNS.md) for detailed test patterns, hook/c
 
 The `/dkan` directory contains a Drupal 10 + DKAN 2.x site with automated setup.
 
-**Access**: https://dkan.ddev.site (admin/admin)
+**Access**: https://dkan.ddev.site
+
+**Admin Login**: `ddev drush uli` (generates one-time login link)
 
 **Demo Pages**:
 - Vanilla JS: https://dkan.ddev.site/vanilla-demo
@@ -118,7 +120,7 @@ The `/dkan` directory contains a Drupal 10 + DKAN 2.x site with automated setup.
 ```bash
 # Fresh install
 cd dkan
-ddev drush si --account-pass=admin -y
+ddev drush si -y
 ddev start  # Automated setup runs on post-start hook
 
 # Manual setup script (idempotent)

@@ -27,7 +27,8 @@ hooks:
           cd /var/www/html && bash scripts/setup-site.sh
         else
           echo "Drupal not installed. Skipping automated setup."
-          echo "Run 'ddev drush si --account-pass=admin -y' to install Drupal."
+          echo "Run 'ddev drush si -y' to install Drupal."
+          echo "Then use 'ddev drush uli' to generate admin login link."
         fi
     - exec-host: |
         # Copy .env from dkan/ to project root for use by Node.js scripts

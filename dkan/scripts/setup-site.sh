@@ -65,7 +65,8 @@ echo -e "${CHECK} Step 1/10: Verifying Drupal installation..."
 if drush status --field=bootstrap 2>/dev/null | grep -q "Successful"; then
   echo -e "  ${CHECK} Drupal is installed"
 else
-  echo -e "  ${WARN} Drupal not installed. Run 'drush si --account-pass=admin -y' first"
+  echo -e "  ${WARN} Drupal not installed. Run 'drush si -y' first"
+  echo -e "  ${WARN} Then use 'ddev drush uli' to generate admin login link"
   exit 1
 fi
 
