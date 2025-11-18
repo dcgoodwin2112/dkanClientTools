@@ -260,6 +260,18 @@ class DkanClientSetupCommands extends DrushCommands {
   public function createDataDictionaries() {
     $this->logger()->notice('Creating data dictionaries from datastore schemas...');
 
+    // Ensure data dictionary mode is set to 'reference' for distribution-specific dictionaries.
+    $config = \Drupal::configFactory()->getEditable('metastore.settings');
+    $current_mode = $config->get('data_dictionary_mode');
+
+    if ($current_mode !== 'reference') {
+      $config->set('data_dictionary_mode', 'reference')->save();
+      $this->logger()->success('Data dictionary mode configured to "reference" (distribution-specific).');
+    }
+    else {
+      $this->logger()->notice('Data dictionary mode already set to "reference".');
+    }
+
     $created = 0;
     $skipped = 0;
     $errors = 0;

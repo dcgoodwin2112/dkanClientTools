@@ -61,7 +61,7 @@ if [ "$CLEAN_FIRST" = true ]; then
 fi
 
 # Step 1: Verify Drupal installation
-echo -e "${CHECK} Step 1/12: Verifying Drupal installation..."
+echo -e "${CHECK} Step 1/11: Verifying Drupal installation..."
 if drush status --field=bootstrap 2>/dev/null | grep -q "Successful"; then
   echo -e "  ${CHECK} Drupal is installed"
 else
@@ -71,7 +71,7 @@ else
 fi
 
 # Step 2: Enable DKAN core modules
-echo -e "${CHECK} Step 2/12: Enabling DKAN core modules..."
+echo -e "${CHECK} Step 2/11: Enabling DKAN core modules..."
 CORE_MODULES="dkan metastore metastore_admin metastore_search harvest"
 MISSING_MODULES=""
 for module in $CORE_MODULES; do
@@ -88,7 +88,7 @@ else
 fi
 
 # Step 3: Enable base library modules
-echo -e "${CHECK} Step 3/12: Enabling base library modules..."
+echo -e "${CHECK} Step 3/11: Enabling base library modules..."
 BASE_MODULES="dkan_client_tools_core_base dkan_client_tools_react_base dkan_client_tools_vue_base"
 for module in $BASE_MODULES; do
   if drush pm:list --status=enabled --format=list | grep -q "^${module}$"; then
@@ -100,7 +100,7 @@ for module in $BASE_MODULES; do
 done
 
 # Step 4: Enable demo modules
-echo -e "${CHECK} Step 4/12: Enabling demo modules..."
+echo -e "${CHECK} Step 4/11: Enabling demo modules..."
 DEMO_MODULES="dkan_client_demo_vanilla dkan_client_demo_react dkan_client_demo_vue"
 for module in $DEMO_MODULES; do
   if drush pm:list --status=enabled --format=list | grep -q "^${module}$"; then
@@ -112,7 +112,7 @@ for module in $DEMO_MODULES; do
 done
 
 # Step 5: Enable setup module
-echo -e "${CHECK} Step 5/12: Enabling setup module..."
+echo -e "${CHECK} Step 5/11: Enabling setup module..."
 if drush pm:list --status=enabled --format=list | grep -q "^dkan_client_setup$"; then
   echo -e "  ${CHECK} dkan_client_setup already enabled"
 else
@@ -121,7 +121,7 @@ else
 fi
 
 # Step 6: Create API user with auto-generated credentials
-echo -e "${CHECK} Step 6/12: Creating DKAN API user..."
+echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
 # Check if running interactively (has TTY) or from automation
 if [ -t 0 ]; then
   # Interactive mode - prompt for DKAN URL
@@ -140,7 +140,7 @@ fi
 drush dkan-client:create-api-user --dkan-url="${DKAN_URL}"
 
 # Step 7: Import sample content (49 datasets)
-echo -e "${CHECK} Step 7/12: Importing sample datasets..."
+echo -e "${CHECK} Step 7/11: Importing sample datasets..."
 # Check if sample content already exists
 # Note: We expect 49 datasets but use threshold of 40 to allow for import flexibility
 DATASET_COUNT=$(drush dkan:dataset-list --format=list 2>/dev/null | wc -l | tr -d ' ')
@@ -164,27 +164,23 @@ else
 fi
 
 # Step 8: Create demo pages
-echo -e "${CHECK} Step 8/12: Creating demo pages..."
+echo -e "${CHECK} Step 8/11: Creating demo pages..."
 drush dkan-client:create-demo-pages
 echo -e "  ${CHECK} Demo pages created"
 
 # Step 9: Place blocks
-echo -e "${CHECK} Step 9/12: Placing blocks..."
+echo -e "${CHECK} Step 9/11: Placing blocks..."
 drush dkan-client:place-blocks
 echo -e "  ${CHECK} Blocks placed"
 
-# Step 10: Configure data dictionary mode
-echo -e "${CHECK} Step 10/12: Configuring data dictionary mode..."
-drush config:set metastore.settings data_dictionary_mode reference -y
-echo -e "  ${CHECK} Data dictionary mode configured (distribution reference)"
-
-# Step 11: Generate data dictionaries
-echo -e "${CHECK} Step 11/12: Generating data dictionaries..."
+# Step 10: Generate data dictionaries
+echo -e "${CHECK} Step 10/11: Generating data dictionaries..."
+# Note: The dictionary creation command automatically configures data dictionary mode
 drush dkan-client:create-data-dictionaries
 echo -e "  ${CHECK} Data dictionaries generated"
 
-# Step 12: Clear cache
-echo -e "${CHECK} Step 12/12: Clearing cache..."
+# Step 11: Clear cache
+echo -e "${CHECK} Step 11/11: Clearing cache..."
 drush cr
 echo -e "  ${CHECK} Cache cleared"
 
