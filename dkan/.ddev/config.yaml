@@ -12,7 +12,9 @@ database:
 use_dns_when_possible: true
 composer_version: "2"
 web_environment:
-    - DKAN_URL=https://dkan.ddev.site
+    # DKAN site URL for API scripts (optional - defaults to https://dkan.ddev.site)
+    # Uncomment and customize if testing against a different DKAN instance:
+    # - DKAN_URL=https://custom.dkan.site
     # DKAN_USER and DKAN_PASS are auto-generated during setup
     # Credentials are saved to project root .env file (gitignored)
     # To regenerate: ddev drush dkan-client:create-api-user --regenerate
