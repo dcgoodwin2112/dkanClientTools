@@ -103,7 +103,7 @@ export function useDatasetSearchTable(options: {
  * ```tsx
  * const { table, query } = useDatastoreTable({
  *   datastoreOptions: {
- *     identifier: datasetId,
+ *     datasetId: datasetId,
  *     index: 0,
  *   },
  *   columns: createDatastoreColumns({
