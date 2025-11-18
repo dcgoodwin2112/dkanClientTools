@@ -160,12 +160,9 @@ else
   drush dkan:sample-content:create
   echo -e "  ${CHECK} Sample datasets imported (metadata)"
 
-  # Process datastore import queue (CSV files are imported via cron)
+  # Process datastore import queue (CSV files)
   echo -e "  ${CHECK} Processing datastore import queue..."
-  # Run cron twice to ensure all CSV files are imported
-  drush cron 2>/dev/null
-  sleep 2
-  drush cron 2>/dev/null
+  drush queue:run datastore_import
   echo -e "  ${CHECK} Datastore import queue processed"
 fi
 
