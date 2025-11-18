@@ -52,7 +52,54 @@ ddev exec bash scripts/setup-site.sh
 
 ---
 
-### 3. Idempotency Test
+### 3. Clean Refresh via Drush Command
+
+**Objective**: Verify clean refresh functionality using Drush command.
+
+**Prerequisites**: Setup already completed once
+
+**Steps**:
+```bash
+# Run clean refresh via Drush
+ddev drush dkan-client:setup --clean
+```
+
+**Verification**:
+- [ ] All demo content removed before recreation
+- [ ] Sample datasets removed (harvest reverted)
+- [ ] 3 demo pages recreated successfully
+- [ ] 3 blocks recreated and placed correctly
+- [ ] Data dictionaries recreated
+- [ ] No errors during cleanup or recreation
+- [ ] Demo pages functional after clean refresh
+
+---
+
+### 4. Clean Refresh via Bash Script
+
+**Objective**: Verify clean refresh functionality using bash script.
+
+**Prerequisites**: Setup already completed once
+
+**Steps**:
+```bash
+# Run clean refresh via bash script
+ddev exec bash scripts/setup-site.sh -c
+```
+
+**Verification**:
+- [ ] All demo content removed before recreation
+- [ ] Sample datasets removed (harvest reverted)
+- [ ] 3 demo pages recreated successfully
+- [ ] 3 blocks recreated and placed correctly
+- [ ] Data dictionaries recreated
+- [ ] No errors during cleanup or recreation
+- [ ] Demo pages functional after clean refresh
+- [ ] Same result as Drush variant (Scenario 3)
+
+---
+
+### 5. Idempotency Test
 
 **Objective**: Verify scripts can be run multiple times safely.
 
@@ -76,7 +123,7 @@ ddev exec bash scripts/setup-site.sh
 
 ---
 
-### 4. Individual Command Verification
+### 6. Individual Command Verification
 
 **Objective**: Test each Drush command individually.
 
@@ -104,7 +151,7 @@ ddev drush dkan-client:setup
 
 ---
 
-### 5. Environment Variable Configuration
+### 7. Environment Variable Configuration
 
 **Objective**: Verify environment variables are accessible.
 
@@ -130,116 +177,105 @@ npm run record:api:readonly
 
 ---
 
-### 6. Data Dictionary Creation
+### 8. Data Dictionary Creation
 
-**Objective**: Test automated data dictionary generation.
+**Objective**: Test automated data dictionary generation via Drush command.
 
-**Prerequisites**: Sample datasets imported
-
-**Steps**:
-```bash
-# Check if script exists
-ls -la scripts/create-data-dictionaries.ts
-
-# Run from project root (if exists)
-cd ../.. && npx tsx scripts/create-data-dictionaries.ts
-
-# Or run via setup script
-cd dkan && ddev exec bash scripts/setup-site.sh
-```
-
-**Verification**:
-- [ ] Script found (or warning displayed if not found)
-- [ ] Data dictionaries created for sample datasets
-- [ ] No errors during generation
-- [ ] Setup script continues even if script missing
-
----
-
-### 7. Complete Site Rebuild
-
-**Objective**: Test complete rebuild workflow.
-
-**Prerequisites**: DDEV running
+**Prerequisites**: Sample datasets imported with datastore tables
 
 **Steps**:
 ```bash
-# Run rebuild script (answer "yes" to confirmation)
-ddev exec bash scripts/rebuild-site.sh
+# Verify datastore tables exist
+ddev drush dkan:datastore:list
+
+# Run data dictionary creation
+ddev drush dkan-client:create-data-dictionaries
+
+# Verify dictionaries were created
+ddev drush sql-query "SELECT identifier FROM metastore WHERE data_type='distribution' AND identifier LIKE '%-dict'"
 ```
 
 **Verification**:
-- [ ] Confirmation prompt appears
-- [ ] Database wiped (Drupal reinstalled)
-- [ ] Setup script runs automatically
-- [ ] All modules reinstalled
-- [ ] Sample data recreated
-- [ ] Demo pages recreated
-- [ ] Blocks replaced
-- [ ] Site fully functional after rebuild
+- [ ] Datastore tables exist before running command
+- [ ] Command completes without errors
+- [ ] Data dictionaries created for distributions with datastore tables
+- [ ] Dictionary identifiers follow pattern: `{distribution-id}-dict`
+- [ ] Dictionaries contain table schema information
+- [ ] Running command again skips existing dictionaries (idempotent)
 
 ---
 
-### 8. Error Handling
+### 9. Data Dictionary Field Type Mapping
 
-**Objective**: Test graceful handling of error conditions.
+**Objective**: Verify field type mapping from Drupal schema to Frictionless format.
 
-**Prerequisites**: DDEV running
+**Prerequisites**: Sample datasets with datastore tables
 
-**Test Cases**:
-
-**A. Drupal Not Installed**:
+**Steps**:
 ```bash
-# Stop DDEV and remove database
-ddev stop
-ddev delete -O
-ddev start
+# Create data dictionaries
+ddev drush dkan-client:create-data-dictionaries
 
-# Run setup script
-ddev exec bash scripts/setup-site.sh
+# Fetch a data dictionary to examine field types
+ddev drush dkan:metastore:get distribution [distribution-id]-dict
 ```
-**Verify**: Error message about Drupal not installed
-
-**B. Missing Module**:
-```bash
-# Uninstall a required module
-ddev drush pm-uninstall dkan -y
-
-# Run setup
-ddev exec bash scripts/setup-site.sh
-```
-**Verify**: Module gets re-enabled
-
-**C. Demo Module Not Enabled**:
-```bash
-# Disable demo modules
-ddev drush pm-uninstall dkan_client_demo_vanilla dkan_client_demo_react dkan_client_demo_vue -y
-
-# Place blocks
-ddev drush dkan-client:place-blocks
-```
-**Verify**: Warning about missing block plugins
 
 **Verification**:
-- [ ] Appropriate error messages displayed
-- [ ] Scripts exit gracefully on critical errors
-- [ ] Warnings shown for non-critical issues
-- [ ] Recovery steps suggested in output
+- [ ] Drupal `varchar` fields mapped to Frictionless `string`
+- [ ] Drupal `int` fields mapped to Frictionless `integer`
+- [ ] Drupal `decimal` fields mapped to Frictionless `number`
+- [ ] Drupal `tinyint` fields mapped to Frictionless `boolean`
+- [ ] Drupal `datetime` fields mapped to Frictionless `date`
+- [ ] Field names preserved correctly
+- [ ] Schema structure follows Frictionless Table Schema spec
+
+---
+
+### 10. Alias Command Testing
+
+**Objective**: Verify short command aliases work correctly.
+
+**Prerequisites**: Drupal installed, `dkan_client_setup` module enabled
+
+**Steps**:
+```bash
+# Test create-demo-pages alias
+ddev drush dkan-client-pages
+
+# Test place-blocks alias
+ddev drush dkan-client-blocks
+
+# Test create-data-dictionaries alias
+ddev drush dkan-client-dictionaries
+
+# Test setup alias
+ddev drush dkan-client-demo-setup
+```
+
+**Verification**:
+- [ ] `dkan-client-pages` creates demo pages (same as `dkan-client:create-demo-pages`)
+- [ ] `dkan-client-blocks` places blocks (same as `dkan-client:place-blocks`)
+- [ ] `dkan-client-dictionaries` creates dictionaries (same as `dkan-client:create-data-dictionaries`)
+- [ ] `dkan-client-demo-setup` runs full setup (same as `dkan-client:setup`)
+- [ ] All aliases produce identical results to full commands
+- [ ] `--clean` flag works with `dkan-client-demo-setup --clean`
 
 ---
 
 ## Acceptance Criteria Summary
 
-All 8 test scenarios must pass for complete validation:
+All 10 test scenarios must pass for complete validation:
 
 1. ✓ Fresh install completes without errors
 2. ✓ Manual script execution succeeds
-3. ✓ Multiple runs don't create duplicates (idempotency)
-4. ✓ Individual Drush commands work correctly
-5. ✓ Environment variables accessible
-6. ✓ Data dictionary generation works
-7. ✓ Complete rebuild succeeds
-8. ✓ Error conditions handled gracefully
+3. ✓ Clean refresh via Drush command works correctly
+4. ✓ Clean refresh via bash script works correctly
+5. ✓ Multiple runs don't create duplicates (idempotency)
+6. ✓ Individual Drush commands work correctly
+7. ✓ Environment variables accessible
+8. ✓ Data dictionary creation works via Drush command
+9. ✓ Data dictionary field type mapping correct
+10. ✓ Command aliases work correctly
 
 ## Running Full Test Suite
 
@@ -252,26 +288,38 @@ ddev delete -O && cd dkan && ddev start && ddev drush si --account-pass=admin -y
 # 2. Manual execution
 ddev exec bash scripts/setup-site.sh
 
-# 3. Idempotency (run 3 times)
+# 3. Clean refresh via Drush
+ddev drush dkan-client:setup --clean
+
+# 4. Clean refresh via bash script
+ddev exec bash scripts/setup-site.sh -c
+
+# 5. Idempotency (run 3 times)
 ddev exec bash scripts/setup-site.sh
 ddev exec bash scripts/setup-site.sh
 ddev exec bash scripts/setup-site.sh
 
-# 4. Individual commands
+# 6. Individual commands
 ddev drush dkan-client:create-demo-pages
 ddev drush dkan-client:place-blocks
+ddev drush dkan-client:create-data-dictionaries
 ddev drush dkan-client:setup
 
-# 5. Environment variables
+# 7. Environment variables
 ddev exec echo "\$DKAN_URL" && ddev exec echo "\$DKAN_USER"
 
-# 6. Data dictionary
-cd ../.. && npx tsx scripts/create-data-dictionaries.ts
+# 8. Data dictionary creation
+ddev drush dkan:datastore:list
+ddev drush dkan-client:create-data-dictionaries
 
-# 7. Complete rebuild
-cd dkan && ddev exec bash scripts/rebuild-site.sh  # Answer "yes"
+# 9. Data dictionary field type mapping
+ddev drush dkan:metastore:get distribution [distribution-id]-dict
 
-# 8. Error handling (manual verification required)
+# 10. Alias commands
+ddev drush dkan-client-pages
+ddev drush dkan-client-blocks
+ddev drush dkan-client-dictionaries
+ddev drush dkan-client-demo-setup
 ```
 
 ## Reporting Issues
