@@ -122,7 +122,13 @@ fi
 # Step 6: Create API user with auto-generated credentials
 echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
 # Check if credentials exist in project root .env file
-PROJECT_ROOT_ENV="$(cd .. && pwd)/.env"
+# scripts/ is at dkan/scripts, so project root is ../.. from scripts directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT_ENV="$PROJECT_ROOT/.env"
+
+echo -e "  Checking for credentials at: $PROJECT_ROOT_ENV"
+
 if [ -f "$PROJECT_ROOT_ENV" ] && grep -q "^DKAN_USER=" "$PROJECT_ROOT_ENV" 2>/dev/null && grep -q "^DKAN_PASS=" "$PROJECT_ROOT_ENV" 2>/dev/null; then
   echo -e "  ${CHECK} API credentials already exist in $PROJECT_ROOT_ENV"
 else
