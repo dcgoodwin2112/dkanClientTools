@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="../../../../core/tests/bootstrap.php"
+         colors="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutChangesToGlobalState="true"
+         failOnWarning="true">
+  <php>
+    <!-- Set error reporting to E_ALL. -->
+    <ini name="error_reporting" value="32767"/>
+    <!-- Do not limit the amount of memory tests take to run. -->
+    <ini name="memory_limit" value="-1"/>
+    <!-- Set SIMPLETEST_BASE_URL for functional tests. -->
+    <env name="SIMPLETEST_BASE_URL" value="https://dkan.ddev.site"/>
+    <!-- Set SIMPLETEST_DB for functional tests. -->
+    <env name="SIMPLETEST_DB" value="mysql://db:db@db/db"/>
+    <!-- Set BROWSERTEST_OUTPUT_DIRECTORY for functional tests. -->
+    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/tmp"/>
+    <!-- Set BROWSERTEST_OUTPUT_BASE_URL for functional tests. -->
+    <env name="BROWSERTEST_OUTPUT_BASE_URL" value="https://dkan.ddev.site"/>
+    <!-- Set MINK_DRIVER_CLASS for functional tests. -->
+    <env name="MINK_DRIVER_CLASS" value="Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver"/>
+    <!-- Set MINK_DRIVER_ARGS for functional tests. -->
+    <env name="MINK_DRIVER_ARGS" value=""/>
+    <!-- Set MINK_DRIVER_ARGS_WEBDRIVER for functional tests. -->
+    <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"browserName":"chrome","goog:chromeOptions":{"args":["--disable-gpu","--headless", "--no-sandbox"]}}, "http://chrome:9515"]'/>
+  </php>
+  <testsuites>
+    <testsuite name="unit">
+      <directory>./tests/src/Unit</directory>
+    </testsuite>
+    <testsuite name="functional">
+      <directory>./tests/src/Functional</directory>
+    </testsuite>
+  </testsuites>
+  <coverage>
+    <include>
+      <directory>./src</directory>
+    </include>
+  </coverage>
+</phpunit>
