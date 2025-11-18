@@ -832,6 +832,11 @@ class DkanClientSetupCommands extends DrushCommands {
     $drupal_root = \Drupal::root();
     $absolute_path = $drupal_root . '/' . $file_path;
 
+    // Normalize path to resolve .. components
+    $absolute_path = realpath(dirname($absolute_path)) . '/' . basename($absolute_path);
+
+    $this->logger()->notice("Saving credentials to: {$absolute_path}");
+
     // Backup existing file if it exists.
     if (file_exists($absolute_path)) {
       $backup_path = $absolute_path . '.backup';
