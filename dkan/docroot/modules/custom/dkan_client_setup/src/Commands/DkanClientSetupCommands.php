@@ -703,6 +703,237 @@ class DkanClientSetupCommands extends DrushCommands {
   }
 
   /**
+   * Create DKAN API user with auto-generated secure password.
+   *
+   * Creates a dedicated user account for API access with minimal permissions.
+   * Auto-generates a secure password and saves credentials to .env file.
+   *
+   * @command dkan-client:create-api-user
+   * @option username The username for the API user.
+   * @option save-to Path to save credentials (relative to Drupal root).
+   * @option regenerate Regenerate password for existing user.
+   * @usage dkan-client:create-api-user
+   *   Creates API user and saves credentials to ../.env
+   * @usage dkan-client:create-api-user --regenerate
+   *   Regenerates password for existing API user.
+   * @usage dkan-client:create-api-user --save-to=../.env.local
+   *   Saves credentials to custom location.
+   * @aliases dkan-api-user
+   */
+  public function createApiUser(array $options = [
+    'username' => 'dkan-api-user',
+    'save-to' => '../.env',
+    'regenerate' => FALSE,
+  ]) {
+    $username = $options['username'];
+    $save_path = $options['save-to'];
+    $regenerate = $options['regenerate'];
+
+    $this->logger()->notice("Creating DKAN API user: {$username}");
+
+    try {
+      // Load or create user.
+      $user_storage = $this->entityTypeManager->getStorage('user');
+      $users = $user_storage->loadByProperties(['name' => $username]);
+      $user = !empty($users) ? reset($users) : NULL;
+
+      // Check if user exists and handle regeneration.
+      if ($user) {
+        if (!$regenerate) {
+          $this->logger()->warning("User '{$username}' already exists. Use --regenerate to update password.");
+          $this->logger()->notice("Existing credentials should be in: {$save_path}");
+          return;
+        }
+        $this->logger()->notice("Regenerating password for existing user: {$username}");
+      }
+      else {
+        $this->logger()->notice("Creating new user: {$username}");
+      }
+
+      // Generate secure random password (32 characters).
+      $password = $this->generateSecurePassword(32);
+
+      if (!$user) {
+        // Create new user.
+        $user = $user_storage->create([
+          'name' => $username,
+          'mail' => "{$username}@localhost",
+          'pass' => $password,
+          'status' => 1,
+        ]);
+        $user->save();
+        $this->logger()->success("Created user: {$username}");
+      }
+      else {
+        // Update existing user password.
+        $user->setPassword($password);
+        $user->save();
+        $this->logger()->success("Updated password for user: {$username}");
+      }
+
+      // Assign authenticated user role (has API access by default).
+      // DKAN APIs are generally accessible to authenticated users.
+      // If specific permissions are needed, you can create a custom role here.
+      $this->logger()->notice("User has 'authenticated' role with API access.");
+
+      // Save credentials to .env file.
+      $this->saveCredentials($save_path, $username, $password);
+
+      $this->logger()->success('==============================================');
+      $this->logger()->success('API User Created Successfully!');
+      $this->logger()->success('==============================================');
+      $this->logger()->notice("Username: {$username}");
+      $this->logger()->notice("Password: [saved to {$save_path}]");
+      $this->logger()->notice('');
+      $this->logger()->notice('Credentials saved to: ' . $save_path);
+      $this->logger()->notice('Use these credentials for API scripts and tools.');
+      $this->logger()->success('==============================================');
+    }
+    catch (\Exception $e) {
+      $this->logger()->error('Failed to create API user: ' . $e->getMessage());
+      throw $e;
+    }
+  }
+
+  /**
+   * Generate a cryptographically secure random password.
+   *
+   * @param int $length
+   *   The desired password length.
+   *
+   * @return string
+   *   The generated password.
+   */
+  protected function generateSecurePassword($length = 32) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+';
+    $characters_length = strlen($characters);
+    $password = '';
+
+    for ($i = 0; $i < $length; $i++) {
+      $random_index = random_int(0, $characters_length - 1);
+      $password .= $characters[$random_index];
+    }
+
+    return $password;
+  }
+
+  /**
+   * Save API credentials to .env file.
+   *
+   * @param string $file_path
+   *   Path to .env file (relative to Drupal root).
+   * @param string $username
+   *   The API username.
+   * @param string $password
+   *   The API password.
+   */
+  protected function saveCredentials($file_path, $username, $password) {
+    // Resolve absolute path.
+    $drupal_root = \Drupal::root();
+    $absolute_path = $drupal_root . '/' . $file_path;
+
+    // Backup existing file if it exists.
+    if (file_exists($absolute_path)) {
+      $backup_path = $absolute_path . '.backup';
+      copy($absolute_path, $backup_path);
+      $this->logger()->notice("Backed up existing file to: {$file_path}.backup");
+
+      // Read existing file and update DKAN credentials.
+      $existing_content = file_get_contents($absolute_path);
+      $updated_content = $this->updateEnvContent($existing_content, $username, $password);
+      file_put_contents($absolute_path, $updated_content);
+    }
+    else {
+      // Create new .env file with credentials.
+      $content = $this->createEnvContent($username, $password);
+      file_put_contents($absolute_path, $content);
+      $this->logger()->notice("Created new credentials file: {$file_path}");
+    }
+
+    // Set restrictive permissions (readable only by owner).
+    chmod($absolute_path, 0600);
+    $this->logger()->notice("Set file permissions to 0600 (owner read/write only)");
+  }
+
+  /**
+   * Update existing .env file content with new credentials.
+   *
+   * @param string $content
+   *   Existing .env file content.
+   * @param string $username
+   *   The API username.
+   * @param string $password
+   *   The API password.
+   *
+   * @return string
+   *   Updated .env file content.
+   */
+  protected function updateEnvContent($content, $username, $password) {
+    $lines = explode("\n", $content);
+    $updated_lines = [];
+    $found_user = FALSE;
+    $found_pass = FALSE;
+
+    foreach ($lines as $line) {
+      if (strpos($line, 'DKAN_USER=') === 0) {
+        $updated_lines[] = "DKAN_USER={$username}";
+        $found_user = TRUE;
+      }
+      elseif (strpos($line, 'DKAN_PASS=') === 0) {
+        $updated_lines[] = "DKAN_PASS={$password}";
+        $found_pass = TRUE;
+      }
+      else {
+        $updated_lines[] = $line;
+      }
+    }
+
+    // Add missing credentials if not found.
+    if (!$found_user) {
+      $updated_lines[] = "DKAN_USER={$username}";
+    }
+    if (!$found_pass) {
+      $updated_lines[] = "DKAN_PASS={$password}";
+    }
+
+    return implode("\n", $updated_lines);
+  }
+
+  /**
+   * Create new .env file content with credentials.
+   *
+   * @param string $username
+   *   The API username.
+   * @param string $password
+   *   The API password.
+   *
+   * @return string
+   *   .env file content.
+   */
+  protected function createEnvContent($username, $password) {
+    $content = <<<EOT
+# DKAN Client Tools - API Credentials
+# Auto-generated by dkan-client:create-api-user command
+# DO NOT commit this file to version control
+
+# DKAN API User (auto-generated)
+DKAN_USER={$username}
+DKAN_PASS={$password}
+
+# DKAN site URL
+DKAN_URL=https://dkan.ddev.site
+
+# Recording mode (optional)
+READ_ONLY=false
+
+# Cleanup mode (optional)
+CLEANUP_ONLY=false
+EOT;
+
+    return $content;
+  }
+
+  /**
    * Get the default theme.
    *
    * @return string

@@ -1363,6 +1363,9 @@ async function main() {
   if (process.env.CLEANUP_ONLY === 'true') {
     if (!config.auth) {
       console.error('\n❌ Error: Cleanup mode requires authentication (DKAN_USER and DKAN_PASS)')
+      console.error('\nTo fix this:')
+      console.error('  1. Ensure DKAN setup has been run: cd dkan && ddev exec bash scripts/setup-site.sh')
+      console.error('  2. Check that .env file exists in project root with API credentials\n')
       process.exit(1)
     }
     await recorder.cleanupOnly()

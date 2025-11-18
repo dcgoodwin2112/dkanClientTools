@@ -13,8 +13,9 @@ use_dns_when_possible: true
 composer_version: "2"
 web_environment:
     - DKAN_URL=https://dkan.ddev.site
-    - DKAN_USER=admin
-    - DKAN_PASS=admin
+    # DKAN_USER and DKAN_PASS are auto-generated during setup
+    # Credentials are saved to project root .env file (gitignored)
+    # To regenerate: ddev drush dkan-client:create-api-user --regenerate
 corepack_enable: false
 
 # Hooks for automated setup

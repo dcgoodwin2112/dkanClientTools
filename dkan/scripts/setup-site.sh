@@ -120,7 +120,7 @@ for module in $DEMO_MODULES; do
 done
 
 # Step 5: Enable setup module
-echo -e "${CHECK} Step 5/10: Enabling setup module..."
+echo -e "${CHECK} Step 5/11: Enabling setup module..."
 if drush pm:list --status=enabled --format=list | grep -q "^dkan_client_setup$"; then
   echo -e "  ${CHECK} dkan_client_setup already enabled"
 else
@@ -128,8 +128,18 @@ else
   echo -e "  ${CHECK} dkan_client_setup enabled"
 fi
 
-# Step 6: Import sample content (49 datasets)
-echo -e "${CHECK} Step 6/10: Importing sample datasets..."
+# Step 6: Create API user with auto-generated credentials
+echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
+if [ -f "../.env" ] && grep -q "^DKAN_USER=" "../.env" 2>/dev/null && grep -q "^DKAN_PASS=" "../.env" 2>/dev/null; then
+  echo -e "  ${CHECK} API credentials already exist in .env"
+else
+  # Create API user and save credentials to .env
+  drush dkan-client:create-api-user --save-to=../.env
+  echo -e "  ${CHECK} API user created and credentials saved to .env"
+fi
+
+# Step 7: Import sample content (49 datasets)
+echo -e "${CHECK} Step 7/11: Importing sample datasets..."
 # Check if sample content already exists
 # Note: We expect 49 datasets but use threshold of 40 to allow for import flexibility
 DATASET_COUNT=$(drush dkan:dataset-list --format=list 2>/dev/null | wc -l | tr -d ' ')
@@ -144,23 +154,23 @@ else
   echo -e "  ${CHECK} Sample datasets imported"
 fi
 
-# Step 7: Create demo pages
-echo -e "${CHECK} Step 7/10: Creating demo pages..."
+# Step 8: Create demo pages
+echo -e "${CHECK} Step 8/11: Creating demo pages..."
 drush dkan-client:create-demo-pages
 echo -e "  ${CHECK} Demo pages created"
 
-# Step 8: Place blocks
-echo -e "${CHECK} Step 8/10: Placing blocks..."
+# Step 9: Place blocks
+echo -e "${CHECK} Step 9/11: Placing blocks..."
 drush dkan-client:place-blocks
 echo -e "  ${CHECK} Blocks placed"
 
-# Step 9: Generate data dictionaries
-echo -e "${CHECK} Step 9/10: Generating data dictionaries..."
+# Step 10: Generate data dictionaries
+echo -e "${CHECK} Step 10/11: Generating data dictionaries..."
 drush dkan-client:create-data-dictionaries
 echo -e "  ${CHECK} Data dictionaries generated"
 
-# Step 10: Clear cache
-echo -e "${CHECK} Step 10/10: Clearing cache..."
+# Step 11: Clear cache
+echo -e "${CHECK} Step 11/11: Clearing cache..."
 drush cr
 echo -e "  ${CHECK} Cache cleared"
 
@@ -177,5 +187,9 @@ echo ""
 echo "Admin login:"
 echo "  • URL: https://dkan.ddev.site/user"
 echo "  • Username: admin"
-echo "  • Password: admin"
+echo "  • Password: admin (default for local dev)"
+echo ""
+echo "API credentials:"
+echo "  • Saved in: .env (project root)"
+echo "  • Used by: API scripts, testing tools, and client libraries"
 echo ""

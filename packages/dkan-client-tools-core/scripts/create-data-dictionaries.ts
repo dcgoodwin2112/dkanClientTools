@@ -33,6 +33,16 @@ const DKAN_URL = process.env.DKAN_URL || 'http://dkan.ddev.site'
 const DKAN_USER = process.env.DKAN_USER
 const DKAN_PASS = process.env.DKAN_PASS
 
+// Validate credentials (required for creating data dictionaries)
+if (!DKAN_USER || !DKAN_PASS) {
+  console.error('\n❌ Error: DKAN_USER and DKAN_PASS must be set')
+  console.error('\nTo fix this:')
+  console.error('  1. Ensure DKAN setup has been run: cd dkan && ddev exec bash scripts/setup-site.sh')
+  console.error('  2. Check that .env file exists in project root with API credentials')
+  console.error('  3. API credentials are auto-generated during DKAN setup\n')
+  process.exit(1)
+}
+
 interface DistributionWithId {
   identifier: string
   title?: string

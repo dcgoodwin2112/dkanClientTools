@@ -26,6 +26,7 @@ echo " DKAN Client Tools - Site Rebuild"
 echo "========================================="
 echo ""
 echo -e "${WARN} ${YELLOW}WARNING:${NC} This will destroy the existing database!"
+echo -e "${WARN} ${YELLOW}NOTE:${NC} Existing API credentials in .env will be backed up to .env.backup"
 echo ""
 read -p "Are you sure you want to continue? (yes/no): " -r
 echo ""
