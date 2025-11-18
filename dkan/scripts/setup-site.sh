@@ -61,7 +61,7 @@ if [ "$CLEAN_FIRST" = true ]; then
 fi
 
 # Step 1: Verify Drupal installation
-echo -e "${CHECK} Step 1/10: Verifying Drupal installation..."
+echo -e "${CHECK} Step 1/11: Verifying Drupal installation..."
 if drush status --field=bootstrap 2>/dev/null | grep -q "Successful"; then
   echo -e "  ${CHECK} Drupal is installed"
 else
@@ -71,7 +71,7 @@ else
 fi
 
 # Step 2: Enable DKAN core modules
-echo -e "${CHECK} Step 2/10: Enabling DKAN core modules..."
+echo -e "${CHECK} Step 2/11: Enabling DKAN core modules..."
 CORE_MODULES="dkan metastore metastore_admin metastore_search harvest"
 MISSING_MODULES=""
 for module in $CORE_MODULES; do
@@ -88,7 +88,7 @@ else
 fi
 
 # Step 3: Enable base library modules
-echo -e "${CHECK} Step 3/10: Enabling base library modules..."
+echo -e "${CHECK} Step 3/11: Enabling base library modules..."
 BASE_MODULES="dkan_client_tools_core_base dkan_client_tools_react_base dkan_client_tools_vue_base"
 for module in $BASE_MODULES; do
   if drush pm:list --status=enabled --format=list | grep -q "^${module}$"; then
@@ -100,7 +100,7 @@ for module in $BASE_MODULES; do
 done
 
 # Step 4: Enable demo modules
-echo -e "${CHECK} Step 4/10: Enabling demo modules..."
+echo -e "${CHECK} Step 4/11: Enabling demo modules..."
 DEMO_MODULES="dkan_client_demo_vanilla dkan_client_demo_react dkan_client_demo_vue"
 for module in $DEMO_MODULES; do
   if drush pm:list --status=enabled --format=list | grep -q "^${module}$"; then
@@ -172,12 +172,13 @@ echo "  • https://dkan.ddev.site/vanilla-demo"
 echo "  • https://dkan.ddev.site/react-demo"
 echo "  • https://dkan.ddev.site/vue-demo"
 echo ""
-echo "Admin login:"
-echo "  • URL: https://dkan.ddev.site/user"
-echo "  • Username: admin"
-echo "  • Password: admin (default for local dev)"
+echo "Admin access:"
+echo "  • Generate login link: ddev drush uli"
+echo "  • Secure, passwordless one-time login"
 echo ""
 echo "API credentials:"
-echo "  • Saved in: .env (project root)"
+echo "  • User: dkan-api-user"
+echo "  • Password: (auto-generated in .env)"
+echo "  • Location: .env (project root and dkan/.env)"
 echo "  • Used by: API scripts, testing tools, and client libraries"
 echo ""

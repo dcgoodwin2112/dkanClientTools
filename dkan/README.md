@@ -427,7 +427,7 @@ ddev restart
 ddev import-db --file=.ddev/db_snapshots/snapshot.sql.gz
 
 # Or reinstall Drupal
-ddev drush si --account-pass=admin -y
+ddev drush si -y
 ddev drush en dkan metastore metastore_admin metastore_search harvest sample_content -y
 ddev drush dkan:sample-content:create
 ```
