@@ -36,7 +36,8 @@
     "open-data",
     "react",
     "hooks",
-    "tanstack-query"
+    "tanstack-query",
+    "tanstack-table"
   ],
   "author": "",
   "license": "MIT",
@@ -44,11 +45,13 @@
   "peerDependencies": {
     "@dkan-client-tools/core": "*",
     "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-table": "^8.0.0",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@dkan-client-tools/core": "*",
     "@tanstack/react-query": "^5.90.7",
+    "@tanstack/react-table": "^8.20.5",
     "@testing-library/jest-dom": "^6.1.0",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.0",

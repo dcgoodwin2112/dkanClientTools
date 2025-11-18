@@ -786,6 +786,240 @@ For advanced usage patterns including optimistic updates, prefetching, dependent
 
 ---
 
+## TanStack Table Integration
+
+### Overview
+
+TanStack Table provides headless table UI functionality for displaying DKAN data. Following the same core + adapters pattern as TanStack Query, table integration is available in React and Vue packages.
+
+**Technology Documentation:** `/docs/external/libraries/TANSTACK_TABLE.md`
+
+### Architecture
+
+**Package Structure:**
+- **Core** - Table configuration types (no table dependencies)
+- **React** - Hooks combining TanStack React Query + TanStack React Table
+- **Vue** - Composables combining TanStack Vue Query + TanStack Vue Table
+
+**Dependency Flow:**
+```
+Component
+  ↓
+Table Hook/Composable (e.g., useDatasetSearchTable)
+  ↓
+Query Hook/Composable (e.g., useDatasetSearch)  +  Table Instance (e.g., useReactTable)
+  ↓                                                ↓
+TanStack Query                                   TanStack Table
+```
+
+### React Table Hooks
+
+**1. Generic Table Hook**
+```typescript
+const table = useTableFromQuery({
+  query: useDatasetSearch({ keyword: 'health' }),
+  data: query.data?.results ?? [],
+  columns: createDatasetColumns(),
+})
+```
+
+**2. Integrated Dataset Search Table**
+```typescript
+const { table, query } = useDatasetSearchTable({
+  searchOptions: { keyword: 'health' },
+  columns: createDatasetColumns(),
+})
+```
+
+**3. Integrated Datastore Table**
+```typescript
+const { table, query } = useDatastoreTable({
+  datastoreOptions: { identifier: 'abc-123', index: 0 },
+  columns: createDatastoreColumns({ fields: schema?.fields }),
+})
+```
+
+### Vue Table Composables
+
+**1. Generic Table Composable**
+```typescript
+const keyword = ref('health')
+const query = useDatasetSearch({ keyword })
+const table = useTableFromQuery({
+  query,
+  data: () => query.data.value?.results ?? [],
+  columns: createDatasetColumns(),
+})
+```
+
+**2. Integrated Dataset Search Table**
+```typescript
+const keyword = ref('health')
+const { table, query } = useDatasetSearchTable({
+  searchOptions: { keyword },
+  columns: createDatasetColumns(),
+})
+```
+
+**3. Integrated Datastore Table**
+```typescript
+const identifier = ref('abc-123')
+const { table, query } = useDatastoreTable({
+  datastoreOptions: { identifier, index: 0 },
+  columns: () => createDatastoreColumns({
+    fields: query.data.value?.schema?.fields
+  }),
+})
+```
+
+### Column Definition Utilities
+
+Pre-configured column creators for common DKAN data structures:
+
+**Dataset Tables:**
+```typescript
+const columns = createDatasetColumns({
+  showIdentifier: false,    // Hide ID column
+  showDescription: true,     // Show description
+  showDistributionCount: true,  // Show distribution count
+})
+```
+
+**Datastore Tables:**
+```typescript
+const columns = createDatastoreColumns({
+  fields: schema.fields,           // Generate from schema
+  excludeFields: ['record_number'], // Exclude specific fields
+  formatters: {                     // Custom formatters
+    date: (value) => new Date(value).toLocaleDateString(),
+  },
+})
+```
+
+**Other Utilities:**
+- `createHarvestPlanColumns()` - Harvest plan tables
+- `createHarvestRunColumns()` - Harvest run tables
+- `createDatastoreImportColumns()` - Import status tables
+- `createDataDictionaryFieldColumns()` - Data dictionary field tables
+
+### Table Configuration Types
+
+Core package exports framework-agnostic configuration types:
+
+```typescript
+// Column configurations
+DatasetColumnConfig
+DatastoreColumnConfig
+HarvestPlanColumnConfig
+HarvestRunColumnConfig
+DatastoreImportColumnConfig
+DataDictionaryFieldColumnConfig
+
+// Table state configurations
+TablePaginationConfig
+TableSortingConfig
+TableFilterConfig
+
+// Row type aliases
+DatasetTableRow
+DatastoreTableRow
+HarvestPlanTableRow
+HarvestRunTableRow
+DatastoreImportTableRow
+DataDictionaryFieldTableRow
+```
+
+### Common Use Cases
+
+**1. Dataset Search Results**
+- Display search results in sortable, paginated table
+- Default columns: title, publisher, modified date
+- Custom columns for keywords, themes, access level
+
+**2. Datastore Query Results**
+- Dynamic columns generated from datastore schema
+- Type-aware formatting (dates, numbers, strings)
+- Field filtering and custom formatters
+
+**3. Harvest Plans/Runs**
+- Administrative tables for harvest management
+- Status indicators and timestamps
+- Action columns for run operations
+
+**4. Data Dictionary Fields**
+- Schema field metadata display
+- Constraint visualization
+- Type and format information
+
+### Integration Pattern
+
+**Combining Query + Table:**
+
+1. Query hook/composable fetches data
+2. Table hook/composable creates table instance
+3. Data automatically flows from query to table
+4. Loading states handled by query
+5. Table provides sorting, filtering, pagination UI logic
+
+**Benefits:**
+- Automatic cache management from TanStack Query
+- Reactive data updates (Vue)
+- Loading/error state handling
+- Headless UI flexibility
+- Type-safe column definitions
+
+### Performance Optimizations
+
+**1. Memoization**
+- React: `useMemo` for columns
+- Vue: `computed` for reactive columns
+
+**2. Server-Side Operations**
+- Manual pagination with `manualPagination: true`
+- Manual sorting with `manualSorting: true`
+- Pass pagination/sort state to query options
+
+**3. Virtual Scrolling**
+- Integrate with `@tanstack/react-virtual` or `@tanstack/vue-virtual`
+- Render only visible rows for large datasets
+
+**4. Selective Column Visibility**
+- Toggle columns with `columnVisibility` state
+- Reduce DOM nodes for better performance
+
+### Export System
+
+**React Package Exports:**
+```typescript
+// Hooks
+export { useTableFromQuery, useDatasetSearchTable, useDatastoreTable }
+
+// Column utilities
+export { createDatasetColumns, createDatastoreColumns, ... }
+
+// TanStack Table re-exports
+export { useReactTable, getCoreRowModel, flexRender, ... }
+
+// Types
+export type { ColumnDef, Table, Row, Cell, ... }
+```
+
+**Vue Package Exports:**
+```typescript
+// Composables
+export { useTableFromQuery, useDatasetSearchTable, useDatastoreTable }
+
+// Column utilities
+export { createDatasetColumns, createDatastoreColumns, ... }
+
+// TanStack Table re-exports
+export { useVueTable, getCoreRowModel, FlexRender, ... }
+
+// Types
+export type { ColumnDef, Table, Row, Cell, ... }
+```
+
+---
 
 ## Future Extensibility
 
