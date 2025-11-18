@@ -335,34 +335,80 @@ class DkanClientSetupCommands extends DrushCommands {
           $dict_id = $dist_id . '-dict';
 
           // Check if dictionary already exists.
+          $dict_exists = FALSE;
           try {
             $existing = $dict_storage->retrieve($dict_id);
             if ($existing) {
+              $dict_exists = TRUE;
               $this->logger()->notice('  Dictionary already exists for: ' . $dist_title);
-              $skipped++;
-              continue;
             }
           }
           catch (\Exception $e) {
             // Dictionary doesn't exist, proceed with creation.
           }
 
-          $dict_data = [
-            'title' => 'Data Dictionary for ' . $dist_title,
-            'fields' => $fields,
-          ];
-
-          // Store via DataFactory.
-          try {
-            $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
+          // If dictionary exists, check if distribution is linked and skip.
+          if ($dict_exists) {
+            // Check if distribution already has describedBy field.
+            $dist_data = json_decode($distribution->{'$'}, TRUE);
+            if (!empty($dist_data['data']['describedBy'])) {
+              $this->logger()->notice('  Dictionary already linked for: ' . $dist_title);
+              $skipped++;
+              continue;
+            }
+            else {
+              // Dictionary exists but not linked - link it below.
+              $this->logger()->notice('  Linking existing dictionary for: ' . $dist_title);
+            }
           }
-          catch (\JsonException $je) {
-            $this->logger()->error('  JSON encoding failed for dictionary "' . $dist_title . '": ' . $je->getMessage());
+
+          // Create dictionary only if it doesn't exist.
+          if (!$dict_exists) {
+            $dict_data = [
+              'title' => 'Data Dictionary for ' . $dist_title,
+              'fields' => $fields,
+            ];
+
+            // Store via DataFactory.
+            try {
+              $dict_storage->store(json_encode(['data' => $dict_data], JSON_THROW_ON_ERROR), $dict_id);
+              $this->logger()->success('  Created dictionary for: ' . $dist_title);
+            }
+            catch (\JsonException $je) {
+              $this->logger()->error('  JSON encoding failed for dictionary "' . $dist_title . '": ' . $je->getMessage());
+              $errors++;
+              continue;
+            }
+          }
+
+          // Link the data dictionary to the distribution via describedBy field.
+          try {
+            // Get the base URL for DKAN API.
+            $base_url = \Drupal::request()->getSchemeAndHttpHost();
+            $dict_url = $base_url . '/api/1/metastore/schemas/data-dictionary/items/' . $dict_id;
+
+            // Get the distribution data.
+            $dist_data = json_decode($distribution->{'$'}, TRUE);
+
+            // Add describedBy field to distribution data.
+            $dist_data['data']['describedBy'] = $dict_url;
+
+            // Update the distribution in metastore.
+            $this->metastoreService->patch('distribution', $dist_id, json_encode($dist_data));
+
+            if ($dict_exists) {
+              $this->logger()->success('  Linked existing dictionary to distribution: ' . $dist_title);
+            }
+            else {
+              $this->logger()->success('  Linked new dictionary to distribution: ' . $dist_title);
+            }
+          }
+          catch (\Exception $e) {
+            $this->logger()->warning('  Dictionary created but linking failed for ' . $dist_title . ': ' . $e->getMessage());
             $errors++;
             continue;
           }
 
-          $this->logger()->success('  Created dictionary for: ' . $dist_title);
           $created++;
         }
         catch (\Exception $e) {
