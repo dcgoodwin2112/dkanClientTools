@@ -734,8 +734,8 @@ class DkanClientSetupCommands extends DrushCommands {
     try {
       // Resolve absolute path for .env file check
       $drupal_root = \Drupal::root();
-      $absolute_path = $drupal_root . '/' . $save_path;
-      $absolute_path = realpath(dirname($absolute_path)) . '/' . basename($absolute_path);
+      $raw_path = $drupal_root . '/' . $save_path;
+      $absolute_path = $this->normalizePath($raw_path);
 
       // Check if .env file already exists with credentials
       $env_exists = file_exists($absolute_path);
@@ -851,11 +851,15 @@ class DkanClientSetupCommands extends DrushCommands {
   protected function saveCredentials($file_path, $username, $password) {
     // Resolve absolute path.
     $drupal_root = \Drupal::root();
-    $absolute_path = $drupal_root . '/' . $file_path;
+    $raw_path = $drupal_root . '/' . $file_path;
 
-    // Normalize path to resolve .. components
-    $absolute_path = realpath(dirname($absolute_path)) . '/' . basename($absolute_path);
+    // Normalize path to resolve .. components manually
+    // This is more reliable than realpath() when the file doesn't exist yet
+    $absolute_path = $this->normalizePath($raw_path);
 
+    $this->logger()->notice("Drupal root: {$drupal_root}");
+    $this->logger()->notice("Raw path: {$raw_path}");
+    $this->logger()->notice("Normalized path: {$absolute_path}");
     $this->logger()->notice("Saving credentials to: {$absolute_path}");
 
     // Backup existing file if it exists.
@@ -957,6 +961,55 @@ CLEANUP_ONLY=false
 EOT;
 
     return $content;
+  }
+
+  /**
+   * Normalize a file path by resolving . and .. components.
+   *
+   * @param string $path
+   *   The path to normalize.
+   *
+   * @return string
+   *   The normalized path.
+   */
+  protected function normalizePath($path) {
+    // Replace backslashes with forward slashes
+    $path = str_replace('\\', '/', $path);
+
+    // Split path into parts
+    $parts = explode('/', $path);
+    $normalized = [];
+
+    foreach ($parts as $part) {
+      if ($part === '' || $part === '.') {
+        // Skip empty parts and current directory references
+        if ($part === '' && count($normalized) === 0) {
+          // Keep leading slash for absolute paths
+          $normalized[] = '';
+        }
+        continue;
+      }
+      elseif ($part === '..') {
+        // Go up one directory
+        if (count($normalized) > 0) {
+          array_pop($normalized);
+        }
+      }
+      else {
+        // Regular directory/file name
+        $normalized[] = $part;
+      }
+    }
+
+    // Reconstruct the path
+    $result = implode('/', $normalized);
+
+    // Ensure absolute paths start with /
+    if (isset($parts[0]) && $parts[0] === '' && $result[0] !== '/') {
+      $result = '/' . $result;
+    }
+
+    return $result;
   }
 
   /**
