@@ -78,13 +78,21 @@ else
   exit 1
 fi
 
-# Step 2: Enable DKAN core module
-echo -e "${CHECK} Step 2/10: Enabling DKAN core module..."
-if drush pm:list --status=enabled --format=list | grep -q "^dkan$"; then
-  echo -e "  ${CHECK} DKAN already enabled"
+# Step 2: Enable DKAN core modules
+echo -e "${CHECK} Step 2/10: Enabling DKAN core modules..."
+CORE_MODULES="dkan metastore metastore_admin metastore_search harvest"
+MISSING_MODULES=""
+for module in $CORE_MODULES; do
+  if ! drush pm:list --status=enabled --format=list | grep -q "^${module}$"; then
+    MISSING_MODULES="$MISSING_MODULES $module"
+  fi
+done
+
+if [ -z "$MISSING_MODULES" ]; then
+  echo -e "  ${CHECK} DKAN core modules already enabled"
 else
-  drush en dkan -y
-  echo -e "  ${CHECK} DKAN enabled"
+  drush en $MISSING_MODULES -y
+  echo -e "  ${CHECK} DKAN core modules enabled"
 fi
 
 # Step 3: Enable base library modules
