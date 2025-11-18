@@ -40,15 +40,6 @@ CHECK="${GREEN}✓${NC}"
 WARN="${YELLOW}⚠${NC}"
 ERROR="${RED}✗${NC}"
 
-# Load environment variables from project root .env if it exists
-ENV_FILE="../.env"
-if [ -f "$ENV_FILE" ]; then
-  echo -e "${CHECK} Loading environment variables from $ENV_FILE"
-  set -a
-  source "$ENV_FILE"
-  set +a
-fi
-
 echo ""
 echo "========================================="
 echo " DKAN Client Tools - Site Setup"
