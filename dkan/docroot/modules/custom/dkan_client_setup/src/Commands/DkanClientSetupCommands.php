@@ -350,8 +350,8 @@ class DkanClientSetupCommands extends DrushCommands {
           // If dictionary exists, check if distribution is linked and skip.
           if ($dict_exists) {
             // Check if distribution already has describedBy field.
-            $dist_data = json_decode($distribution->{'$'}, TRUE);
-            if (!empty($dist_data['data']['describedBy'])) {
+            $current_described_by = $distribution->get('$.data.describedBy');
+            if (!empty($current_described_by)) {
               $this->logger()->notice('  Dictionary already linked for: ' . $dist_title);
               $skipped++;
               continue;
@@ -387,14 +387,18 @@ class DkanClientSetupCommands extends DrushCommands {
             $base_url = \Drupal::request()->getSchemeAndHttpHost();
             $dict_url = $base_url . '/api/1/metastore/schemas/data-dictionary/items/' . $dict_id;
 
-            // Get the distribution data.
-            $dist_data = json_decode($distribution->{'$'}, TRUE);
+            // Get distribution storage.
+            $dist_storage = $this->dataFactory->getInstance('distribution');
+
+            // Retrieve the current distribution data as JSON string.
+            $dist_json = $dist_storage->retrieve($dist_id);
+            $dist_data = json_decode($dist_json, TRUE);
 
             // Add describedBy field to distribution data.
             $dist_data['data']['describedBy'] = $dict_url;
 
             // Update the distribution in metastore.
-            $this->metastoreService->patch('distribution', $dist_id, json_encode($dist_data));
+            $dist_storage->store(json_encode($dist_data), $dist_id);
 
             if ($dict_exists) {
               $this->logger()->success('  Linked existing dictionary to distribution: ' . $dist_title);
