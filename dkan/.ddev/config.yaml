@@ -29,6 +29,12 @@ hooks:
           echo "Drupal not installed. Skipping automated setup."
           echo "Run 'ddev drush si --account-pass=admin -y' to install Drupal."
         fi
+    - exec-host: |
+        # Copy .env from dkan/ to project root for use by Node.js scripts
+        if [ -f .env ]; then
+          cp .env ../.env
+          echo "✓ Copied .env to project root"
+        fi
 
 # Key features of DDEV's config.yaml:
 
