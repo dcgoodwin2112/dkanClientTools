@@ -121,21 +121,9 @@ fi
 
 # Step 6: Create API user with auto-generated credentials
 echo -e "${CHECK} Step 6/11: Creating DKAN API user..."
-# Check if credentials exist in project root .env file
-# scripts/ is at dkan/scripts, so project root is ../.. from scripts directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-PROJECT_ROOT_ENV="$PROJECT_ROOT/.env"
-
-echo -e "  Checking for credentials at: $PROJECT_ROOT_ENV"
-
-if [ -f "$PROJECT_ROOT_ENV" ] && grep -q "^DKAN_USER=" "$PROJECT_ROOT_ENV" 2>/dev/null && grep -q "^DKAN_PASS=" "$PROJECT_ROOT_ENV" 2>/dev/null; then
-  echo -e "  ${CHECK} API credentials already exist in $PROJECT_ROOT_ENV"
-else
-  # Create API user and save credentials to project root .env
-  drush dkan-client:create-api-user --save-to=../../.env
-  echo -e "  ${CHECK} API user created and credentials saved to project root .env"
-fi
+# Always run the command - it will check if credentials exist and skip if needed
+# The Drush command has better logic to check both user and .env file
+drush dkan-client:create-api-user --save-to=../../.env
 
 # Step 7: Import sample content (49 datasets)
 echo -e "${CHECK} Step 7/11: Importing sample datasets..."
