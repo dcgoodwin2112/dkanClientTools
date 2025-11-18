@@ -175,10 +175,13 @@ class DkanClientSetupCommands extends DrushCommands {
    * @aliases dkan-client-blocks
    */
   public function placeBlocks() {
+    // Clear block plugin discovery cache to ensure newly enabled modules' plugins are available.
+    \Drupal::service('plugin.manager.block')->clearCachedDefinitions();
+
     $blocks = [
       [
         'id' => 'dkan_client_vanilla_demo_block',
-        'plugin' => 'dkan_client_demo_vanilla_block',
+        'plugin' => 'dkan_client_demo_vanilla_dataset_search',
         'theme' => $this->getDefaultTheme(),
         'region' => 'content',
         'label' => 'DKAN Dataset Search (Vanilla)',
@@ -186,7 +189,7 @@ class DkanClientSetupCommands extends DrushCommands {
       ],
       [
         'id' => 'dkan_client_react_demo_block',
-        'plugin' => 'dkan_client_demo_react_block',
+        'plugin' => 'dkan_client_demo_react_dataset_search',
         'theme' => $this->getDefaultTheme(),
         'region' => 'content',
         'label' => 'DKAN Dataset Search (React)',
@@ -194,7 +197,7 @@ class DkanClientSetupCommands extends DrushCommands {
       ],
       [
         'id' => 'dkan_client_vue_demo_block',
-        'plugin' => 'dkan_client_demo_vue_block',
+        'plugin' => 'dkan_dataset_search_vue',
         'theme' => $this->getDefaultTheme(),
         'region' => 'content',
         'label' => 'DKAN Dataset Search (Vue)',
