@@ -61,7 +61,7 @@ export function useTableFromQuery<TData>(options: {
  * @example
  * ```tsx
  * const { table, query } = useDatasetSearchTable({
- *   searchOptions: { keyword: 'health' },
+ *   searchOptions: { searchOptions: { keyword: 'health' } },
  *   columns: createDatasetColumns(),
  * })
  *

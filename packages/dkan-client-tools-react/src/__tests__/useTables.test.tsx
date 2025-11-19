@@ -156,7 +156,7 @@ describe('Table Hooks', () => {
 
       function TestComponent() {
         const { table, query } = useDatasetSearchTable({
-          searchOptions: { keyword: 'health' },
+          searchOptions: { searchOptions: { keyword: 'health' } },
           columns: createDatasetColumns(),
         })
 
@@ -200,7 +200,7 @@ describe('Table Hooks', () => {
 
       function TestComponent() {
         const { table, query } = useDatasetSearchTable({
-          searchOptions: { keyword: 'test' },
+          searchOptions: { searchOptions: { keyword: 'test' } },
           columns: createDatasetColumns(),
         })
 
