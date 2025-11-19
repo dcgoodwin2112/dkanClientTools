@@ -85,7 +85,7 @@ export function useTableFromQuery<TData>(options: {
  */
 export function useDatasetSearchTable(options: {
   /** Dataset search options */
-  searchOptions: UseDatasetSearchOptions
+  searchOptions: MaybeRefOrGetter<import('@dkan-client-tools/core').DatasetQueryOptions | undefined>
   /** Column definitions */
   columns: MaybeRefOrGetter<ColumnDef<DkanDataset, any>[]>
   /** Initial pagination state */
@@ -101,7 +101,7 @@ export function useDatasetSearchTable(options: {
 }) {
   const { searchOptions, columns, tableOptions } = options
 
-  const query = useDatasetSearch(searchOptions)
+  const query = useDatasetSearch({ searchOptions })
 
   const table = useVueTable({
     get data() {
