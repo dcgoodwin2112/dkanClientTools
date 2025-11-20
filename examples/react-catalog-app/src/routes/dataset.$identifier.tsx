@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useDataset } from '@dkan-client-tools/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { DataPreview } from '../components/DataPreview'
 import '../styles/DatasetDetail.css'
 
 export const Route = createFileRoute('/dataset/$identifier')({
@@ -170,6 +171,11 @@ function DatasetDetail() {
                         </a>
                       )}
                     </div>
+                    <DataPreview
+                      datasetId={dataset.identifier}
+                      distributionIndex={index}
+                      distributionTitle={dist.title || `Resource ${index + 1}`}
+                    />
                   </div>
                 ))}
               </div>
