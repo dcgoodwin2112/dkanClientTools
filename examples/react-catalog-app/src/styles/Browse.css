@@ -27,6 +27,22 @@
   max-width: 48rem;
 }
 
+/* Main Content with Sidebar */
+.browse-content {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.browse-sidebar {
+  /* Sidebar styling handled in FilterPanel.css */
+}
+
+.browse-main {
+  min-width: 0; /* Prevents grid overflow issues */
+}
+
 /* Results Info */
 .browse-results-info {
   margin-bottom: 1.5rem;
@@ -107,6 +123,11 @@
 
   .browse-title {
     font-size: 1.5rem;
+  }
+
+  .browse-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .browse-results {
