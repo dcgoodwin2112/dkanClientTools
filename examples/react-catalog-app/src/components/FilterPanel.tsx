@@ -113,6 +113,16 @@ export function FilterPanel({
         </div>
       )}
 
+      {/* Empty State - No Filters Available */}
+      {(!facets.theme || facets.theme.length === 0) && (!facets.publisher || facets.publisher.length === 0) && (
+        <div className="filter-empty" style={{ padding: '1rem', textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
+          <p>No filters available.</p>
+          <p style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}>
+            The search index may need to be rebuilt or datasets may lack theme/publisher metadata.
+          </p>
+        </div>
+      )}
+
       {/* Active Filters Summary */}
       {hasActiveFilters && (
         <div className="filter-active-summary">

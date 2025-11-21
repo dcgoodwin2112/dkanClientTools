@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '../styles/Pagination.css'
 
@@ -8,7 +9,7 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
-  const getPageNumbers = () => {
+  const pageNumbers = useMemo(() => {
     const pages: (number | string)[] = []
     const maxVisible = 7
 
@@ -41,7 +42,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
     }
 
     return pages
-  }
+  }, [currentPage, totalPages])
 
   return (
     <div className="pagination">
@@ -54,7 +55,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         <FontAwesomeIcon icon="chevron-left" />
       </button>
 
-      {getPageNumbers().map((page, index) => {
+      {pageNumbers.map((page, index) => {
         if (page === '...') {
           return (
             <span key={`ellipsis-${index}`} className="pagination-ellipsis">

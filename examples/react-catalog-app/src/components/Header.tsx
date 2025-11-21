@@ -10,7 +10,7 @@ export function Header() {
           <Link to="/" className="header-brand">
             <FontAwesomeIcon icon="database" className="header-icon" />
             <div className="header-text">
-              <h1 className="header-title">Open Data Catalog</h1>
+              <h1 className="header-title">DKAN Open Data Catalog</h1>
               <p className="header-subtitle">Discover, explore, and download public datasets</p>
             </div>
           </Link>
@@ -23,15 +23,10 @@ export function Header() {
               <FontAwesomeIcon icon="list" />
               <span>Browse Datasets</span>
             </Link>
-            <a
-              href="https://dkan.ddev.site/about/api"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-link"
-            >
+            <Link to="/api" className="nav-link">
               <FontAwesomeIcon icon="code" />
               <span>API</span>
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

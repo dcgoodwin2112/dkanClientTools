@@ -24,7 +24,7 @@
 }
 
 .browse-search {
-  max-width: 48rem;
+  /* Full width - no max-width constraint */
 }
 
 /* Main Content with Sidebar */

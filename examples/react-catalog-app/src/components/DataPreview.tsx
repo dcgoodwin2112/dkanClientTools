@@ -1,19 +1,34 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useDatastore, createDatastoreColumns, flexRender } from '@dkan-client-tools/react'
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
+import type { SortingState } from '@tanstack/react-table'
+import type { DatastoreSort } from '@dkan-client-tools/core'
+import { FullScreenDataPreview } from './FullScreenDataPreview'
 import '../styles/DataPreview.css'
+
+function convertSortingToDkan(sorting: SortingState): DatastoreSort[] {
+  return sorting.map((sort) => ({
+    property: sort.id,
+    order: sort.desc ? 'desc' : 'asc',
+  }))
+}
 
 interface DataPreviewProps {
   datasetId: string
   distributionIndex: number
   distributionTitle: string
+  defaultOpen?: boolean
 }
 
-export function DataPreview({ datasetId, distributionIndex, distributionTitle }: DataPreviewProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function DataPreview({ datasetId, distributionIndex, distributionTitle, defaultOpen }: DataPreviewProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen ?? false)
+  const [showFullScreen, setShowFullScreen] = useState(false)
   const [page, setPage] = useState(0)
+  const [sorting, setSorting] = useState<SortingState>([])
   const pageSize = 10
+
+  const dkanSorts = useMemo(() => convertSortingToDkan(sorting), [sorting])
 
   const query = useDatastore({
     datasetId,
@@ -21,6 +36,7 @@ export function DataPreview({ datasetId, distributionIndex, distributionTitle }:
     queryOptions: {
       limit: pageSize,
       offset: page * pageSize,
+      sorts: dkanSorts.length > 0 ? dkanSorts : undefined,
     },
     enabled: isOpen, // Only query when preview is open
   })
@@ -36,15 +52,25 @@ export function DataPreview({ datasetId, distributionIndex, distributionTitle }:
   const table = useReactTable({
     data: query.data?.results ?? [],
     columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    manualSorting: true,
   })
 
   const handleToggle = () => {
     setIsOpen(!isOpen)
     if (!isOpen) {
       setPage(0) // Reset to first page when opening
+      setSorting([]) // Reset sorting when opening
     }
   }
+
+  const handleCloseFullScreen = useCallback(() => {
+    setShowFullScreen(false)
+  }, [])
 
   const totalRows = query.data?.count || 0
   const totalPages = Math.ceil(totalRows / pageSize)
@@ -65,10 +91,16 @@ export function DataPreview({ datasetId, distributionIndex, distributionTitle }:
           <FontAwesomeIcon icon="table" />
           Data Preview: {distributionTitle}
         </h4>
-        <button onClick={handleToggle} className="preview-close-button">
-          <FontAwesomeIcon icon="times" />
-          Close
-        </button>
+        <div className="preview-header-buttons">
+          <button onClick={() => setShowFullScreen(true)} className="preview-fullscreen-button">
+            <FontAwesomeIcon icon="expand" />
+            Full Screen
+          </button>
+          <button onClick={handleToggle} className="preview-close-button">
+            <FontAwesomeIcon icon="times" />
+            Close
+          </button>
+        </div>
       </div>
 
       {query.isLoading && (
@@ -102,10 +134,33 @@ export function DataPreview({ datasetId, distributionIndex, distributionTitle }:
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <th key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      <th
+                        key={header.id}
+                        onClick={
+                          header.column.getCanSort()
+                            ? header.column.getToggleSortingHandler()
+                            : undefined
+                        }
+                        className={header.column.getCanSort() ? 'sortable-header' : ''}
+                      >
+                        <div className="header-content">
+                          <span>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                          </span>
+                          {header.column.getCanSort() && (
+                            <span className="sort-icon">
+                              {header.column.getIsSorted() === 'asc' ? (
+                                <FontAwesomeIcon icon="sort-up" />
+                              ) : header.column.getIsSorted() === 'desc' ? (
+                                <FontAwesomeIcon icon="sort-down" />
+                              ) : (
+                                <FontAwesomeIcon icon="sort" />
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </th>
                     ))}
                   </tr>
@@ -157,6 +212,15 @@ export function DataPreview({ datasetId, distributionIndex, distributionTitle }:
         <div className="data-preview-empty">
           <p>No data available for this resource.</p>
         </div>
+      )}
+
+      {showFullScreen && (
+        <FullScreenDataPreview
+          datasetId={datasetId}
+          distributionIndex={distributionIndex}
+          distributionTitle={distributionTitle}
+          onClose={handleCloseFullScreen}
+        />
       )}
     </div>
   )

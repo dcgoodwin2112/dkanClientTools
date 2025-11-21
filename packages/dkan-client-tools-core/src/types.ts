@@ -107,6 +107,9 @@ export interface DatastoreField {
   name: string
   type: string
   format?: string
+  mysql_type?: string
+  description?: string
+  title?: string
 }
 
 /**
@@ -115,6 +118,7 @@ export interface DatastoreField {
 export interface DatasetQueryOptions {
   keyword?: string
   theme?: string
+  publisher?: string
   fulltext?: string
 
   /** Field(s) to sort by. Supports single field or array for multi-field sorting. */

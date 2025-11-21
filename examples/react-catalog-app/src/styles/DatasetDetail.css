@@ -116,7 +116,7 @@
 .access-level {
   text-transform: capitalize;
   font-weight: 500;
-  color: #059669;
+  color: #047857;
 }
 
 /* Main Content */
@@ -286,6 +286,7 @@
 .metadata-code {
   font-family: monospace;
   background-color: #f3f4f6;
+  color: #1f2937;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.8125rem;

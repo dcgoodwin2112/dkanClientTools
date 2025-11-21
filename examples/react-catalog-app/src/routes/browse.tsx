@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useDatasetSearch, useDatasetFacets } from '@dkan-client-tools/react'
 import { SearchBar } from '../components/SearchBar'
@@ -31,24 +32,28 @@ function Browse() {
   const navigate = useNavigate({ from: '/browse' })
   const searchParams = Route.useSearch()
 
-  const { data, isLoading, error } = useDatasetSearch({
-    searchOptions: {
+  const searchOptions = useMemo(
+    () => ({
       fulltext: searchParams.q,
       theme: searchParams.theme,
+      publisher: searchParams.publisher,
       page: searchParams.page || 1,
       'page-size': searchParams['page-size'] || 10,
-    },
-  })
+    }),
+    [searchParams.q, searchParams.theme, searchParams.publisher, searchParams.page, searchParams['page-size']]
+  )
+
+  const { data, isLoading, error } = useDatasetSearch({ searchOptions })
 
   const { data: facets } = useDatasetFacets()
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     navigate({
       search: (prev) => ({ ...prev, page: newPage }),
     })
-  }
+  }, [navigate])
 
-  const handleFilterChange = (filterType: 'theme' | 'publisher', value: string | undefined) => {
+  const handleFilterChange = useCallback((filterType: 'theme' | 'publisher', value: string | undefined) => {
     navigate({
       search: (prev) => ({
         ...prev,
@@ -56,9 +61,9 @@ function Browse() {
         page: 1, // Reset to first page when filtering
       }),
     })
-  }
+  }, [navigate])
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     navigate({
       search: (prev) => ({
         q: prev.q,
@@ -66,7 +71,7 @@ function Browse() {
         'page-size': prev['page-size'],
       }),
     })
-  }
+  }, [navigate])
 
   const totalPages = data ? Math.ceil(data.total / (searchParams['page-size'] || 10)) : 0
   const currentPage = searchParams.page || 1

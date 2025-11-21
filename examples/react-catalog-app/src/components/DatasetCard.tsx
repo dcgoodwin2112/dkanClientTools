@@ -7,19 +7,20 @@ interface DatasetCardProps {
   dataset: DkanDataset
 }
 
-export function DatasetCard({ dataset }: DatasetCardProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
 
-  const truncateDescription = (text: string, maxLength: number = 200) => {
-    if (text.length <= maxLength) return text
-    return text.slice(0, maxLength).trim() + '...'
-  }
+const truncateDescription = (text: string, maxLength: number = 200) => {
+  if (text.length <= maxLength) return text
+  return text.slice(0, maxLength).trim() + '...'
+}
+
+export function DatasetCard({ dataset }: DatasetCardProps) {
 
   return (
     <div className="dataset-card">

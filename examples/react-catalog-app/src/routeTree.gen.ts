@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DatasetIdentifierRouteImport } from './routes/dataset.$identifier'
 
 const BrowseRoute = BrowseRouteImport.update({
   id: '/browse',
   path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRoute = ApiRouteImport.update({
+  id: '/api',
+  path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const DatasetIdentifierRoute = DatasetIdentifierRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api': typeof ApiRoute
   '/browse': typeof BrowseRoute
   '/dataset/$identifier': typeof DatasetIdentifierRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api': typeof ApiRoute
   '/browse': typeof BrowseRoute
   '/dataset/$identifier': typeof DatasetIdentifierRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api': typeof ApiRoute
   '/browse': typeof BrowseRoute
   '/dataset/$identifier': typeof DatasetIdentifierRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browse' | '/dataset/$identifier'
+  fullPaths: '/' | '/api' | '/browse' | '/dataset/$identifier'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browse' | '/dataset/$identifier'
-  id: '__root__' | '/' | '/browse' | '/dataset/$identifier'
+  to: '/' | '/api' | '/browse' | '/dataset/$identifier'
+  id: '__root__' | '/' | '/api' | '/browse' | '/dataset/$identifier'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiRoute: typeof ApiRoute
   BrowseRoute: typeof BrowseRoute
   DatasetIdentifierRoute: typeof DatasetIdentifierRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/browse'
       fullPath: '/browse'
       preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api': {
+      id: '/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiRoute: ApiRoute,
   BrowseRoute: BrowseRoute,
   DatasetIdentifierRoute: DatasetIdentifierRoute,
 }

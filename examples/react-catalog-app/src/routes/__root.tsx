@@ -6,11 +6,13 @@ export const Route = createRootRoute({
   component: RootLayout,
 })
 
+const mainStyle = { flex: 1 } as const
+
 function RootLayout() {
   return (
     <>
       <Header />
-      <main style={{ flex: 1 }}>
+      <main style={mainStyle}>
         <Outlet />
       </main>
       <Footer />

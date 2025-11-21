@@ -315,10 +315,12 @@ describe('DkanApiClient - Datastore Query Operations', () => {
         results: [],
         count: 0,
         schema: {
-          fields: [
-            { name: 'field1', type: 'string' },
-            { name: 'field2', type: 'number' },
-          ],
+          'mock-resource-id': {
+            fields: {
+              field1: { type: 'string' },
+              field2: { type: 'number' },
+            },
+          },
         },
       }
 
@@ -344,14 +346,15 @@ describe('DkanApiClient - Datastore Query Operations', () => {
         results: [],
         count: 0,
         schema: {
-          fields: [
-            {
-              name: 'population',
-              type: 'number',
-              title: 'Population',
-              description: 'Total population count',
+          'mock-resource-id': {
+            fields: {
+              population: {
+                type: 'number',
+                title: 'Population',
+                description: 'Total population count',
+              },
             },
-          ],
+          },
         },
       }
 

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useDataset } from '@dkan-client-tools/react'
+import type { Distribution } from '@dkan-client-tools/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DataPreview } from '../components/DataPreview'
 import '../styles/DatasetDetail.css'
@@ -7,6 +8,20 @@ import '../styles/DatasetDetail.css'
 export const Route = createFileRoute('/dataset/$identifier')({
   component: DatasetDetail,
 })
+
+function isCSV(distribution: Distribution): boolean {
+  // Check format field (case-insensitive)
+  if (distribution.format && distribution.format.toLowerCase() === 'csv') {
+    return true
+  }
+
+  // Check mediaType field
+  if (distribution.mediaType && distribution.mediaType.toLowerCase().includes('csv')) {
+    return true
+  }
+
+  return false
+}
 
 function DatasetDetail() {
   const { identifier } = Route.useParams()
@@ -134,7 +149,9 @@ function DatasetDetail() {
                 Resources ({dataset.distribution.length})
               </h2>
               <div className="distribution-list">
-                {dataset.distribution.map((dist, index) => (
+                {(() => {
+                  const firstCsvIndex = dataset.distribution.findIndex(dist => isCSV(dist))
+                  return dataset.distribution.map((dist, index) => (
                   <div key={index} className="distribution-item">
                     <div className="distribution-header">
                       <h3 className="distribution-title">
@@ -171,13 +188,17 @@ function DatasetDetail() {
                         </a>
                       )}
                     </div>
-                    <DataPreview
-                      datasetId={dataset.identifier}
-                      distributionIndex={index}
-                      distributionTitle={dist.title || `Resource ${index + 1}`}
-                    />
+                    {isCSV(dist) && (
+                      <DataPreview
+                        datasetId={dataset.identifier}
+                        distributionIndex={index}
+                        distributionTitle={dist.title || `Resource ${index + 1}`}
+                        defaultOpen={index === firstCsvIndex}
+                      />
+                    )}
                   </div>
-                ))}
+                  ))
+                })()}
               </div>
             </section>
           )}

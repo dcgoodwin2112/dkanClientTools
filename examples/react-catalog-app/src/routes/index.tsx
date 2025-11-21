@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBar } from '../components/SearchBar'
@@ -10,9 +11,9 @@ export const Route = createFileRoute('/')({
 function Home() {
   const navigate = useNavigate()
 
-  const handleBrowseClick = () => {
+  const handleBrowseClick = useCallback(() => {
     navigate({ to: '/browse' })
-  }
+  }, [navigate])
 
   return (
     <div className="home-page">
@@ -20,7 +21,7 @@ function Home() {
         {/* Hero Section */}
         <div className="hero-section">
           <h2 className="hero-title">
-            Welcome to the Open Data Catalog
+            Welcome to the DKAN Open Data Catalog
           </h2>
           <p className="hero-subtitle">
             Access, analyze, and download public datasets to drive innovation and transparency

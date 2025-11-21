@@ -26,6 +26,7 @@ import type {
   DkanDataset,
   DkanSearchResponse,
   DkanDatastoreQueryResponse,
+  DatastoreSchema,
   DatasetQueryOptions,
   DatastoreQueryOptions,
   DkanApiResponse,
@@ -216,6 +217,7 @@ export class DkanApiClient {
 
     if (options.keyword) params.append('keyword', options.keyword)
     if (options.theme) params.append('theme', options.theme)
+    if (options.publisher) params.append('publisher__name', options.publisher)
     if (options.fulltext) params.append('fulltext', options.fulltext)
 
     // Handle array or string for sort parameters
@@ -265,25 +267,57 @@ export class DkanApiClient {
     options: DatastoreQueryOptions = {},
     method: 'GET' | 'POST' = 'POST'
   ): Promise<DkanDatastoreQueryResponse> {
+    let response: any
+
     if (method === 'GET') {
       const queryString = this.serializeQueryOptions(options)
       const url = queryString
         ? `/api/1/datastore/query/${datasetId}/${index}?${queryString}`
         : `/api/1/datastore/query/${datasetId}/${index}`
 
-      const response = await this.request<DkanDatastoreQueryResponse>(url)
-      return response.data
+      response = await this.request<any>(url)
+    } else {
+      // Default POST behavior
+      response = await this.request<any>(
+        `/api/1/datastore/query/${datasetId}/${index}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(options),
+        }
+      )
     }
 
-    // Default POST behavior
-    const response = await this.request<DkanDatastoreQueryResponse>(
-      `/api/1/datastore/query/${datasetId}/${index}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(options),
+    // Transform nested schema structure to flat array
+    const data = response.data
+    let transformedSchema: DatastoreSchema | undefined
+
+    if (data.schema && typeof data.schema === 'object') {
+      // Schema is keyed by resource ID: { "resource-id": { fields: { ... } } }
+      const resourceIds = Object.keys(data.schema)
+      if (resourceIds.length > 0) {
+        const resourceId = resourceIds[0]
+        const resourceSchema = data.schema[resourceId]
+
+        if (resourceSchema?.fields && typeof resourceSchema.fields === 'object') {
+          // Convert fields object to array
+          transformedSchema = {
+            fields: Object.entries(resourceSchema.fields).map(([name, fieldInfo]: [string, any]) => ({
+              name,
+              type: fieldInfo.type || 'string',
+              format: fieldInfo.format,
+              mysql_type: fieldInfo.mysql_type,
+              description: fieldInfo.description,
+            })),
+          }
+        }
       }
-    )
-    return response.data
+    }
+
+    return {
+      results: data.results || [],
+      count: data.count || 0,
+      schema: transformedSchema,
+    }
   }
 
   /**
@@ -329,10 +363,40 @@ export class DkanApiClient {
     datasetId: string,
     index = 0
   ): Promise<DkanDatastoreQueryResponse> {
-    const response = await this.request<DkanDatastoreQueryResponse>(
+    const response = await this.request<any>(
       `/api/1/datastore/query/${datasetId}/${index}?schema=true`
     )
-    return response.data
+
+    // Transform nested schema structure to flat array (same as queryDatastore)
+    const data = response.data
+    let transformedSchema: DatastoreSchema | undefined
+
+    if (data.schema && typeof data.schema === 'object') {
+      const resourceIds = Object.keys(data.schema)
+      if (resourceIds.length > 0) {
+        const resourceId = resourceIds[0]
+        const resourceSchema = data.schema[resourceId]
+
+        if (resourceSchema?.fields && typeof resourceSchema.fields === 'object') {
+          transformedSchema = {
+            fields: Object.entries(resourceSchema.fields).map(([name, fieldInfo]: [string, any]) => ({
+              name,
+              type: fieldInfo.type || 'string',
+              format: fieldInfo.format,
+              mysql_type: fieldInfo.mysql_type,
+              description: fieldInfo.description,
+              title: fieldInfo.title,
+            })),
+          }
+        }
+      }
+    }
+
+    return {
+      results: data.results || [],
+      count: data.count || 0,
+      schema: transformedSchema,
+    }
   }
 
   /**
@@ -475,7 +539,7 @@ export class DkanApiClient {
     keyword: string[]
     publisher: string[]
   }> {
-    const response = await this.request<FacetsApiResponse>('/api/1/search/facets')
+    const response = await this.request<any>('/api/1/search/facets')
 
     // Transform API response to expected format
     const facets = {
@@ -484,14 +548,17 @@ export class DkanApiClient {
       publisher: [] as string[],
     }
 
-    if (Array.isArray(response.data)) {
-      response.data.forEach((facet: FacetItem) => {
-        if (facet.type === 'theme' && Array.isArray(facet.values)) {
-          facets.theme = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
-        } else if (facet.type === 'keyword' && Array.isArray(facet.values)) {
-          facets.keyword = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
-        } else if (facet.type === 'publisher' && Array.isArray(facet.values)) {
-          facets.publisher = facet.values.map(v => typeof v === 'string' ? v : v.value || '')
+    // API returns flat array: [{type:"theme", name:"Value", total:"3"}, ...]
+    const facetsArray = response.data?.facets || response.data
+
+    if (Array.isArray(facetsArray)) {
+      facetsArray.forEach((facet: any) => {
+        if (facet.type === 'theme' && facet.name) {
+          facets.theme.push(facet.name)
+        } else if (facet.type === 'keyword' && facet.name) {
+          facets.keyword.push(facet.name)
+        } else if (facet.type === 'publisher__name' && facet.name) {
+          facets.publisher.push(facet.name)
         }
       })
     }
@@ -826,27 +893,39 @@ export class DkanApiClient {
     const queryOptions = { ...options }
     delete queryOptions.format
 
-    // Build query string with properly serialized parameters
-    const params = new URLSearchParams({ format })
-
-    // Add query options as JSON-encoded parameters
-    if (Object.keys(queryOptions).length > 0) {
-      for (const [key, value] of Object.entries(queryOptions)) {
-        if (value !== undefined) {
-          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
-        }
-      }
-    }
-
-    const url = `${this.baseUrl}/api/1/datastore/query/${datasetId}/${index}/download?${params.toString()}`
     const authHeader = this.getAuthHeader()
-
     const headers: Record<string, string> = {}
 
     if (authHeader) {
       headers['Authorization'] = authHeader
     }
 
+    // If we have query options (conditions, sorts, etc.), use POST with body
+    if (Object.keys(queryOptions).length > 0) {
+      const url = `${this.baseUrl}/api/1/datastore/query/${datasetId}/${index}`
+      headers['Content-Type'] = 'application/json'
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          format,
+          ...queryOptions,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new DkanApiError(
+          `HTTP ${response.status}: ${response.statusText}`,
+          response.status
+        )
+      }
+
+      return await response.blob()
+    }
+
+    // No filters - use simple GET to download endpoint
+    const url = `${this.baseUrl}/api/1/datastore/query/${datasetId}/${index}/download?format=${format}`
     const response = await fetch(url, {
       method: 'GET',
       headers,
@@ -877,27 +956,39 @@ export class DkanApiClient {
     const queryOptions = { ...options }
     delete queryOptions.format
 
-    // Build query string with properly serialized parameters
-    const params = new URLSearchParams({ format })
-
-    // Add query options as JSON-encoded parameters
-    if (Object.keys(queryOptions).length > 0) {
-      for (const [key, value] of Object.entries(queryOptions)) {
-        if (value !== undefined) {
-          params.append(key, typeof value === 'string' ? value : JSON.stringify(value))
-        }
-      }
-    }
-
-    const url = `${this.baseUrl}/api/1/datastore/query/${distributionId}/download?${params.toString()}`
     const authHeader = this.getAuthHeader()
-
     const headers: Record<string, string> = {}
 
     if (authHeader) {
       headers['Authorization'] = authHeader
     }
 
+    // If we have query options (conditions, sorts, etc.), use POST with body
+    if (Object.keys(queryOptions).length > 0) {
+      const url = `${this.baseUrl}/api/1/datastore/query/${distributionId}`
+      headers['Content-Type'] = 'application/json'
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          format,
+          ...queryOptions,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new DkanApiError(
+          `HTTP ${response.status}: ${response.statusText}`,
+          response.status
+        )
+      }
+
+      return await response.blob()
+    }
+
+    // No filters - use simple GET to download endpoint
+    const url = `${this.baseUrl}/api/1/datastore/query/${distributionId}/download?format=${format}`
     const response = await fetch(url, {
       method: 'GET',
       headers,
