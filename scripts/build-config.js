@@ -81,6 +81,11 @@ export const exampleApps = [
     deps: ['react']
   },
   {
+    name: 'React Catalog App',
+    path: 'examples/react-catalog-app',
+    deps: ['react']
+  },
+  {
     name: 'Vue Demo App',
     path: 'examples/vue-demo-app',
     deps: ['vue']

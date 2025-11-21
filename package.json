@@ -21,6 +21,8 @@
     "typecheck": "npm run typecheck -ws --if-present",
     "clean": "npm run clean -ws --if-present && rm -rf node_modules",
     "dev": "npm run dev -ws --if-present",
+    "dev:catalog": "npm run dev -w react-catalog-app",
+    "build:catalog": "npm run build -w react-catalog-app",
     "record:api": "npm run record:api -w @dkan-client-tools/core",
     "record:api:readonly": "npm run record:api:readonly -w @dkan-client-tools/core",
     "create:dictionaries": "npm run create:dictionaries -w @dkan-client-tools/core"

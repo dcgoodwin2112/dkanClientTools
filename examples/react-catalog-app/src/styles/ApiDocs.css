@@ -1,0 +1,256 @@
+/* API Docs Page */
+.api-docs-page {
+  min-height: calc(100vh - 200px);
+  background-color: #f9fafb;
+}
+
+.api-docs-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Header */
+.api-docs-header {
+  margin-bottom: 3rem;
+}
+
+.api-docs-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+}
+
+.api-docs-subtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Category Sections */
+.api-category {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.api-category-header {
+  padding: 1.5rem 2rem;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.api-category-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.api-category-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.api-category-body {
+  padding: 0;
+}
+
+/* Endpoints */
+.api-endpoint {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.api-endpoint:last-child {
+  border-bottom: none;
+}
+
+.api-endpoint:hover {
+  background-color: #fafbfc;
+}
+
+.api-endpoint-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.api-method {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 0.25rem;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.api-method.get {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.api-method.post {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.api-method.put {
+  background: #fed7aa;
+  color: #92400e;
+}
+
+.api-method.patch {
+  background: #e9d5ff;
+  color: #6b21a8;
+}
+
+.api-method.delete {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.api-endpoint-path {
+  flex: 1;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #111827;
+  word-break: break-all;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.api-endpoint-description {
+  color: #4b5563;
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+/* React Hooks */
+.api-hooks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.api-hook-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-right: 0.25rem;
+}
+
+.api-hook-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+/* Code Examples */
+.api-example {
+  margin-top: 1rem;
+}
+
+.api-example-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.api-code-block {
+  background: #1f2937;
+  color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.api-code-block code {
+  color: inherit;
+  background: none;
+  padding: 0;
+}
+
+/* OpenAPI Link */
+.openapi-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.openapi-link:hover {
+  background: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .api-docs-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .api-docs-title {
+    font-size: 2rem;
+  }
+
+  .api-docs-subtitle {
+    font-size: 1rem;
+  }
+
+  .api-category-header,
+  .api-endpoint {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .api-category-title {
+    font-size: 1.25rem;
+  }
+
+  .api-endpoint-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .api-method {
+    align-self: flex-start;
+  }
+
+  .api-code-block {
+    font-size: 0.75rem;
+  }
+}

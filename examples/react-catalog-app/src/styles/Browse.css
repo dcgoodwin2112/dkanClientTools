@@ -1,0 +1,136 @@
+/* Browse Page Styles */
+
+.browse-page {
+  min-height: calc(100vh - 200px);
+  background-color: #f9fafb;
+}
+
+.browse-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Header Section */
+.browse-header {
+  margin-bottom: 2rem;
+}
+
+.browse-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.browse-search {
+  /* Full width - no max-width constraint */
+}
+
+/* Main Content with Sidebar */
+.browse-content {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.browse-sidebar {
+  /* Sidebar styling handled in FilterPanel.css */
+}
+
+.browse-main {
+  min-width: 0; /* Prevents grid overflow issues */
+}
+
+/* Results Info */
+.browse-results-info {
+  margin-bottom: 1.5rem;
+  color: #4b5563;
+}
+
+.browse-results-info strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Loading State */
+.browse-loading {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.browse-loading p {
+  color: #6b7280;
+}
+
+/* Error State */
+.browse-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  color: #991b1b;
+  margin-bottom: 1.5rem;
+}
+
+/* Results Grid */
+.browse-results {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* No Results */
+.browse-no-results {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #6b7280;
+}
+
+.browse-no-results p {
+  margin-bottom: 0.5rem;
+}
+
+.browse-no-results p:first-child {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .browse-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .browse-title {
+    font-size: 1.5rem;
+  }
+
+  .browse-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .browse-results {
+    gap: 1rem;
+  }
+}

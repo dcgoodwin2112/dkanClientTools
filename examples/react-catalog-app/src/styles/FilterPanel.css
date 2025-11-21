@@ -1,0 +1,206 @@
+/* Filter Panel Styles */
+
+.filter-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.filter-loading {
+  text-align: center;
+  color: #6b7280;
+  padding: 1rem;
+}
+
+/* Header */
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.filter-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-clear-button {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.filter-clear-button:hover {
+  background-color: #eff6ff;
+}
+
+/* Filter Sections */
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.filter-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-section-icon {
+  color: #6b7280;
+}
+
+/* Filter Options */
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-option:hover {
+  border-color: #2563eb;
+  background-color: #f9fafb;
+}
+
+.filter-option.active {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.filter-option-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-option-check {
+  color: #2563eb;
+  font-size: 0.75rem;
+}
+
+.filter-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Active Filters Summary */
+.filter-active-summary {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.filter-summary-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.filter-active-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-active-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1e40af;
+}
+
+.filter-active-tag span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-tag-remove {
+  background: none;
+  border: none;
+  color: #1e40af;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.filter-tag-remove:hover {
+  background-color: #dbeafe;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-panel {
+    position: static;
+    max-height: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-header {
+    margin-bottom: 1rem;
+  }
+
+  .filter-section {
+    margin-bottom: 1rem;
+  }
+}
